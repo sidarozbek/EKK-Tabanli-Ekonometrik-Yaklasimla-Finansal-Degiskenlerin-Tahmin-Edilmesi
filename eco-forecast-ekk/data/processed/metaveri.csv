@@ -1,0 +1,21 @@
+"gosterge","ad","rol","frekans","kaynak","kod","birincil_kaynak","birincil_yedek","kaynak_onceligi","donusum","yaklasik","yedek_kullanildi","durum","ilk_tarih","son_tarih","gozlem","cekim_zamani"
+"ENFLASYON","Enflasyon Oranı (TÜFE, yıllık %)","bagimli","aylik","EVDS","TP_TUKFIY2025_GENEL","EVDS","FRED","EVDS > FRED > OECD > CSV_YEDEK","yillik_degisim",FALSE,FALSE,"cache",2006-01-01,2026-08-01,248,2026-09-21 14:00:49.868118
+"BUYUME","Ekonomik Büyüme (reel GSYH, yıllık %)","bagimli","ceyreklik","FRED","NGDPRSAXDCTRQ","FRED","CSV_YEDEK","FRED > CSV_YEDEK","yillik_degisim",FALSE,FALSE,"cache",2001-01-01,2026-01-01,101,2026-09-21 14:00:59.652404
+"ISSIZLIK","İşsizlik Oranı","bagimli","aylik","EVDS","TP_YISGUCU2_G8","EVDS","FRED","EVDS > FRED > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2005-01-01,2026-07-01,259,2026-09-21 14:01:00.303751
+"USDTRY","Döviz Kuru (USD/TRY)","bagimli","aylik","FRED","CCUSMA02TRM618N","FRED","EVDS","FRED > EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2000-01-01,2026-08-01,320,2026-09-21 14:01:07.429023
+"BIST100","Borsa Endeksi (BIST-100)","bagimli","aylik","BIST","XU100","BIST","CSV_YEDEK","BIST > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2000-01-01,2026-09-01,321,2026-09-21 14:01:07.8467
+"FAIZ","TCMB Politika Faizi","kontrol","aylik","EVDS","TP_BISPOLFAIZ_TUR","EVDS","FRED","EVDS > FRED > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2002-02-01,2026-07-01,294,2026-09-21 14:01:08.440623
+"DIS_TICARET","Dış Ticaret Dengesi","kontrol","aylik","EVDS","TP_ODEAYRSUNUM6_Q4","EVDS","CSV_YEDEK","EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2000-01-01,2026-07-01,319,2026-09-21 14:01:09.057449
+"SANAYI_URETIM","Sanayi Üretim Endeksi","kontrol","aylik","EVDS","TP_TSANAY2021_BCD","EVDS","CSV_YEDEK","EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2000-01-01,2026-07-01,319,2026-09-21 14:01:13.024726
+"TUKETICI_GUVEN","Tüketici Güven Endeksi","kontrol","aylik","EVDS","TP_TG2_Y01","EVDS","CSV_YEDEK","EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2012-01-01,2026-08-01,176,2026-09-21 14:01:13.885172
+"CARI_DENGE","Cari İşlemler Dengesi","ek","ceyreklik","EVDS","TP_IMFCA_TUR","EVDS","OECD","EVDS > OECD > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2010-01-01,2026-04-01,66,2026-09-21 14:01:14.368525
+"BUTCE_DENGESI","Bütçe Dengesi","ek","aylik","EVDS","TP_KB_GEN35","EVDS","CSV_YEDEK","EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2006-01-01,2026-07-01,247,2026-09-21 14:01:16.320826
+"UFE","Üretici Fiyat Endeksi (ÜFE)","ek","aylik","EVDS","TP_TUFE1YI_T1","EVDS","CSV_YEDEK","EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2000-01-01,2026-08-01,320,2026-09-21 14:01:16.986327
+"M2","M2 Para Arzı","ek","aylik","EVDS","TP_PBD_H09","EVDS","CSV_YEDEK","EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2000-01-01,2026-07-01,319,2026-09-21 14:01:17.702592
+"REEL_KESIM_GUVEN","Reel Kesim Güven Endeksi","ek","aylik","EVDS","TP_GY1_N2","EVDS","CSV_YEDEK","EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2007-01-01,2026-09-01,237,2026-09-21 14:01:18.295008
+"KAPASITE_KULLANIM","Kapasite Kullanım Oranı","ek","aylik","EVDS","TP_KKO2_IS_TOP","EVDS","FRED","EVDS > FRED > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2007-01-01,2026-09-01,237,2026-09-21 14:01:18.852432
+"GENC_ISSIZLIK","Genç İşsizlik Oranı","ek","yillik","FRED","SLUEM1524ZSTUR","FRED","WORLDBANK","FRED > WORLDBANK > CSV_YEDEK","duzey",FALSE,FALSE,"cache",2000-01-01,2025-01-01,26,2026-09-21 14:01:26.040798
+"PERAKENDE_SATIS","Perakende Satış Hacim Endeksi","ek","ceyreklik","FRED","TURSLRTTO01GYSAQ","FRED","CSV_YEDEK","FRED > CSV_YEDEK","duzey",FALSE,FALSE,"api",2011-01-01,2026-04-01,62,2026-09-21 14:01:58.951989
+"KONUT_FIYAT","Konut Fiyat Endeksi","ek","aylik","EVDS","TP_KFE_TR","EVDS","CSV_YEDEK","EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"api",2010-01-01,2026-08-01,200,2026-09-21 14:01:59.689781
+"TURIZM_GELIRI","Turizm Gelirleri","ek","aylik","EVDS","TP_TURIZMGELGIT_GK178635","EVDS","CSV_YEDEK","EVDS > CSV_YEDEK","duzey",FALSE,FALSE,"api",2012-01-01,2026-03-01,171,2026-09-21 14:02:00.278054
+"GINI","Gini Endeksi","ek","yillik","FRED","SIPOVGINITUR","FRED","WORLDBANK","FRED > WORLDBANK > CSV_YEDEK","duzey",FALSE,FALSE,"api",2002-01-01,2023-01-01,22,2026-09-21 14:02:08.94619

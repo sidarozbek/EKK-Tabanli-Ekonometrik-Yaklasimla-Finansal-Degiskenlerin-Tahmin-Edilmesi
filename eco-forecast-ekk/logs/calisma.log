@@ -1,0 +1,78 @@
+[2026-09-19 19:59:53] [BILGI] Hazır veri bayat/yok; API'den güncelleniyor 
+[2026-09-19 19:59:58] [BILGI] Çekim tamamlandı: 20/20 gösterge 
+[2026-09-19 19:59:58] [BILGI] Veri hazırlama akışı başladı 
+[2026-09-19 19:59:58] [BILGI] İç boşluklar dolduruldu (doğrusal interpolasyon; baş/son boşluklara dokunulmadı) 
+[2026-09-19 19:59:58] [BILGI] İç boşluk (ilk-son gözlem arası): 958 -> 0 
+[2026-09-19 19:59:58] [BILGI] Türetildi: gecikmeler (p = 2..12; göstergeye göre), fark, trend, mevsim 
+[2026-09-19 19:59:58] [BILGI] Veri hazırlama bitti: 321 ay, 20 gösterge; kaydedildi 
+[2026-09-19 19:59:58] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-09-19 20:00:01] [BILGI] Tahmin tamamlandı: 20 gösterge; kaydedildi 
+[2026-09-19 20:01:59] [BILGI] Veri yenileniyor (API) 
+[2026-09-19 20:02:11] [BILGI] Çekim tamamlandı: 20/20 gösterge 
+[2026-09-19 20:02:11] [BILGI] Veri hazırlama akışı başladı 
+[2026-09-19 20:02:11] [BILGI] İç boşluklar dolduruldu (doğrusal interpolasyon; baş/son boşluklara dokunulmadı) 
+[2026-09-19 20:02:11] [BILGI] İç boşluk (ilk-son gözlem arası): 958 -> 0 
+[2026-09-19 20:02:11] [BILGI] Türetildi: gecikmeler (p = 2..12; göstergeye göre), fark, trend, mevsim 
+[2026-09-19 20:02:11] [BILGI] Veri hazırlama bitti: 321 ay, 20 gösterge; kaydedildi 
+[2026-09-19 20:02:15] [BILGI] Tahmin tamamlandı: 20 gösterge; kaydedildi 
+[2026-09-19 20:07:09] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-09-19 20:23:47] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-09-19 21:25:10] [UYARI] Kayıtlı hazır veri eski/bozuk biçimde; yeniden oluşturuluyor 
+[2026-09-19 21:25:10] [BILGI] Hazır veri bayat/yok; kaynaklardan güncelleniyor 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: ENFLASYON (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: ISSIZLIK (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: USDTRY (FRED) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: BIST100 (BIST) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: FAIZ (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: DIS_TICARET (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: SANAYI_URETIM (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: TUKETICI_GUVEN (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: BUTCE_DENGESI (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: UFE (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: M2 (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: REEL_KESIM_GUVEN (EVDS) 
+[2026-09-19 21:25:10] [BILGI] Cache'ten geldi: KAPASITE_KULLANIM (EVDS) 
+[2026-09-19 21:25:11] [BILGI] Cache'ten geldi: KONUT_FIYAT (EVDS) 
+[2026-09-19 21:25:11] [BILGI] Cache'ten geldi: TURIZM_GELIRI (EVDS) 
+[2026-09-19 21:25:13] [BILGI] Çekim tamamlandı: 20/20 gösterge 
+[2026-09-19 21:25:13] [BILGI] Veri hazırlama akışı başladı (her gösterge kendi frekansında) 
+[2026-09-19 21:25:13] [BILGI] Veri hazırlama bitti: 20 gösterge, 4262 gözlem (interpolasyonla doldurulan: 0); kaydedildi 
+[2026-09-19 21:25:13] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-09-19 21:25:18] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-09-19 21:25:18] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-09-19 21:25:25] [BILGI] Tahmin tamamlandı: 20 gösterge; kaydedildi 
+[2026-09-19 21:26:18] [BILGI] Gösterge güncellendi: ENFLASYON (kaynak: EVDS, p = 2, pencere = 60, ufuk = 6) 
+[2026-09-21 14:00:48] [BILGI] Hazır veri bayat/yok; kaynaklardan güncelleniyor 
+[2026-09-21 14:01:12] [BILGI] Hazır veri bayat/yok; kaynaklardan güncelleniyor 
+[2026-09-21 14:01:12] [BILGI] Cache'ten geldi: ENFLASYON (EVDS) 
+[2026-09-21 14:01:12] [BILGI] Cache'ten geldi: BUYUME (FRED) 
+[2026-09-21 14:01:12] [BILGI] Cache'ten geldi: ISSIZLIK (EVDS) 
+[2026-09-21 14:01:12] [BILGI] Cache'ten geldi: USDTRY (FRED) 
+[2026-09-21 14:01:12] [BILGI] Cache'ten geldi: BIST100 (BIST) 
+[2026-09-21 14:01:12] [BILGI] Cache'ten geldi: FAIZ (EVDS) 
+[2026-09-21 14:01:12] [BILGI] Cache'ten geldi: DIS_TICARET (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Hazır veri bayat/yok; kaynaklardan güncelleniyor 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: ENFLASYON (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: BUYUME (FRED) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: ISSIZLIK (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: USDTRY (FRED) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: BIST100 (BIST) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: FAIZ (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: DIS_TICARET (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: SANAYI_URETIM (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: TUKETICI_GUVEN (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: CARI_DENGE (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: BUTCE_DENGESI (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: UFE (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: M2 (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: REEL_KESIM_GUVEN (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: KAPASITE_KULLANIM (EVDS) 
+[2026-09-21 14:01:53] [BILGI] Cache'ten geldi: GENC_ISSIZLIK (FRED) 
+[2026-09-21 14:02:08] [BILGI] Çekim tamamlandı: 20/20 gösterge 
+[2026-09-21 14:02:09] [BILGI] Veri hazırlama akışı başladı (her gösterge kendi frekansında) 
+[2026-09-21 14:02:09] [BILGI] Veri hazırlama bitti: 20 gösterge, 4264 gözlem (interpolasyonla doldurulan: 0); kaydedildi 
+[2026-09-21 14:02:09] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-09-21 14:02:16] [BILGI] Tahmin tamamlandı: 20 gösterge; kaydedildi 
+[2026-09-21 14:24:04] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-09-21 14:24:10] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-09-21 14:40:25] [BILGI] Hazır veri bulundu, kullanılıyor 
