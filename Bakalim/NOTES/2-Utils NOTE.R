@@ -3,7 +3,7 @@ if (!exists("CONFIG")) {
   stop("[utils.R] Önce config.R yükle: source('R/config.R')")
 }
 
-#Bu fonksiyon, bir değişken boş, geçersiz veya tamamen eksik (NA) veri içeriyorsa belirlediğiniz yedek değeri, aksi halde değişkenin kendi değerini döndüren güvenlik mekanizmasıdır.
+#Asıl veri bozuk veya boşsa, B planındaki (yedek) veriyi kullan.
 varsayilan <- function(deger, yedek) {
   if (is.null(deger) || length(deger) == 0 || all(is.na(deger))) yedek else deger
 }
