@@ -278,7 +278,6 @@ gosterge_guncelle <- function(ad) {
   sonuc <- list(ozet = degistir(k$ozet, h$ozet), gelecek = degistir(k$gelecek, h$gelecek),
                 gecmis = degistir(k$gecmis, h$gecmis),
                 cv = if (is.null(h$cv)) k$cv else degistir(k$cv, h$cv))
-  # Aktif gösterge sırası korunur
   sirala <- function(t) if (is.null(t)) t else t[order(match(t$gosterge, aktif_gostergeler())), , drop = FALSE]
   sonuc[c("ozet", "gelecek", "gecmis", "cv")] <- lapply(sonuc[c("ozet", "gelecek", "gecmis", "cv")], sirala)
   zaman <- sonuclari_kaydet(sonuc)
