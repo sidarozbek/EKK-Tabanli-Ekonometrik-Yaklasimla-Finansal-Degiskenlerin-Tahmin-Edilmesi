@@ -1,9 +1,9 @@
-#NOTE
+#Bu kod, R ortamında CONFIG adında bir ayar değişkeni tanımlı değilse çalışmayı anında durdurarak kullanıcıdan önce R/config.R dosyasını yüklemesini isteyen bir kontrol mekanizmasıdır.
 if (!exists("CONFIG")) {
   stop("[utils.R] Önce config.R yükle: source('R/config.R')")
 }
 
-#NOTE
+#Bu fonksiyon, bir değişken boş, geçersiz veya tamamen eksik (NA) veri içeriyorsa belirlediğiniz yedek değeri, aksi halde değişkenin kendi değerini döndüren güvenlik mekanizmasıdır.
 varsayilan <- function(deger, yedek) {
   if (is.null(deger) || length(deger) == 0 || all(is.na(deger))) yedek else deger
 }
