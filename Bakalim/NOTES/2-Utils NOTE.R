@@ -120,7 +120,7 @@ tekrar_dene <- function(islem, deneme = NULL, bekleme = NULL) {
   for (i in seq_len(n)) {
     sonuc <- tryCatch(islem(), error = function(e) { son_hata <<- e; NULL })
     if (!is.null(sonuc)) return(sonuc)
-    if (inherits(son_hata, "kalici_hata")) break        # tekrar denemeye değmez
+    if (inherits(son_hata, "kalici_hata")) break
     if (i < n) {
       log_msg(paste0("Deneme ", i, "/", n, " başarısız, tekrar deneniyor"), "UYARI")
       Sys.sleep(b)
