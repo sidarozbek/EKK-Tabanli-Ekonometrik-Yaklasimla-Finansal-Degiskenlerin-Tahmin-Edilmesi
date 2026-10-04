@@ -4,10 +4,10 @@ if (!exists("tekrar_dene")) stop("[api_functions.R] Önce utils.R yükle: source
 
 #NOTE
 suppressPackageStartupMessages({
-  library(fredr)      # FRED
-  library(httr)       # EVDS, OECD, Yahoo (HTTP)
-  library(jsonlite)   # JSON çözme
-  library(wbstats)    # Dünya Bankası
+  library(fredr)
+  library(httr)
+  library(jsonlite)
+  library(wbstats)
 })
 
 #NOTE
@@ -83,7 +83,7 @@ evds_cek <- function(kod, kimlik, filtre = NULL) {
   if (all(is.na(tarih))) {
     stop(paste("EVDS tarih biçimi çözülemedi, örnek:", veri$Tarih[1]), call. = FALSE)
   }
-  kolon <- gsub("\\.", "_", seri)                     # yanıttaki sütun adı: TP_FG_J0
+  kolon <- gsub("\\.", "_", seri)
   deger <- if (kolon %in% names(veri)) veri[[kolon]] else veri[[2]]
   standartlastir(tarih, deger, kimlik)
 }
@@ -139,9 +139,6 @@ bist_cek <- function(kod, kimlik, filtre = NULL) {
   }
   zaman <- as.POSIXct(sonuc$timestamp[[1]], origin = "1970-01-01", tz = "Europe/Istanbul")
   kapanis <- sonuc$indicators$quote[[1]]$close[[1]]
-  # Saat dilimi kaymasına karşı (as.Date UTC'ye çevirir) ve içinde bulunulan ayın
-  # kısmi çubuğu için: tarih, İstanbul saatiyle AY BAŞI yapılır; aynı aya düşen
-  # iki çubuktan sonuncusu (standartlastir) kalır.
   standartlastir(as.Date(format(zaman, "%Y-%m-01", tz = "Europe/Istanbul")), kapanis, kimlik)
 }
 
@@ -183,9 +180,9 @@ kaynak_zinciri <- function(gosterge_adi) {
     carpan <- if (is.list(a)) varsayilan(a$carpan, 1) else 1
     kfrek  <- if (is.list(a)) varsayilan(a$frekans, frek) else frek
     yakl   <- is.list(a) && isTRUE(a$yaklasik)
-    if (k == "OECD" && is.null(filtre)) next            # filtresiz OECD kodu = katalog
-    if (!tur_uyumlu(hedef, tur)) next                    # tanım/ölçek uyumsuz = katalog
-    if (!frekans_uyumlu(frek, kfrek)) next               # seyrek kaynak sıkı frekansa uymaz
+    if (k == "OECD" && is.null(filtre)) next
+    if (!tur_uyumlu(hedef, tur)) next 
+    if (!frekans_uyumlu(frek, kfrek)) next 
     zincir[[length(zincir) + 1]] <- list(kaynak = k, kod = kod, filtre = filtre, tur = tur,
                                          carpan = carpan, yaklasik = yakl, birincil = FALSE)
   }
