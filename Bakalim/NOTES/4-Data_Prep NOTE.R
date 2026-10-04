@@ -99,7 +99,6 @@ veriyi_hazirla <- function(ham) {
 #NOTE
 hazir_veriyi_getir <- function(yenile = FALSE) {
   yol <- file.path(CONFIG$saklama$processed_klasoru, "hazir_veri.rds")
-  # Eski sürümün (geniş, aylık) kaydı ya da bozuk dosya "hazır veri" sayılmaz: yeniden üretilir.
   oku <- function() {
     x <- if (file.exists(yol)) tryCatch(readRDS(yol), error = function(e) NULL) else NULL
     if (is.data.frame(x) && all(c("gosterge", "tarih", "deger", "gercek") %in% names(x))) x else NULL
