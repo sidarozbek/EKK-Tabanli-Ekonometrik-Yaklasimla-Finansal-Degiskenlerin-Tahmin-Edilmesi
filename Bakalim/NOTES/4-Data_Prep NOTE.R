@@ -1,18 +1,20 @@
-#NOTE
+#Bu kod, CONFIG, log_msg ve tum_gostergeleri_cek tanımlı değilse çalışmayı anında durdurarak kullanıcıdan önce ilgili dosyaları (config.R, utils.R, api_functions.R) yüklemesini isteyen bir kontrol mekanizmasıdır.
 if (!exists("CONFIG"))  stop("[data.prep.R] Önce config.R yükle: source('R/config.R')")
 if (!exists("log_msg")) stop("[data.prep.R] Önce utils.R yükle: source('R/utils.R')")
 if (!exists("tum_gostergeleri_cek")) stop("[data.prep.R] Önce api_functions.R yükle")
 
-#NOTE
+#Bu kod, veri işlemede kullanılan dplyr ve zoo paketlerini ekrana yükleme mesajı basmadan sessizce yükler.
 suppressPackageStartupMessages({
   library(dplyr)
   library(zoo)
 })
 
-#NOTE
+#Bu kod, tek bir göstergenin ham verisindeki boş değerleri atar, tarihleri dönem başına çeker, aynı döneme ait tekrarlarda sonuncuyu tutar, eksiksiz bir takvim kurar ve aradaki boşlukları doğrusal interpolasyonla doldurur; hangi değerlerin gerçek, hangilerinin doldurulmuş olduğunu "gercek" sütununda işaretler.
 seri_hazirla <- function(d, g) {
   f <- gosterge_frekansi(g)
   d <- d[!is.na(d$deger), ]
+   if (nrow(d) == 0) stop("Seri boş (hepsi NA): ", g, call. = FALSE)   # EKLENDİ
+  d <- d[order(d$tarih), ]                                            # EKLENDİ
   d$tarih <- donem_basi(d$tarih, f)
   d <- d[!duplicated(d$tarih, fromLast = TRUE), ]
   takvim <- donem_dizisi(min(d$tarih), max(d$tarih), f)
@@ -23,10 +25,10 @@ seri_hazirla <- function(d, g) {
              stringsAsFactors = FALSE)
 }
 
-#NOTE
+#Bu kod, hazırlanmış veride "gercek" sütunu FALSE olan, yani interpolasyonla doldurulmuş gözlemlerin sayısını verir.
 ic_bosluk_say <- function(veri) sum(!veri$gercek)
 
-#NOTE
+#Bu kod, serideki ani sıçramaları (sapan değerleri) bulur: ardışık farkları medyan ve MAD'e göre standartlaştırıp eşiği (varsayılan 3) aşanları işaretler; 8'den az gözlem varsa ya da MAD sıfırsa hiçbir şey işaretlemez.
 hampel_sapan <- function(x, esik = NULL) {
   esik <- varsayilan(esik, varsayilan(CONFIG$veri$hampel_esigi, 3))
   if (length(x) < 8) return(rep(FALSE, length(x)))
@@ -37,13 +39,17 @@ hampel_sapan <- function(x, esik = NULL) {
   !is.na(z) & z > esik
 }
 
-#NOTE
+#Bu kod, her gösterge için veri kalite raporu üretir: frekans, gözlem sayısı, ilk ve son tarih, bitiş tarihine göre gecikme, eksik dönem oranı, sapan değer sayısı ve ilk üç sapan tarihi; hepsini tek tabloda birleştirir.
 kalite_raporu_olustur <- function(uzun) {
   bugun <- as.Date(CONFIG$veri$bitis_tarihi)
+  *** bugun <- as.Date(varsayilan(CONFIG$veri$bitis_tarihi, Sys.Date()))          # DEĞİŞTİ
   satirlar <- lapply(unique(uzun$kimlik), function(g) {
     f <- gosterge_frekansi(g)
     d <- uzun[uzun$kimlik == g, ]; d <- d[order(d$tarih), ]
+    ***  d <- uzun[uzun$kimlik == g & !is.na(uzun$deger), ]                       # DEĞİŞTİ
+      d <- d[order(d$tarih), ]                                                    # DEĞİŞTİ
     d$tarih <- donem_basi(d$tarih, f)
+     d <- d[!duplicated(d$tarih, fromLast = TRUE), ]                              # EKLENDİ
     kapsam <- length(donem_dizisi(min(d$tarih), max(d$tarih), f))
     gecikme <- max(0, length(donem_dizisi(max(d$tarih), max(donem_basi(bugun, f), max(d$tarih)), f)) - 1)
     sapan <- hampel_sapan(d$deger)
@@ -59,7 +65,8 @@ kalite_raporu_olustur <- function(uzun) {
   do.call(rbind, satirlar)
 }
 
-#NOTE
+
+#Bu kod, hazır veriden seçilen göstergenin tarih, değer ve gerçek sütunlarını tarihe göre sıralı küçük bir tablo olarak verir.
 gosterge_serisi <- function(veri, g) {
   d <- veri[veri$gosterge == g, c("tarih", "deger", "gercek"), drop = FALSE]
   d <- d[order(d$tarih), , drop = FALSE]
@@ -67,7 +74,8 @@ gosterge_serisi <- function(veri, g) {
   d
 }
 
-#NOTE
+#Uyarı: trend atılan satırlardan önce üretildiği için 1 yerine p+1'den başlar (modeli bozmaz, istersen complete.cases satırından sonraya taşırsın). p gözlem sayısından büyükse tablo sessizce boş döner, ona bir uyarı eklenebilir.
+#Bu kod, seçilen gösterge için modele hazır tablo kurar: değerin yanına p tane gecikmeli (lag) sütun ekler, istenirse trend sütunu koyar ve gecikme yüzünden boş kalan ilk satırları atar.
 gosterge_verisi <- function(veri, g, p = NULL, trend = FALSE) {
   p <- varsayilan(p, gosterge_p(g))
   d <- gosterge_serisi(veri, g)
@@ -81,7 +89,8 @@ gosterge_verisi <- function(veri, g, p = NULL, trend = FALSE) {
   out
 }
 
-#NOTE
+#Uyarı: Küçük bir eksik: ham boşsa rbind NULL döner ve rownames<- hata verir. Fonksiyonun başına if (is.null(ham) || nrow(ham) == 0) stop("Ham veri boş") eklenebilir.
+#Bu kod, ham verideki tüm göstergeleri kendi frekansında tek tek hazırlayıp birleştirir, hazır veriyi ve kalite raporunu processed klasörüne kaydeder ve kaç gözlemin interpolasyonla doldurulduğunu loglar.
 veriyi_hazirla <- function(ham) {
   log_msg("Veri hazırlama akışı başladı (her gösterge kendi frekansında)")
   parcalar <- lapply(unique(ham$kimlik), function(g) {
@@ -96,9 +105,10 @@ veriyi_hazirla <- function(ham) {
   sonuc
 }
 
-#NOTE
+#Bu kod, hazır veriyi getiren ana fonksiyondur: kayıtlı dosya yeterince tazeyse (varsayılan 1 gün) onu kullanır, bayatsa ya da yoksa kaynaklardan çekip yeniden hazırlar; çekim başarısız olursa eldeki eski veriyi korur, o da yoksa hata verip durur.
 hazir_veriyi_getir <- function(yenile = FALSE) {
   yol <- file.path(CONFIG$saklama$processed_klasoru, "hazir_veri.rds")
+***  yol <- file.path(varsayilan(CONFIG$saklama$processed_klasoru, "data/processed"), "hazir_veri.rds")                                       # DEĞİŞTİ
   oku <- function() {
     x <- if (file.exists(yol)) tryCatch(readRDS(yol), error = function(e) NULL) else NULL
     if (is.data.frame(x) && all(c("gosterge", "tarih", "deger", "gercek") %in% names(x))) x else NULL
@@ -125,7 +135,7 @@ hazir_veriyi_getir <- function(yenile = FALSE) {
   veriyi_hazirla(ham)
 }
 
-#NOTE
+#Bu kod, dosyanın sonunda 8 fonksiyonun hepsinin tanımlı olduğunu doğrular; eksik varsa hata verir, yoksa "yüklendi" mesajı yazar.
 local({
   fonksiyonlar <- c("seri_hazirla", "ic_bosluk_say", "hampel_sapan", "kalite_raporu_olustur",
                     "gosterge_serisi", "gosterge_verisi", "veriyi_hazirla", "hazir_veriyi_getir")
