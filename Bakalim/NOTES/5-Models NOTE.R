@@ -1,37 +1,37 @@
-#NOTE
+#Bu kod, CONFIG, formul_kur ve gosterge_verisi tanımlı değilse çalışmayı durdurarak kullanıcıdan önce config.R, utils.R ve data.prep.R dosyalarını yüklemesini isteyen bir kontrol mekanizmasıdır.
 if (!exists("CONFIG"))          stop("[models.R] Önce config.R yükle: source('R/config.R')")
 if (!exists("formul_kur"))      stop("[models.R] Önce utils.R yükle: source('R/utils.R')")
 if (!exists("gosterge_verisi")) stop("[models.R] Önce data.prep.R yükle: source('R/data.prep.R')")
 
-#NOTE
+#Bu kod, tahminlerin gerçek değerlerden ortalama kaç birim saptığını (hataların mutlak değerlerinin ortalamasını, MAE) hesaplar; boş değerleri yok sayar.
 mae <- function(gercek, tahmin) mean(abs(gercek - tahmin), na.rm = TRUE)
 
-#NOTE
+#Bu kod, hataların karesinin ortalamasını (MSE) hesaplar; büyük hataları daha çok cezalandırır.
 mse <- function(gercek, tahmin) mean((gercek - tahmin)^2, na.rm = TRUE)
 
-#NOTE
+#Bu kod, MSE'nin karekökünü (RMSE) alarak hatayı yeniden verinin birimine çevirir.
 rmse <- function(gercek, tahmin) sqrt(mse(gercek, tahmin))
 
-#NOTE
+#Bu kod, hataların gerçek değere oranını yüzde olarak ortalayıp (MAPE) tahminin ortalama yüzde kaç saptığını verir; gerçek değeri sıfır ya da boş olan gözlemleri hesaba katmaz.
 mape <- function(gercek, tahmin) {
   gecerli <- gercek != 0 & !is.na(gercek) & !is.na(tahmin)
   100 * mean(abs((gercek[gecerli] - tahmin[gecerli]) / gercek[gecerli]))
 }
 
-#NOTE
+#Bu kod, tahmin hatasının büyüklüğünü gerçek değerlerin büyüklüğüne oranlayarak (Theil U benzeri) ölçekten bağımsız bir doğruluk ölçüsü verir; sıfıra yaklaştıkça tahmin iyidir.
 theil_u <- function(gercek, tahmin) {
   ok <- !is.na(gercek) & !is.na(tahmin)
   sqrt(sum((tahmin[ok] - gercek[ok])^2)) / sqrt(sum(gercek[ok]^2))
 }
 
-#NOTE
+#Bu kod, bir göstergeyi kendi geçmiş değerleriyle (gecikmeleriyle) açıklayan basit bir AR(p) modelini lm ile kurar; p verilmezse göstergenin varsayılan p değerini kullanır.
 basit_ar <- function(veri, gosterge, p = NULL) {
   p <- varsayilan(p, gosterge_p(gosterge))
   d <- gosterge_verisi(veri, gosterge, p)
   lm(formul_kur(gosterge, paste0(gosterge, "_lag", seq_len(p))), data = d)
 }
 
-#NOTE
+#Bu kod, sabit genişlikteki (pencere) eğitim dilimini her adımda bir dönem kaydırıp modeli yeniden kurarak bir sonraki dönemi tahmin eder; her adımda gerçek değeri, tahmini ve "naif" (bir önceki değeri tekrarlayan) tahmini tabloya yazar, modelin eğitim verisindeki hatalarını da tabloya ek bilgi olarak ekler.
 kayan_pencere_tahmin <- function(veri, gosterge, pencere = NULL, p = NULL, son_n = NULL) {
   p <- varsayilan(p, gosterge_p(gosterge))
   w <- varsayilan(pencere, gosterge_pencere(gosterge))
@@ -74,7 +74,7 @@ kayan_pencere_tahmin <- function(veri, gosterge, pencere = NULL, p = NULL, son_n
   s
 }
 
-#NOTE
+#Bu kod, geriye dönük test tablosundan test hata ölçülerini (MAE, MSE, RMSE, MAPE, Theil U), naif tahminle karşılaştırmayı (GORELI_RMSE; 1'den küçükse model naif tahminden iyidir) ve eğitim hatalarını (IC_) tek satırlık bir tabloda toplar.
 metrikler <- function(s) {
   ic <- attr(s, "ornek_ici")
   naif_rmse <- rmse(s$gercek, s$naif)
@@ -87,8 +87,9 @@ metrikler <- function(s) {
   )
 }
 
-#NOTE
+#Bu kod, bir gösterge için 1'den p_ust'e kadar farklı gecikme sayılarını aynı veri üzerinde dener ve AIC ya da BIC kriterine göre en iyi gecikme sayısını (p) seçer; veri yetersizse hata verir.
 p_sec <- function(veri, gosterge, kriter = "AIC", p_max = NULL) {
+  ***  kriter <- match.arg(kriter, c("AIC", "BIC"))                                                             # EKLENDİ
   p_max <- varsayilan(p_max, frekans_ayari(gosterge_frekansi(gosterge))$p_max)
   n <- nrow(gosterge_serisi(veri, gosterge))
   p_ust <- min(p_max, floor(n / 4))
@@ -101,7 +102,7 @@ p_sec <- function(veri, gosterge, kriter = "AIC", p_max = NULL) {
   list(p = tablo$p[which.min(tablo[[kriter]])], tablo = tablo)
 }
 
-#NOTE
+#Bu kod, ayarlarda "capraz" seçilmişse p ve pencere değerlerinin farklı birleşimlerini son dönemlerde test edip en düşük RMSE'yi veren birleşimi seçer; seçim kapalıysa ya da veri yetmezse göstergenin varsayılan p ve pencere değerlerini kullanır.
 model_sec <- function(veri, g) {
   p0 <- gosterge_p(g); w0 <- gosterge_pencere(g)
   varsayilan_sonuc <- list(p = p0, pencere = w0, yontem = "varsayilan", tablo = NULL, son_n = NA)
@@ -143,7 +144,7 @@ model_sec <- function(veri, g) {
        tablo = izgara, son_n = son_n)
 }
 
-#NOTE
+#Bu kod, son pencere kadar veriyle modeli kurup tahmini adım adım ileriye taşır (her tahmini bir sonrakinin girdisi yapar) ve her ufuk için güven aralığını (alt, üst) hesaplar.
 gelecek_tahmin <- function(veri, gosterge, ufuk = NULL, pencere = NULL, p = NULL) {
   ufuk <- varsayilan(ufuk, gosterge_ufuk(gosterge))
   p    <- varsayilan(p, gosterge_p(gosterge))
@@ -174,6 +175,7 @@ gelecek_tahmin <- function(veri, gosterge, ufuk = NULL, pencere = NULL, p = NULL
   }
   se <- sigma * sqrt(cumsum(psi^2))
   z  <- stats::qnorm(1 - (1 - CONFIG$model$guven_duzeyi) / 2)
+  ***   z  <- stats::qnorm(1 - (1 - varsayilan(CONFIG$model$guven_duzeyi, 0.95)) / 2)   # DEĞİŞTİ
   out <- data.frame(
     gosterge = gosterge,
     tarih = donem_ekle(max(d$tarih), ufuk, gosterge_frekansi(gosterge)),
@@ -182,7 +184,7 @@ gelecek_tahmin <- function(veri, gosterge, ufuk = NULL, pencere = NULL, p = NULL
   out
 }
 
-#NOTE
+#Bu kod, tek bir gösterge için tüm işi yapar: model seçer, geriye dönük test eder, geleceği tahmin eder ve sonuçları özet, gelecek, geçmiş ve çapraz doğrulama tabloları olarak bir liste halinde verir.
 gosterge_hesapla <- function(veri, ad, kaynak = NA) {
   ms <- model_sec(veri, ad)
   s  <- kayan_pencere_tahmin(veri, ad, pencere = ms$pencere, p = ms$p)
@@ -202,7 +204,7 @@ gosterge_hesapla <- function(veri, ad, kaynak = NA) {
        gecmis = cbind(data.frame(gosterge = ad), s), cv = cv)
 }
 
-#NOTE
+#Bu kod, aktif tüm göstergeleri sırayla hesaplar; verisi olmayanı ya da hata vereni uyarı ile atlayıp diğerlerine devam eder ve sonuçları özet, gelecek, geçmiş ve çapraz doğrulama olarak dört büyük tabloda birleştirir.
 tum_gostergeleri_tahminle <- function(veri) {
   meta <- processed_oku("metaveri")
   parcalar <- list()
@@ -221,27 +223,30 @@ tum_gostergeleri_tahminle <- function(veri) {
        gecmis = birlestir("gecmis"), cv = birlestir("cv"))
 }
 
-#NOTE
+#Bu kod, tahmin tablolarını processed klasörüne hem .rds hem .csv olarak, tüm sonuçları ise zaman damgasıyla model klasörüne sonuclar.rds olarak kaydeder.
 sonuclari_kaydet <- function(sonuc) {
   ikili_kaydet(sonuc$ozet, "tahmin_ozeti")
   ikili_kaydet(sonuc$gelecek, "gelecek_tahmin")
   ikili_kaydet(sonuc$gecmis, "gecmis_tahmin")
   if (!is.null(sonuc$cv)) ikili_kaydet(sonuc$cv, "capraz_dogrulama")
   zaman <- Sys.time()
+  *** model_kl <- varsayilan(CONFIG$saklama$model_klasoru, "data/model")             # EKLENDİ
   dir.create(CONFIG$saklama$model_klasoru, showWarnings = FALSE, recursive = TRUE)
+  *** dir.create(model_kl, showWarnings = FALSE, recursive = TRUE)                   # DEĞİŞTİ
   saveRDS(c(sonuc[c("ozet", "gelecek", "gecmis", "cv")], list(zaman = zaman)),
           file.path(CONFIG$saklama$model_klasoru, "sonuclar.rds"))
+  ***  file.path(model_kl, "sonuclar.rds"))                                          # DEĞİŞTİ
   invisible(zaman)
 }
 
-#NOTE
+#Bu kod, hazır veriyi, tahmin tablolarını, metaveriyi, kalite raporunu ve hesaplama zamanını tek bir liste halinde paketler.
 sonuc_paketi <- function(veri, sonuc, zaman) {
   list(veri = veri, ozet = sonuc$ozet, gelecek = sonuc$gelecek, gecmis = sonuc$gecmis,
        cv = sonuc$cv, meta = processed_oku("metaveri"), kalite = processed_oku("kalite_raporu"),
        zaman = zaman)
 }
 
-#NOTE
+#Bu kod, tüm akışı baştan sona çalıştırır: hazır veriyi getirir, tüm göstergeleri tahminler, hiç tahmin çıkmadıysa hata verir, sonuçları kaydeder ve paketi döndürür.
 calistir_hepsi <- function(yenile = FALSE) {
   veri  <- hazir_veriyi_getir(yenile)
   sonuc <- tum_gostergeleri_tahminle(veri)
@@ -251,10 +256,11 @@ calistir_hepsi <- function(yenile = FALSE) {
   invisible(sonuc_paketi(veri, sonuc, zaman))
 }
 
-#NOTE
+#Bu kod, tek bir göstergeyi kaynaktan yeniden çekip hazırlar ve kayıtlı tablolardaki yalnızca o göstergenin satırlarını değiştirerek yeniden hesaplar; kayıtlı sonuçlar eksik ya da eski biçimdeyse önce tüm göstergeleri hesaplar.
 gosterge_guncelle <- function(ad) {
   if (!ad %in% aktif_gostergeler()) stop("Aktif olmayan gösterge: ", ad, call. = FALSE)
   eski <- processed_oku("hazir_veri"); yol_k <- file.path(CONFIG$saklama$model_klasoru, "sonuclar.rds")
+  *** yol_k <- file.path(varsayilan(CONFIG$saklama$model_klasoru, "data/model"), "sonuclar.rds")         #DEĞİŞTİ 
   k <- if (file.exists(yol_k)) tryCatch(readRDS(yol_k), error = function(e) NULL) else NULL
   if (is.null(eski) || !"gosterge" %in% names(eski) || is.null(k) || is.null(k$gecmis)) {
     log_msg("Kayıtlı sonuçlar eksik/eski biçimde; önce tüm göstergeler hesaplanıyor", "UYARI")
@@ -270,6 +276,13 @@ gosterge_guncelle <- function(ad) {
   degistir <- function(tablo, satir, anahtar = "gosterge") {
     y <- rbind(tablo[tablo[[anahtar]] != ad, , drop = FALSE], satir); rownames(y) <- NULL; y
   }
+    ***degistir <- function(tablo, satir, anahtar = "gosterge") {              #EKLENDİ
+ ** if (is.null(tablo)) return(satir)
+ ** y <- tablo[tablo[[anahtar]] != ad, , drop = FALSE]
+  **if (!is.null(satir)) y <- rbind(y, satir)
+  **if (nrow(y) == 0) return(NULL)
+  **rownames(y) <- NULL
+ ** y
   yeni_meta <- metaveri_olustur(setNames(list(ham), ad))
   ikili_kaydet(degistir(processed_oku("metaveri"), yeni_meta), "metaveri")
   ikili_kaydet(degistir(processed_oku("kalite_raporu"), kalite_raporu_olustur(ham)), "kalite_raporu")
@@ -278,6 +291,7 @@ gosterge_guncelle <- function(ad) {
   sonuc <- list(ozet = degistir(k$ozet, h$ozet), gelecek = degistir(k$gelecek, h$gelecek),
                 gecmis = degistir(k$gecmis, h$gecmis),
                 cv = if (is.null(h$cv)) k$cv else degistir(k$cv, h$cv))
+                  *** cv = degistir(k$cv, h$cv)                              #DEĞİŞTİ
   sirala <- function(t) if (is.null(t)) t else t[order(match(t$gosterge, aktif_gostergeler())), , drop = FALSE]
   sonuc[c("ozet", "gelecek", "gecmis", "cv")] <- lapply(sonuc[c("ozet", "gelecek", "gecmis", "cv")], sirala)
   zaman <- sonuclari_kaydet(sonuc)
@@ -286,12 +300,14 @@ gosterge_guncelle <- function(ad) {
   invisible(sonuc_paketi(veri, sonuc, zaman))
 }
 
-#NOTE
+#Bu kod, kayıtlı sonuçlar yeterince taze (varsayılan 1 gün) ve hazır veriden yeniyse onları okur; değilse ya da yenileme istenirse tüm göstergeleri yeniden hesaplayıp paketi döndürür.
 sonuclari_getir <- function(yenile = FALSE) {
   yol <- file.path(CONFIG$saklama$model_klasoru, "sonuclar.rds")
+  *** yol    <- file.path(varsayilan(CONFIG$saklama$model_klasoru, "data/model"), "sonuclar.rds")          # DEĞİŞTİ
   if (yenile) return(calistir_hepsi(TRUE))
   veri <- hazir_veriyi_getir(FALSE)
   hz_yol <- file.path(CONFIG$saklama$processed_klasoru, "hazir_veri.rds")
+  ***  hz_yol <- file.path(varsayilan(CONFIG$saklama$processed_klasoru, "data/processed"), "hazir_veri.rds")   # DEĞİŞTİ
   guncel <- file.exists(yol) &&
     dosya_yasi_gun(yol) <= varsayilan(CONFIG$guncelleme$sikligi_gun, 1) &&
     file.mtime(yol) >= file.mtime(hz_yol)
@@ -300,7 +316,7 @@ sonuclari_getir <- function(yenile = FALSE) {
   sonuc_paketi(veri, k, k$zaman)
 }
 
-#NOTE
+#Bu kod, dosyanın sonunda 18 fonksiyonun hepsinin tanımlı olduğunu doğrular; eksik varsa hata verir, yoksa "yüklendi" mesajı yazar.
 local({
   fonksiyonlar <- c("mae", "mse", "rmse", "mape", "theil_u", "basit_ar",
                     "kayan_pencere_tahmin", "metrikler", "p_sec", "model_sec",
