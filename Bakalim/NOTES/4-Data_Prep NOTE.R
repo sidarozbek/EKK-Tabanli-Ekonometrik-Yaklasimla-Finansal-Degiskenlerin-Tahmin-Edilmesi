@@ -1,6 +1,6 @@
-# Bu blok, veri hazırlık sürecine başlamadan önce gerekli bağımlılıkların tamam olup olmadığını kontrol eden bir güvenlik adımıdır.
-# Eğer sistemde yapılandırma ayarları (CONFIG), loglama fonksiyonu (log_msg) veya veri çekme fonksiyonu (tum_gostergeleri_cek) tanımlı değilse,
-# kodun yarıda çökmesini önlemek için çalışmayı hemen durdurur ve kullanıcıya önceden hangi dosyaları yüklemesi gerektiğini söyler.
+# Bu kod, veri hazırlık sürecine başlamadan önce gerekli bağımlılıkların tamam olup olmadığını kontrol eden bir güvenlik adımıdır.
+Eğer sistemde yapılandırma ayarları (CONFIG), loglama fonksiyonu (log_msg) veya veri çekme fonksiyonu (tum_gostergeleri_cek) tanımlı değilse,
+kodun yarıda çökmesini önlemek için çalışmayı hemen durdurur ve kullanıcıya önceden hangi dosyaları yüklemesi gerektiğini söyler.
 
 if (!exists("CONFIG"))  stop("[data.prep.R] Önce config.R yükle: source('R/config.R')")
 if (!exists("log_msg")) stop("[data.prep.R] Önce utils.R yükle: source('R/utils.R')")
@@ -13,13 +13,12 @@ library(dplyr)
 library(zoo)
 })
 
-#Bu fonksiyon, elimizdeki ham veriyi alıp zaman serisi analizine uygun, boşluksuz ve derli toplu bir tablo haline getiriyor.
-# Süreç şöyle işliyor:
-# 1. Önce verideki boş değerleri temizliyor ve tarihleri dönemin başlangıcına oturtuyor.
-# 2. Aynı tarihe ait birden fazla kayıt varsa, kafa karışıklığı olmasın diye sadece en son güncellenen veriyi alıyor.
-# 3. İlk tarihten son tarihe kadar hiç eksik ay/dönem atlamayan kesintisiz bir takvim oluşturuyor.
-# 4. Bu takvimde verisi eksik kalan ara dönemlerin değerlerini, önceki ve sonraki rakamlara bakarak ortalama bir çizgiyle (interpolasyonla) tamamlıyor.
-# 5. En sonunda da hangi değerin sistemden gelen orijinal veri, hangisinin bizim sonradan doldurduğumuz veri olduğunu belirten bir etiketle (gercek) birlikte temiz bir tablo veriyor.
+#Bu kod, elimizdeki ham veriyi alıp zaman serisi analizine uygun, boşluksuz ve derli toplu bir tablo haline getiriyor.
+Önce verideki boş değerleri temizliyor ve tarihleri dönemin başlangıcına oturtuyor.
+Aynı tarihe ait birden fazla kayıt varsa, kafa karışıklığı olmasın diye sadece en son güncellenen veriyi alıyor.
+İlk tarihten son tarihe kadar hiç eksik ay/dönem atlamayan kesintisiz bir takvim oluşturuyor.
+Bu takvimde verisi eksik kalan ara dönemlerin değerlerini, önceki ve sonraki rakamlara bakarak ortalama bir çizgiyle (interpolasyonla) tamamlıyor.
+En sonunda da hangi değerin sistemden gelen orijinal veri, hangisinin bizim sonradan doldurduğumuz veri olduğunu belirten bir etiketle (gercek) birlikte temiz bir tablo veriyor.
 
 seri_hazirla <- function(d, g) {
 f <- gosterge_frekansi(g)
