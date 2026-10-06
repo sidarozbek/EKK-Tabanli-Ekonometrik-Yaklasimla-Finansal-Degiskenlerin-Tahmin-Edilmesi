@@ -1,15 +1,26 @@
-#NOTE
+# Bu blok, veri hazırlık sürecine başlamadan önce gerekli bağımlılıkların tamam olup olmadığını kontrol eden bir güvenlik adımıdır.
+# Eğer sistemde yapılandırma ayarları (CONFIG), loglama fonksiyonu (log_msg) veya veri çekme fonksiyonu (tum_gostergeleri_cek) tanımlı değilse,
+# kodun yarıda çökmesini önlemek için çalışmayı hemen durdurur ve kullanıcıya önceden hangi dosyaları yüklemesi gerektiğini söyler.
+
 if (!exists("CONFIG"))  stop("[data.prep.R] Önce config.R yükle: source('R/config.R')")
 if (!exists("log_msg")) stop("[data.prep.R] Önce utils.R yükle: source('R/utils.R')")
 if (!exists("tum_gostergeleri_cek")) stop("[data.prep.R] Önce api_functions.R yükle")
 
-#NOTE
+# Kodun düzgün çalışması için ihtiyaç duyduğumuz iki temel kütüphaneyi (dplyr ve zoo) projeye çağırıyoruz.
+# Normalde bu paketler yüklenirken ekrana bir sürü teknik uyarı ve mesaj düşer; suppressPackageStartupMessages komutunu kullanarak o gereksiz mesaj kalabalığını gizliyor, konsolun temiz kalmasını sağlıyoruz.
 suppressPackageStartupMessages({
 library(dplyr)
 library(zoo)
 })
 
-#NOTE
+#Bu fonksiyon, elimizdeki ham veriyi alıp zaman serisi analizine uygun, boşluksuz ve derli toplu bir tablo haline getiriyor.
+# Süreç şöyle işliyor:
+# 1. Önce verideki boş değerleri temizliyor ve tarihleri dönemin başlangıcına oturtuyor.
+# 2. Aynı tarihe ait birden fazla kayıt varsa, kafa karışıklığı olmasın diye sadece en son güncellenen veriyi alıyor.
+# 3. İlk tarihten son tarihe kadar hiç eksik ay/dönem atlamayan kesintisiz bir takvim oluşturuyor.
+# 4. Bu takvimde verisi eksik kalan ara dönemlerin değerlerini, önceki ve sonraki rakamlara bakarak ortalama bir çizgiyle (interpolasyonla) tamamlıyor.
+# 5. En sonunda da hangi değerin sistemden gelen orijinal veri, hangisinin bizim sonradan doldurduğumuz veri olduğunu belirten bir etiketle (gercek) birlikte temiz bir tablo veriyor.
+
 seri_hazirla <- function(d, g) {
 f <- gosterge_frekansi(g)
 d <- d[!is.na(d$deger), ]
@@ -23,10 +34,18 @@ data.frame(gosterge = g, tarih = takvim, deger = deger, gercek = gercek,
 stringsAsFactors = FALSE)
 }
 
-#NOTE
+# Bu kod, hazırlanan veri tablosunda kaç tane dönemin aslında boş olup sonradan bizim tarafımızdan doldurulduğunu hesaplar.
+# Tablodaki 'gercek' sütununda yer alan ve orijinal verisi bulunmayan (FALSE olan) satırları sayarak toplam eksik/tamamlanmış veri sayısını verir.
+
 ic_bosluk_say <- function(veri) sum(!veri$gercek)
 
-#NOTE
+#Bu kod, bir veri serisinde ani ve olağandışı sıçrama yapan aykırı değerleri Hampel filtresi yöntemiyle tespit etmemizi sağlar. 
+Önce hassasiyet eşiğini belirleyerek işe başlıyoruz. Dışarıdan özel bir eşik değeri verilmediyse sistem ayarlarındaki (CONFIG) varsayılan değeri alıyoruz, orada da yoksa standart kabul edilen 3 değerini kullanıyoruz.
+Sağlıklı bir sapma hesabı yapabilmek için elimizde yeterli veri olması gerekir. Bu yüzden verinin uzunluğuna bakıyoruz; eğer 8 gözlemden az veri varsa güvenilir bir analiz yapılamayacağı için tüm değerleri normal (FALSE) kabul edip işlemi bitiriyoruz.
+Ardından verinin kendi içindeki hareketini anlamak için bir önceki döneme göre yaşanan değişimleri (farkları) hesaplıyoruz ve bu değişimlerin genel oynaklığını medyan mutlak sapması (MAD) ile ölçüyoruz. 
+Eğer seride hiç değişim yoksa veya hesaplanan sapma geçersiz/sıfır çıkarsa, ortada sapan bir durum olamayacağı için  yine tüm verileri temiz (FALSE) sayıyoruz.
+Son aşamada ise her bir değişimin genel gidişattan ne kadar saptığını (Z-skoru) hesaplayıp, belirlediğimiz eşik değerinin üzerinde kalan aşırı sıçramaları sapan veri (TRUE) olarak işaretleyip döndürüyoruz.
+
 hampel_sapan <- function(x, esik = NULL) {
 esik <- varsayilan(esik, varsayilan(CONFIG$veri$hampel_esigi, 3))
 if (length(x) < 8) return(rep(FALSE, length(x)))
@@ -37,7 +56,17 @@ z <- abs(fark - stats::median(fark, na.rm = TRUE)) / mad_
 !is.na(z) & z > esik
 }
 
-#NOTE
+#Bu kod, elimizdeki tüm göstergelerin veri kalitesini ve durumunu detaylıca analiz edip tek bir özet rapor tablosu haline getirir.
+İşleme ilk olarak konfigürasyon ayarlarından bugünün (ya da hedef bitiş) tarihini alarak başlıyoruz. Ardından veri setindeki her bir benzersiz gösterge için tek tek kalite kontrollerini çalıştırmak üzere bir döngü kuruyoruz.
+Her bir göstergeye sıra geldiğinde, ilk olarak o göstergenin frekansını (aylık, çeyreklik vb.) tespit edip verilerini tarihe göre kronolojik olarak sıralıyoruz ve tüm tarihleri ilgili dönemin başlangıcına oturtuyoruz.
+Sonrasında göstergenin zaman içindeki durumunu ölçen temel metrikleri hesaplıyoruz:
+- İlk ve son tarih arasında normalde kaç dönem olması gerektiğini (kapsam) bulup, mevcut gözlem sayısı ile kıyaslayarak verideki eksik dönem oranını çıkarıyoruz.
+- Güncel tarihten ne kadar geride kalındığını hesaplayarak kaç dönemlik bir veri gecikmesi olduğunu tespit ediyoruz.
+- Daha önce yazdığımız Hampel filtresini veriye uygulayarak serideki anomali/sapan değer sayısını ve bunların gerçekleştiği ilk 3 tarihi yakalıyoruz.
+- Göstergenin konfigürasyon dosyasındaki kart bilgilerinden (ad, rol vb.) faydalanarak tanım detaylarını çekiyoruz.
+Her gösterge için hesaplanan bu bilgileri (gözlem sayısı, tarih aralıkları, gecikme, eksik oranı, sapan veri detayları vb.) düzenli bir veri çerçevesine dönüştürüyoruz.
+En son aşamada ise tüm göstergeler için ayrı ayrı üretilen bu satırları tek bir büyük rapor tablosunda birleştirerek çıktı olarak döndürüyoruz.
+
 kalite_raporu_olustur <- function(uzun) {
 bugun <- as.Date(CONFIG$veri$bitis_tarihi)
 satirlar <- lapply(unique(uzun$kimlik), function(g) {
