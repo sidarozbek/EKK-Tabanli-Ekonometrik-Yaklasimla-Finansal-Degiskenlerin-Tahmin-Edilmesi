@@ -7,7 +7,8 @@ if (!exists("log_msg")) stop("[data.prep.R] Önce utils.R yükle: source('R/util
 if (!exists("tum_gostergeleri_cek")) stop("[data.prep.R] Önce api_functions.R yükle")
 
 # Kodun düzgün çalışması için ihtiyaç duyduğumuz iki temel kütüphaneyi (dplyr ve zoo) projeye çağırıyoruz.
-# Normalde bu paketler yüklenirken ekrana bir sürü teknik uyarı ve mesaj düşer; suppressPackageStartupMessages komutunu kullanarak o gereksiz mesaj kalabalığını gizliyor, konsolun temiz kalmasını sağlıyoruz.
+Normalde bu paketler yüklenirken ekrana bir sürü teknik uyarı ve mesaj düşer; suppressPackageStartupMessages komutunu kullanarak o gereksiz mesaj kalabalığını gizliyor, konsolun temiz kalmasını sağlıyoruz.
+
 suppressPackageStartupMessages({
 library(dplyr)
 library(zoo)
@@ -87,7 +88,10 @@ stringsAsFactors = FALSE)
 do.call(rbind, satirlar)
 }
 
-#NOTE
+#Bu kod, genel veri tablosundan istediğimiz tek bir göstergeye ait verileri çekip tarih sırasına dizilmiş temiz bir tablo haline getirir.
+Veri seti içerisinden belirtilen gösterge koduna ait satırlar filtreler, sadece tarih, değer ve verinin orijinalliğini belirten "gercek" sütunlarını alır. 
+Ardından bu kayıtları eskiden yeniye doğru kronolojik olarak sıralar ve filtreleme sonrasında karışan satır numaralarını sıfırlayarak düzenli bir veri çerçevesi sunar.
+
 gosterge_serisi <- function(veri, g) {
 d <- veri[veri$gosterge == g, c("tarih", "deger", "gercek"), drop = FALSE]
 d <- d[order(d$tarih), , drop = FALSE]
@@ -95,7 +99,11 @@ rownames(d) <- NULL
 d
 }
 
-#NOTE
+# Bu kod, modele veya analize sokulacak tek bir göstergenin verisini alıp onun gecikmeli (lag) değerlerini ve isteğe bağlı trend değişkenini içeren hazır bir veri tablosuna dönüştürür.
+İşlem öncesinde göstergeye ait gecikme sayısı belirlenmemişse varsayılan değeri çeker ve ilgili göstergeyi seriden filtreler. Veri setinde bu göstergeye ait hiçbir satır bulunamazsa hata vererek çalışmayı durdurur. 
+Ardından ana değerlerin yanına istenen sayı kadar geçmiş dönem gecikmesini (lag1, lag2 vb.) sütun olarak ekler; eğer trend parametresi aktifse zamanın akışını temsil eden sıra numaralarını oluşturur. 
+Son aşamada gecikme hesaplamalarından ötürü başta oluşan boş (NA) satırları temizler ve satır numaralarını sıfırlayarak modellemeye hazır bir tablo sunar.
+
 gosterge_verisi <- function(veri, g, p = NULL, trend = FALSE) {
 p <- varsayilan(p, gosterge_p(g))
 d <- gosterge_serisi(veri, g)
@@ -109,7 +117,11 @@ rownames(out) <- NULL
 out
 }
 
-#NOTE
+#Bu kod, sisteme giren ham veriyi alıp uçtan uca işleyen ve analize hazır hale getiren ana veri hazırlama akışını yönetir.
+Süreç başladığında ilk olarak sistem günlüğüne akışın başladığını bildiren bir mesaj düşüyoruz. Ardından ham veri içerisindeki her bir göstergeyi kendi özel kodu üzerinden tek tek ayırarak, önceden tanımladığımız seri_hazirla fonksiyonundan geçiriyoruz. Böylece her gösterge kendi frekansına (aylık, çeyreklik vb.) göre temizleniyor, verilerden arındırılıyor ve kesintisiz bir takvime oturtuluyor.
+Ayrı ayrı işlenen bu gösterge parçalarını tek bir büyük veri tablosunda birleştirip satır numaralarını sıfırlıyoruz. Sonrasında hazırladığımız bu temiz veri setini ve ham veriden ürettiğimiz kalite raporunu ikili_kaydet fonksiyonu ile sisteme kaydediyoruz.
+İşlem tamamlandığında kaç göstergenin işlendiğini, toplam kaç gözlem elde edildiğini ve bunlar içerisinden kaç tanesinin eksik veri tamamlama ile doldurulduğunu log mesajı olarak yazdırıp nihai veri tablosunu döndürüyoruz.
+
 veriyi_hazirla <- function(ham) {
 log_msg("Veri hazırlama akışı başladı (her gösterge kendi frekansında)")
 parcalar <- lapply(unique(ham$kimlik), function(g) {
@@ -124,7 +136,11 @@ log_msg(paste0("Veri hazırlama bitti: ", length(parcalar), " gösterge, ", nrow
 sonuc
 }
 
-#NOTE
+# Bu kod, daha önceden işlenip diskte saklanan hazır veriyi getiren veya duruma göre ham kaynaklardan yenileyip sıfırdan oluşturan önbellek (cache) mekanizmasını yönetir.
+Sistem öncelikle hedef dosya yolunu belirler ve diskte var olan RDS dosyasını okumaya çalışır. Dosya okunurken geçerli sütun yapısına ("gosterge", "tarih", "deger", "gercek") sahip olup olmadığını kontrol eder; dosya bozuksa veya eski formatta kalmışsa bunu geçersiz sayarak uyarı günlüğü düşer.
+Mevcut dosyanın yaşını konfigürasyondaki güncelleme sıklığı ile karşılaştırarak verinin "taze" olup olmadığını belirler. Eğer dosya geçerliyse, kullanıcı zorla yenileme istemediyse (`yenile = FALSE`) ve veri taze ise (ya da otomatik güncelleme kapalıysa), zaman kazanmak adına direkt bu diskteki veriyi döndürür.
+Veri yoksa, bayatlamışsa veya yenileme talep edildiyse, tüm göstergeleri internet/kaynak üzerinden çekmeye çalışır. Veri çekme aşamasında bir ağ/API hatası yaşanırsa ve elimizde önceden kalan bir veri varsa sistemi çökertmemek için eski veriyi koruyarak döndürür; hiç veri yoksa çalışmayı durdurup hata fırlatır. Çekim başarılı olduysa `veriyi_hazirla` akışını tetikleyip güncel veriyi işler, kaydeder ve sunar.
+
 hazir_veriyi_getir <- function(yenile = FALSE) {
 yol <- file.path(CONFIG$saklama$processed_klasoru, "hazir_veri.rds")
   # Eski sürümün (geniş, aylık) kaydı ya da bozuk dosya "hazır veri" sayılmaz: yeniden üretilir.
@@ -154,7 +170,12 @@ stop("Hazır veri yok ve hiçbir gösterge çekilemedi (anahtarları/bağlantıy
 veriyi_hazirla(ham)
 }
 
-#NOTE
+# Bu kod, betiğin en sonunda çalışan ve tanımlanan tüm veri hazırlama fonksiyonlarının belleğe eksiksiz yüklenip yüklenmediğini denetleyen bir doğrulama testidir.
+Süreç başladığında ilk olarak sistemde bulunması gereken 8 temel fonksiyonun ("seri_hazirla", "hampel_sapan", "veriyi_hazirla" vb.) isimlerinden oluşan bir liste hazırlarız.
+Ardından `sapply` yardımıyla bu fonksiyonların çalışma ortamında (environment) gerçek birer fonksiyon olarak var olup olmadığını tek tek kontrol eder ve eksik olanların listesini çıkarırız.
+Eğer listeden yüklenememiş veya tanımlanmamış en az bir fonksiyon bile çıkarsa, kod akışı `stop` ile durdurulur ve hangi fonksiyonların eksik olduğunu belirten net bir hata mesajı yazılır.
+Tüm fonksiyonlar eksiksiz ve sağlıklı bir şekilde yüklendiyse, onay mesajı basılarak dosyanın kullanıma hazır olduğu bildirilir. Tüm bu işlemler `local()` bloğu içerisinde yürütüldüğü için süreç boyunca oluşturulan geçici değişkenler ana çalışma ortamını kirletmeden temizlenir.
+
 local({
 fonksiyonlar <- c("seri_hazirla", "ic_bosluk_say", "hampel_sapan", "kalite_raporu_olustur",
 "gosterge_serisi", "gosterge_verisi", "veriyi_hazirla", "hazir_veriyi_getir")
