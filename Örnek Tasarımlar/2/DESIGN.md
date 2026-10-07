@@ -1,120 +1,109 @@
 ---
-name: Econometric Intelligence Platform
+name: Econometric Forecaster Mobile
 colors:
-  surface: '#0f131c'
-  surface-dim: '#0f131c'
-  surface-bright: '#353943'
-  surface-container-lowest: '#0a0e17'
-  surface-container-low: '#181b25'
-  surface-container: '#1c1f29'
-  surface-container-high: '#262a34'
-  surface-container-highest: '#31353f'
-  on-surface: '#dfe2ef'
-  on-surface-variant: '#bbcabf'
-  inverse-surface: '#dfe2ef'
-  inverse-on-surface: '#2c303a'
-  outline: '#86948a'
-  outline-variant: '#3c4a42'
-  surface-tint: '#4edea3'
-  primary: '#4edea3'
-  on-primary: '#003824'
-  primary-container: '#10b981'
-  on-primary-container: '#00422b'
-  inverse-primary: '#006c49'
-  secondary: '#adc6ff'
-  on-secondary: '#002e6a'
-  secondary-container: '#0566d9'
-  on-secondary-container: '#e6ecff'
-  tertiary: '#ddb7ff'
-  on-tertiary: '#490080'
-  tertiary-container: '#c487ff'
-  on-tertiary-container: '#550093'
+  surface: '#0d1320'
+  surface-dim: '#0d1320'
+  surface-bright: '#333948'
+  surface-container-lowest: '#080e1b'
+  surface-container-low: '#161b29'
+  surface-container: '#1a1f2d'
+  surface-container-high: '#242a38'
+  surface-container-highest: '#2f3543'
+  on-surface: '#dde2f5'
+  on-surface-variant: '#bac9cc'
+  inverse-surface: '#dde2f5'
+  inverse-on-surface: '#2a303f'
+  outline: '#849396'
+  outline-variant: '#3b494c'
+  surface-tint: '#00daf3'
+  primary: '#c3f5ff'
+  on-primary: '#00363d'
+  primary-container: '#00e5ff'
+  on-primary-container: '#00626e'
+  inverse-primary: '#006875'
+  secondary: '#ffd799'
+  on-secondary: '#432c00'
+  secondary-container: '#feb300'
+  on-secondary-container: '#6a4800'
+  tertiary: '#eaecff'
+  on-tertiary: '#00297a'
+  tertiary-container: '#c3cfff'
+  on-tertiary-container: '#2751bc'
   error: '#ffb4ab'
   on-error: '#690005'
   error-container: '#93000a'
   on-error-container: '#ffdad6'
-  primary-fixed: '#6ffbbe'
-  primary-fixed-dim: '#4edea3'
-  on-primary-fixed: '#002113'
-  on-primary-fixed-variant: '#005236'
-  secondary-fixed: '#d8e2ff'
-  secondary-fixed-dim: '#adc6ff'
-  on-secondary-fixed: '#001a42'
-  on-secondary-fixed-variant: '#004395'
-  tertiary-fixed: '#f0dbff'
-  tertiary-fixed-dim: '#ddb7ff'
-  on-tertiary-fixed: '#2c0051'
-  on-tertiary-fixed-variant: '#6900b3'
-  background: '#0f131c'
-  on-background: '#dfe2ef'
-  surface-variant: '#31353f'
+  primary-fixed: '#9cf0ff'
+  primary-fixed-dim: '#00daf3'
+  on-primary-fixed: '#001f24'
+  on-primary-fixed-variant: '#004f58'
+  secondary-fixed: '#ffdeac'
+  secondary-fixed-dim: '#ffba38'
+  on-secondary-fixed: '#281900'
+  on-secondary-fixed-variant: '#604100'
+  tertiary-fixed: '#dbe1ff'
+  tertiary-fixed-dim: '#b5c4ff'
+  on-tertiary-fixed: '#00174d'
+  on-tertiary-fixed-variant: '#053da9'
+  background: '#0d1320'
+  on-background: '#dde2f5'
+  surface-variant: '#2f3543'
 typography:
-  headline-xl:
-    fontFamily: Inter
-    fontSize: 2.25rem
-    fontWeight: '600'
-    lineHeight: 2.75rem
-    letterSpacing: -0.025em
-  headline-xl-mobile:
-    fontFamily: Inter
-    fontSize: 1.75rem
-    fontWeight: '600'
-    lineHeight: 2.25rem
-    letterSpacing: -0.02em
   headline-lg:
     fontFamily: Inter
-    fontSize: 1.5rem
-    fontWeight: '600'
-    lineHeight: 2rem
-    letterSpacing: -0.02em
+    fontSize: 30px
+    fontWeight: '700'
+    lineHeight: 38px
   headline-md:
     fontFamily: Inter
-    fontSize: 1.125rem
+    fontSize: 22px
     fontWeight: '600'
-    lineHeight: 1.5rem
-    letterSpacing: -0.015em
+    lineHeight: 30px
+  headline-sm:
+    fontFamily: Inter
+    fontSize: 18px
+    fontWeight: '600'
+    lineHeight: 24px
+  title-md:
+    fontFamily: Inter
+    fontSize: 16px
+    fontWeight: '600'
+    lineHeight: 22px
   body-lg:
     fontFamily: Inter
-    fontSize: 0.9375rem
+    fontSize: 15px
     fontWeight: '400'
-    lineHeight: 1.5rem
-    letterSpacing: -0.005em
+    lineHeight: 22px
   body-md:
     fontFamily: Inter
-    fontSize: 0.8125rem
+    fontSize: 13px
     fontWeight: '400'
-    lineHeight: 1.25rem
-    letterSpacing: '0'
+    lineHeight: 18px
   body-sm:
     fontFamily: Inter
-    fontSize: 0.75rem
+    fontSize: 11px
     fontWeight: '400'
-    lineHeight: 1.125rem
-    letterSpacing: 0.005em
-  label-numeric-lg:
+    lineHeight: 16px
+  metric-display:
     fontFamily: JetBrains Mono
-    fontSize: 1.25rem
+    fontSize: 24px
+    fontWeight: '700'
+    lineHeight: 28px
+  metric-value:
+    fontFamily: JetBrains Mono
+    fontSize: 14px
+    fontWeight: '600'
+    lineHeight: 18px
+  label-md:
+    fontFamily: JetBrains Mono
+    fontSize: 12px
     fontWeight: '500'
-    lineHeight: 1.5rem
-    letterSpacing: -0.02em
-  label-numeric-md:
+    lineHeight: 16px
+  label-sm:
     fontFamily: JetBrains Mono
-    fontSize: 0.8125rem
+    fontSize: 10px
     fontWeight: '500'
-    lineHeight: 1.125rem
-    letterSpacing: -0.01em
-  label-numeric-sm:
-    fontFamily: JetBrains Mono
-    fontSize: 0.6875rem
-    fontWeight: '400'
-    lineHeight: 0.9375rem
-    letterSpacing: '0'
-  code-formula:
-    fontFamily: JetBrains Mono
-    fontSize: 0.8125rem
-    fontWeight: '400'
-    lineHeight: 1.375rem
-    letterSpacing: '0'
+    lineHeight: 14px
 rounded:
   sm: 0.125rem
   DEFAULT: 0.25rem
@@ -124,98 +113,119 @@ rounded:
   full: 9999px
 spacing:
   gutter: 0.75rem
-  gutter-desktop: 1rem
   margin: 1rem
-  margin-desktop: 1.5rem
   space-xs: 0.25rem
   space-sm: 0.5rem
   space-md: 0.75rem
   space-lg: 1.25rem
-  space-xl: 2rem
+  space-xl: 1.75rem
 ---
 
 ## Brand & Style
-The design system establishes an institutional-grade econometric workstation for academic researchers, quantitative strategists, and policy analysts operating under rigorous computational standards (TÜBİTAK 2209-A / Atılım University). It reconciles the density and precision of classical quantitative terminal environments (FactSet, Bloomberg) with contemporary European academic typography and mathematical publishing aesthetics.
 
-The personality is authoritative, mathematically uncompromising, and forensic. Every pixel signals numerical integrity: uncertainty intervals are never obscured, data points remain sovereign, and computational state transitions (such as Hampel filter thresholds, OLS parameter convergence, or out-of-sample forecast bands) are conveyed with exact chromatic discipline. Visual noise, purely decorative gradients, and frivolous motion are eliminated in favor of information density, low retinal fatigue during multi-hour research sprints, and instant visual disambiguation of stochastic data layers.
+This design system is engineered for high-precision econometric research, financial analysis, and academic presentation under the TÜBİTAK 2209-A research initiative. It balances institutional authority with cutting-edge analytical tools, turning complex Ordinary Least Squares (OLS / EKK) regressions, residual analyses, and probabilistic confidence envelopes into clear, legible mobile experiences.
+
+### Design Movement & Aesthetic
+- **Analytical Modernism / Technical Slate**: Dense with information yet rigorously structured. The aesthetic relies on low-reflection deep slate backdrops, hairline boundary dividers, and focused neon-tinged accents (cyan and amber) reminiscent of professional terminal displays and institutional econometric reports.
+- **Academic Rigor Meets Contemporary Fintech**: Data cards behave as scholarly artifacts. Typography switches naturally between systematic interface prose and monospaced quantitative notation to guarantee precision reading without ocular fatigue.
+
+### Emotional Target
+- **Rigorous & Trustworthy**: Evokes peer-reviewed confidence, mathematical reproducibility, and institutional stability.
+- **Accurate & Sharp**: Every metric, coefficient ($R^2$, t-stat, p-value), and prediction interval looks deliberate and verifiable.
+- **Focused Efficiency**: Rapidly digestible on mobile touchscreens without clutter or decorative noise.
 
 ## Colors
-The system operates natively in dark mode to preserve contrast across continuous, high-frequency line charts and complex econometric matrix visualizations.
 
-- **Foundational Surfaces**:
-  - `canvas-default`: `#090D16` (Deep Midnight Slate)
-  - `surface-subtle`: `#0F172A` (Tier 1 structural panels, dock chrome)
-  - `surface-elevated`: `#1E293B` (Inspectors, popovers, model configuration cards)
-  - `surface-inset`: `#050811` (Data-table wells, terminal logs, code blocks)
-  - `border-subtle`: `#1E293B`
-  - `border-contrast`: `#334155`
+The palette is anchored in a deep astronomical navy and technical slate space to deliver optimal contrast on OLED and mobile LCD screens while eliminating bright white glare during long research sessions.
 
-- **Econometric Semantic Palette**:
-  - **Forecast & Estimation (Primary)**: `#10B981` (Emerald). Signifies forward-projected paths, point estimates ($\hat{y}_{t+h}$), and successful convergence.
-  - **Empirical Baseline (Secondary)**: `#3B82F6` (Sapphire Blue). Dedicated to ground-truth historical realizations ($y_t$), target training sets, and standard regressors.
-  - **Cross-Validation & Hyperparameters (Tertiary)**: `#A855F7` (Amethyst Purple). Dictates walk-forward splits, train-test boundaries, ridge/lasso shrinkage trajectories, and latent variables.
-  - **Diagnostic Warnings & Hampel Outliers**: `#F59E0B` (Amber). Denotes structural breaks, missing observation interpolations, ARCH residual volatility spikes, and stationarity cautions.
-  - **Macro Distress & Inflation Critical Alerts**: `#EF4444` (Crimson). Expresses non-invertible MA polynomials, unit-root persistence failures, and runaway forecast variance.
-
-- **Alpha/Ribbon Overlays**:
-  - 95% Confidence Interval Fill: `rgba(16, 185, 129, 0.12)` bordered by `rgba(16, 185, 129, 0.40)`.
-  - 99% Tail Interval Fill: `rgba(59, 130, 246, 0.08)` bordered by `rgba(59, 130, 246, 0.25)`.
+### Semantic Color Assignments
+- **Primary (`#00E5FF` — Electric Cyan)**: Serves as the principal signal color. Used for point forecasts, primary regression trendlines, active navigation states, interactive slider throttles, and high-confidence telemetry indicators.
+- **Secondary (`#FFB300` — Signal Amber)**: Applied strictly to secondary econometric variables, residual warning states, volatility bounds, and 95% confidence intervals ($\pm 2\sigma$).
+- **Tertiary (`#4E73DF` — Institutional Cobalt)**: Used for secondary comparisons, historical base models, passive dataset indicators, and auxiliary chart overlays.
+- **Neutral Surface Ecosystem**:
+  - `Base Canvas`: `#070B14` (Deepest Void Navy)
+  - `Surface Tier 1 (Cards & Groups)`: `#0E1726` (Muted Slate Navy)
+  - `Surface Tier 2 (Nested Tables / Inputs)`: `#152238` (Elevated Deep Slate)
+  - `Hairline Borders & Outlines`: `rgba(255, 255, 255, 0.08)` to `rgba(0, 229, 255, 0.18)` for interactive targets.
+- **Text & Signal Contrast**:
+  - `Text Primary`: `#F0F4FC` (Crisp Chalk White)
+  - `Text Secondary`: `#8E9EB5` (Cadet Slate)
+  - `Text Muted / Footnote`: `#596A82`
+  - `Model Significance Success`: `#00E676` ($p < 0.01$)
+  - `Model Instability / Critical`: `#FF5252` ($p > 0.10$ or structural breaks)
 
 ## Typography
-Typography is split into two specialized engines:
-1. **Interface & Prose Layer (`Inter`)**: Tuned for dense metric displays with tabular lining numerals activated (`tnum`, `cv05`, `cv11`). Headings maintain tighter negative tracking to present compact analytical summaries without word breaks.
-2. **Formulaic, Matrix & Value Layer (`JetBrains Mono`)**: Mandated for raw matrix coefficients, p-values, t-statistics, Durbin-Watson tests, confidence limit brackets, and inline LaTeX/econometric representations.
 
-Mathematical notations (such as $AR(p)$, $R^2$, and $\Delta y_t = \alpha + \beta x_{t-1} + \varepsilon_t$) must display within the monospaced hierarchy to prevent proportional font jitter during real-time parameter re-estimation.
+The typography system pairs **Inter** for narrative context, UI controls, and academic structuring with **JetBrains Mono** for numerical values, financial figures, econometric operators, and p-value/t-statistic tables.
+
+### Type Rules & Hierarchy
+- **Strict Separation of Data & Prose**: Any statistical figure, date range, coefficient estimate, standard error, or matrix variable must be rendered in `JetBrains Mono` to ensure tabular alignment and mono-spaced column clarity on narrow mobile viewports.
+- **Tabular Figures**: `font-feature-settings: "tnum" 1` must be globally enabled across both fonts to eliminate jitter during real-time data streaming or parameter recalculations.
+- **Letter Spacing**: Use `-0.02em` on titles above 18px to enforce tight, authoritative academic headlines. Micro-labels (`label-sm`, `label-md`) use `+0.04em` tracking for readability in dark, low-opacity contexts.
 
 ## Layout & Spacing
-The layout follows an ultra-dense, multi-pane financial terminal grid optimized for widescreen displays (1440px to 4K multi-monitor workspaces), with structured reflow down to compact displays:
 
-- **Structural Grid**: 12-column variable fractional layout. Standard analytics dashboard presents a 3-pane split:
-  - Left pane: 2 or 3 columns (Model specification: lags, exogenous regressors, transformations).
-  - Center pane: 6 or 7 columns (Main forecast timeline, confidence intervals, residual plot, QQ-plot).
-  - Right pane: 3 columns (Tabular diagnostics: $p$-values, AIC/BIC, RMSE/MAE metrics, rolling window parameter tracking).
-- **Responsive Adaptations**:
-  - **Desktop ($\ge 1280\text{px}$)**: Full 3-pane parallel execution with dockable tabs and synchronous crosshair scrubbing.
-  - **Tablet ($768\text{px} - 1279\text{px}$)**: Collapses into 2-tier stacked views; parameter drawer becomes a sliding sheet.
-  - **Mobile ($< 768\text{px}$)**: Single column with dedicated segmented sub-navigation toggling between Visualization, Diagnostic Table, and Regressors.
-- **Rhythm**: Anchored by an ultra-compact base unit of `4px` (`0.25rem`) to maximize vertical data density in tables and time-series viewports.
+Designed primarily for mobile screen dimensions ($360\text{px}$ to $430\text{px}$ viewport widths), the layout adopts a compact 4-column fluid mobile grid that expands to a 6-column presentation on larger mobile displays and foldable devices.
+
+### Structural Parameters
+- **Screen Margin**: Fixed `1rem` (16px) left/right safety margins preserve precious horizontal charting real estate while respecting bezel boundaries and gesture navigation bars.
+- **Grid Gutter**: `0.75rem` (12px) column gutters ensure that paired metrics (e.g., $R^2$ paired with Adjusted $R^2$) sit comfortably side-by-side on 375px screens.
+- **Vertical Rhythm**: All spacing follows an 4px baseline rhythm (`space-xs` = 4px, `space-sm` = 8px, `space-md` = 12px, `space-lg` = 20px, `space-xl` = 28px).
+- **Mobile Reflow Constraints**: Chart widgets span full 4-columns; metric badges collapse into dual 2-column or 3-column micro-grids. Multi-variable OLS regression tables stack parameters horizontally with horizontal scroll capability or vertical accordion drawers.
 
 ## Elevation & Depth
-The system eliminates heavy blur drop-shadows and skeuomorphic light sources in favor of **Tonal Layering with Low-Contrast Structural Outlines**.
 
-1. **Surface 0 (Floor)**: Canvas background (`#090D16`), raw unbordered workspace.
-2. **Surface 1 (Card/Dock Tier)**: Panel backgrounds (`#0F172A`) structured strictly by `1px solid #1E293B`. Zero shadow.
-3. **Surface 2 (Active/Hover Tier)**: Interactive table rows, selected charts, or active parameter blocks switch to `#1E293B` bounded by `#334155`.
-4. **Surface 3 (Floating Inspectors & Tooltips)**: Overlays use `#1E293B` with an ambient, technical hairline stroke of `1px solid #475569` and a precision shadow: `0 4px 12px rgba(0, 0, 0, 0.45)`.
-5. **Data Depth**: In visualizations, temporal ribbons and intervals layer over one another through controlled alpha channels (`0.08` to `0.20`), ensuring regression lines (`#10B981` and `#3B82F6`) stay razor-sharp at `1.5px` or `2px` vector weight on the foreground plane.
+The design system uses **Tonal Layering** accompanied by **Subtle Luminescent Borders** rather than standard diffuse drop shadows. This creates a focused, high-precision laboratory environment.
+
+### Elevation Hierarchy
+1. **Level 0 (Canvas Base)**: `#070B14`. Raw substrate background.
+2. **Level 1 (Card & Module Layer)**: `#0E1726` with a uniform 1px solid stroke of `rgba(255, 255, 255, 0.06)`. Used for forecast summary cards, regression parameter blocks, and variable lists.
+3. **Level 2 (Active/Selected Card & Overlays)**: `#152238` with an active boundary stroke of `rgba(0, 229, 255, 0.35)` and a micro ambient inner glow: `0 0 16px rgba(0, 229, 255, 0.08)`.
+4. **Level 3 (Sticky Bottom Bars & Modal Drawers)**: `#0E1726` with a top boundary line of `rgba(255, 255, 255, 0.12)`, supported by `backdrop-filter: blur(16px)` and deep ground shadow `0 -8px 24px rgba(0, 0, 0, 0.5)`.
+
+### Optical Highlights
+- Shadows are never pure black; they carry a slight navy tint (`rgba(3, 7, 18, 0.6)`).
+- Interactive econometric threshold indicators project a subtle 4px radial bloom in their respective accent color (`#00E5FF` for primary, `#FFB300` for warning bounds).
 
 ## Shapes
-Geometry is disciplined, utilitarian, and near-orthogonal (`Soft` / `0.25rem`). Curved corners must remain minimal (`4px` base, `6px` maximum for floating modals) to preserve screen real estate in dense grid splits and eliminate visual sagging along tabular borders. Data points on line graphs are unrounded vectors (sharp squares or crisp crosses) on zoom inspection.
+
+The design system maintains a **Soft / Semi-Technical Geometry** (`roundedness: 1`), conveying mathematical structure, engineered precision, and modern software ergonomics.
+
+### Corner Radius System
+- **Core Elements & Inputs (`0.25rem` / 4px)**: Input fields, regression parameter tags, inline data badges, and progress tracks. Sharp enough to feel industrial and precise.
+- **Card Containers & Modules (`0.5rem` / 8px)**: Chart containers, metric modules, model diagnostics panels, and bottom sheets.
+- **Interactive Buttons & Selectors (`0.375rem` / 6px)**: Action buttons, variable toggle chips, and econometric transformation controls.
+- **Status Pills & Confidence Chips**: Full pill roundedness (`9999px`) exclusively reserved for binary indicators, e.g., model validation statuses (`"H₀ REDDEDİLDİ"`, `"OLS DÜZEYİ: GÜVENİLİR"`).
 
 ## Components
 
-- **Buttons & Model Triggers**:
-  - Standard button height: `28px` (compact) to `32px` (default). 
-  - Primary ("Run OLS / Generate Forecast"): Emerald fill (`#10B981`), dark text (`#090D16`), font weight `600`, zero blur, subtle hover brightness shift.
-  - Secondary / Utility: Surface background (`#1E293B`), text (`#E2E8F0`), hairline border (`#334155`).
-  - Compute State: Monospaced loading badge with elapsed microsecond timer (`[t = 124ms]`).
+### 1. Buttons
+- **Primary (Forecast Trigger / Run EKK)**: Solid `#00E5FF` background with `#070B14` bold text (`fontFamily: "Inter"`, `fontWeight: 600`). Active press introduces a scale-down of `0.98` and a cyan luminescence.
+- **Secondary (Parameter Tuning / Export)**: Ghost button with `#152238` fill, 1px border `rgba(0, 229, 255, 0.25)`, and `#00E5FF` text.
+- **Danger (Reset Model / Drop Variable)**: Translucent ruby fill `rgba(255, 82, 82, 0.12)` with `#FF5252` border and label.
 
-- **Diagnostic Data Tables**:
-  - Row height: `24px` to `28px` maximum. Zebra alternating tinting suppressed; separation handled via subtle row border (`#1E293B`).
-  - Columns right-aligned for all numerical outputs ($R^2$, AIC, F-stat, Kurtosis, Skewness).
-  - P-value cells feature dynamic micro-badges: Emerald text for $p < 0.01$, amber for $0.05 \le p < 0.10$, and muted slate for non-significance ($p \ge 0.10$).
+### 2. Metric Badges & Status Pills
+- **Econometric Status Pill**: Height of 22px, `rounded-full`, with internal padding `0.2rem 0.5rem`. Contains a pulsing 6px dot:
+  - Valid OLS Model: Emerald dot with `rgba(0, 230, 118, 0.12)` fill.
+  - Heteroskedasticity / Multicollinearity Alert: Amber dot with `rgba(255, 179, 0, 0.12)` fill.
+- **Coefficient Badges**: JetBrains Mono font (`label-sm`), displaying variable names ($X_1, X_2$) in Slate (`#8E9EB5`) alongside bold calculated coefficients in `#F0F4FC`.
 
-- **Interactive Sparklines & Chart Overlays**:
-  - Baseline series rendered in Sapphire Blue (`#3B82F6`) at `1.5px`.
-  - Point forecasts rendered in Emerald Green (`#10B981`) with distinct dashed styling for out-of-sample horizons.
-  - Confidence interval bounds (e.g. $\pm 2\sigma$) rendered with zero-stroke fill ribbons utilizing alpha masks.
-  - Hampel filter outlier flags: `6px` Amber diamond markers positioned directly over aberrant residual points with inline tooltip diagnostics.
+### 3. Cards & Analytical Containers
+- Built on Surface Tier 1 (`#0E1726`) with 12px internal padding (`space-md`).
+- Header row contains the variable name, TÜBİTAK 2209-A dataset tag, and a 3-dot contextual action trigger.
+- Cards maintain zero elevation shadows by default; hierarchy is defined purely by border brightness and nested surface contrast.
 
-- **Econometric Parameter Chips & Sliders**:
-  - Compact `20px` tall chips with JetBrains Mono tags (e.g., `p=2`, `d=1`, `q=1`, `seasonal=TRUE`).
-  - Draggable split-date dividers for rolling cross-validation windows, bounded with Amethyst Purple (`#A855F7`) accents and hairline indicators.
+### 4. Forecast & Confidence Band Displays
+- Main trendline drawn with 2px stroke in `#00E5FF`.
+- Upper and lower bounds ($95\%$ confidence interval) bounded by `#FFB300` dashed 1px stroke with an intra-band fill of `rgba(255, 179, 0, 0.06)`.
+- Crosshair scrubbers highlight mobile touch points showing exact timestamp, predicted value, and error margin in a floating tooltip pill.
 
-- **Input Fields & Mathematical Formula Editors**:
-  - Monospaced inputs with inset background (`#050811`) and high-contrast interior text.
-  - Real-time syntax validation: Border shifts immediately to Crimson (`#EF4444`) on collinear regressor specification or non-invertible matrix entries.
+### 5. Input Fields & Parameter Steppers
+- Background of `#152238` with 1px border `rgba(255, 255, 255, 0.1)`.
+- Focus state activates a 1px border in `#00E5FF` with a subtle outline glow.
+- Labels are positioned strictly above the inputs in `Inter` 11px uppercase (`#8E9EB5`).
+
+### 6. Econometric Data Table (Mobile Optimized)
+- Alternating subtle rows (`transparent` vs `rgba(255, 255, 255, 0.02)`).
+- Sticky left column for variable labels ($\beta_0, \beta_1, \dots$); horizontal swipe for statistical columns: Std Error, t-Stat, P>|t|, [0.025 - 0.975].
+- Numerical entries rendered strictly in tabular `JetBrains Mono`.
