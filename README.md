@@ -1,3 +1,4 @@
+# EKK Tabanlı Ekonometrik Yaklaşımla Finansal Değişkenlerin Tahmini
 ![R](https://img.shields.io/badge/R-4.3%2B-blue) ![Shiny](https://img.shields.io/badge/Shiny-App-orange) ![Version](https://img.shields.io/badge/s%C3%BCr%C3%BCm-2.0.0-informational) ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
 Türkiye ekonomisine ilişkin açık kaynaklı verilerle çalışan, kayan pencere (rolling window) yaklaşımıyla güncellenen Otoregresif (AR) modelleri En Küçük Kareler (EKK) yöntemiyle tahmin eden ve sonuçları interaktif bir web arayüzü üzerinden sunan uçtan uca bir ekonomik tahmin sistemidir.
