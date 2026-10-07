@@ -9,17 +9,17 @@ Bu proje, Atılım Üniversitesi bünyesinde TÜBİTAK 2209-A Üniversite Öğre
 
 ## İçindekiler
 
-1. [Genel Bakış](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#1-genel-bak%C4%B1%C5%9F)
-2. [Metodoloji](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#2-metodoloji)
-3. [Sistem Mimarisi](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#3-sistem-mimarisi)
-4. [Dizin Yapısı](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#4-dizin-yap%C4%B1s%C4%B1)
-5. [Kurulum](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#5-kurulum)
-6. [Kullanım](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#6-kullan%C4%B1m)
-7. [Yapılandırma](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#7-yap%C4%B1land%C4%B1rma)
-8. [Modül Referansı](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#8-mod%C3%BCl-referans%C4%B1)
-9. [Genişletilebilirlik](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#9-geni%C5%9Fletilebilirlik)
-10. [Tasarım İlkeleri](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#10-tasar%C4%B1m-i%CC%87lkeleri)
-11. [Kaynakça](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#11-kaynak%C3%A7a)
+1. [Genel Bakış](#1-genel-bakış)
+2. [Metodoloji](#2-metodoloji)
+3. [Sistem Mimarisi](#3-sistem-mimarisi)
+4. [Dizin Yapısı](#4-dizin-yapısı)
+5. [Kurulum](#5-kurulum)
+6. [Kullanım](#6-kullanım)
+7. [Yapılandırma](#7-yapılandırma)
+8. [Modül Referansı](#8-modül-referansı)
+9. [Genişletilebilirlik](#9-genişletilebilirlik)
+10. [Tasarım İlkeleri](#10-tasarım-i̇lkeleri)
+11. [Kaynakça](#11-kaynakça)
 
 ---
 
