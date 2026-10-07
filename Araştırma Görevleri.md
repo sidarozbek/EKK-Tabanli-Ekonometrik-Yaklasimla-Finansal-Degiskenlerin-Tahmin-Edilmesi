@@ -5,12 +5,12 @@
 **Kişi:** Elif Işıl Çiçek  
 **Hedef:** Giriş (literatür), Tartışma (H1 ve H2)
 
->**Hatırlatma:** 
-> 
+**Hatırlatma:** 
+
   **H1:** Kayan pencere yaklaşımı ile güncellenen AR-EKK modeli, ekonomik göstergelerdeki veri örüntülerini anlamlı düzeyde açıklamaktadır. 
-> 
+ 
   **H2:** Geliştirilen webtabanlı tahmin sistemi, model esnekliği ve güncelleme hızı açısından veri temelli politika analizleri için uygun öngörü performansı sunmaktadır.
-  > 
+ 
   **Hedef 2:** Yapısal kırılmalara ve nonlineer dinamiklere uyum sağlayabilen kayan pencere yaklaşımı ile Otoregresif (AR) modelleri En Küçük Kareler (EKK) yöntemi kullanarak tahmin etmek ve bu modellerin farklı dönemlerdeki ekonomik dinamikleri yakalama kapasitesini değerlendirmek.
 
 **Teorik sorular**
@@ -49,21 +49,21 @@ Aşağıdaki dönemleri doğrulayıp her birinin hangi göstergeyi nasıl etkile
 **Kişi:** Melek Sevimli, Sidar Özbek 
 **Hedef:** Yöntem 2.4–2.7, Bulgular 3.3, Tartışma
 
->**Hatırlatma:** 
-> 
+ **Hatırlatma:** 
+ 
   **Yöntem 2.4. En Küçük Kareler (EKK) Tahmincisi**
   AR modelinin parametreleri, En Küçük Kareler (EKK) yöntemiyle tahmin edilecektir. EKK tahmincisi, hata kareler toplamını minimize eden parametre değerlerini bulmayı amaçlar: 
->  
->EKK tahmincisi, Gauss-Markov Teoremi altında En İyi Doğrusal Tarafsız Tahmin Edici (BLUE - Best Linear Unbiased Estimator) özelliğine sahiptir (Wooldridge, 2016). Bu özellik, doğru model varsayımları altında EKK tahmincisinin en küçük varyansa sahip olmasını garanti eder.
->
+  
+EKK tahmincisi, Gauss-Markov Teoremi altında En İyi Doğrusal Tarafsız Tahmin Edici (BLUE - Best Linear Unbiased Estimator) özelliğine sahiptir (Wooldridge, 2016). Bu özellik, doğru model varsayımları altında EKK tahmincisinin en küçük varyansa sahip olmasını garanti eder.
+
   **Yöntem 2.7. Tahmin Performansı Değerlendirme**
   Modelin öngörü performansı, aşağıdaki metrikler kullanılarak değerlendirilecektir:
-  >
->- Ortalama Mutlak Hata (MAE)
->- Ortalama Kare Hata (MSE)
->- Kök Ortalama Kare Hata (RMSE)
->- Ortalama Mutlak Yüzde Hata (MAPE)
->- Theil U İstatistiği
+  
+- Ortalama Mutlak Hata (MAE)
+- Ortalama Kare Hata (MSE)
+- Kök Ortalama Kare Hata (RMSE)
+- Ortalama Mutlak Yüzde Hata (MAPE)
+- Theil U İstatistiği
 
 **Teorik sorular**
 
@@ -82,21 +82,21 @@ Aşağıdaki dönemleri doğrulayıp her birinin hangi göstergeyi nasıl etkile
 **Kişi:** Arzu Gülnur Okman  
 **Hedef:** Yöntem 2.2–2.3, Bulgular 3.1, Kısıtlar
 
->**Hatırlatma:** 
-> 
+**Hatırlatma:** 
+ 
   **Hedef 1:** FRED, TCMB EVDS, OECD ve Dünya Bankası gibi açık kaynaklı veri tabanlarından API entegrasyonu ile otomatik veri çekme altyapısı kurmak ve Türkiye'ye ait makroekonomik, finansal ve sektörel göstergelerin sürekli güncellenebilir bir veri setini oluşturmak.
-> 
+ 
   **Hedef 6:** Açık veri ve tekrarlanabilirlik ilkeleri doğrultusunda, tüm veri kaynakları, model parametreleri ve güncellenme süreçlerinin şeffaf biçimde dokümante edilmesi ve gelecekteki çalışmalar için sürdürülebilir bir altyapı oluşturulması.
- > 
+  
   **Yöntem 2.2. Değişkenler**
- >
->- Bağımlı Değişkenler
->- Bağımsız Değişkenler
->- Kontrol Değişkenleri
-  >
->**Yöntem 2.3. Otoregresif (AR) Model Yapısı**
->
->Otoregresif model, bir değişkenin gelecek değerinin kendi geçmiş değerlerinin doğrusal bir fonksiyonu olarak ifade edildiği bir zaman serisi modelidir. p dereceden bir AR modeli, AR(p) şeklinde gösterilir
+ 
+- Bağımlı Değişkenler
+- Bağımsız Değişkenler
+- Kontrol Değişkenleri
+
+**Yöntem 2.3. Otoregresif (AR) Model Yapısı**
+
+Otoregresif model, bir değişkenin gelecek değerinin kendi geçmiş değerlerinin doğrusal bir fonksiyonu olarak ifade edildiği bir zaman serisi modelidir. p dereceden bir AR modeli, AR(p) şeklinde gösterilir
 
 **Araştırma soruları**
 
