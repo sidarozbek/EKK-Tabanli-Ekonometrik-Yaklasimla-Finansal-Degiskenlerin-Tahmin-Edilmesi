@@ -39,19 +39,19 @@ kayan_pencere_tahmin <- function(veri, gosterge, pencere = NULL, p = NULL, son_n
   d <- gosterge_verisi(veri, gosterge, p, trend = trend)
   formul <- formul_kur(gosterge, paste0(gosterge, "_lag", seq_len(p)), trend = trend)
   n <- nrow(d)
-  
+
   if (w <= p + 1 + trend) {
     stop("Pencere (", w, ") lag sayısına (", p, ") göre çok küçük: ", gosterge, call. = FALSE)
   }
   if (n <= w) stop("Veri (", n, " satır) pencereden (", w, ") kısa: ", gosterge, call. = FALSE)
-  
+
   t_ilk <- if (is.null(son_n)) w else max(w, n - son_n)
   idx <- t_ilk:(n - 1)
   m <- length(idx)
   gercek <- tahmin <- naif <- numeric(m)
   tarih  <- as.Date(rep(NA, m))
   ic     <- matrix(NA_real_, m, 3)
-  
+
   for (i in seq_len(m)) {
     t       <- idx[i]
     egitim  <- d[(t - w + 1):t, , drop = FALSE]
@@ -61,7 +61,7 @@ kayan_pencere_tahmin <- function(veri, gosterge, pencere = NULL, p = NULL, son_n
     gercek[i] <- sonraki[[gosterge]]
     naif[i]   <- sonraki[[paste0(gosterge, "_lag1")]]
     tarih[i]  <- sonraki$tarih
-    
+
     hata <- stats::residuals(model); y <- egitim[[gosterge]]
     ic[i, ] <- c(mean(abs(hata)), mean(hata^2),
                  100 * mean(abs(hata[y != 0] / y[y != 0])))
@@ -106,7 +106,7 @@ model_sec <- function(veri, g) {
   p0 <- gosterge_p(g); w0 <- gosterge_pencere(g)
   varsayilan_sonuc <- list(p = p0, pencere = w0, yontem = "varsayilan", tablo = NULL, son_n = NA)
   if (!identical(CONFIG$model$model_secimi, "capraz")) return(varsayilan_sonuc)
-  
+
   fk <- frekans_ayari(gosterge_frekansi(g))
   p_adaylari <- unique(c(p0,
                          tryCatch(p_sec(veri, g, "AIC")$p, error = function(e) NULL),
@@ -114,7 +114,7 @@ model_sec <- function(veri, g) {
   w_adaylari <- sort(unique(gosterge_pencere_adaylari(g)))
   n_p <- sapply(p_adaylari, function(p) nrow(gosterge_verisi(veri, g, p)))
   min_n <- varsayilan(CONFIG$model$capraz_min_n, 4)
-  
+
   for (son_n in unique(c(fk$capraz_son_n, ceiling(fk$capraz_son_n / 2), min_n))) {
     if (son_n < min_n) next
     izgara <- do.call(rbind, lapply(seq_along(p_adaylari), function(i) {
@@ -128,7 +128,7 @@ model_sec <- function(veri, g) {
     varsayilan_sonuc$yontem <- "varsayilan"
     return(varsayilan_sonuc)
   }
-  
+
   izgara$RMSE <- NA_real_; izgara$MAE <- NA_real_
   for (i in seq_len(nrow(izgara))) {
     s <- tryCatch(kayan_pencere_tahmin(veri, g, pencere = izgara$pencere[i], p = izgara$p[i], son_n = son_n),
@@ -151,7 +151,7 @@ gelecek_tahmin <- function(veri, gosterge, ufuk = NULL, pencere = NULL, p = NULL
   d <- gosterge_verisi(veri, gosterge, p, trend = trend)
   w <- min(varsayilan(pencere, gosterge_pencere(gosterge)), nrow(d))
   if (w <= p + 1 + trend) stop("Pencere lag sayısına göre çok küçük: ", gosterge, call. = FALSE)
-  
+
   egitim <- utils::tail(d, w)
   girdiler <- paste0(gosterge, "_lag", seq_len(p))
   model <- lm(formul_kur(gosterge, girdiler, trend = trend), data = egitim)
@@ -159,7 +159,7 @@ gelecek_tahmin <- function(veri, gosterge, ufuk = NULL, pencere = NULL, p = NULL
   c0  <- unname(kat["(Intercept)"]); phi <- unname(kat[girdiler])
   b_trend <- if (trend) unname(kat["trend"]) else 0
   sigma <- summary(model)$sigma
-  
+
   gecmis <- egitim[[gosterge]]
   tr_son <- if (trend) utils::tail(egitim$trend, 1) else 0
   tahmin <- numeric(ufuk)
@@ -266,14 +266,14 @@ gosterge_guncelle <- function(ad) {
   seri <- seri_hazirla(ham[, c("tarih", "deger")], ad)
   veri <- rbind(eski[eski$gosterge != ad, ], seri); rownames(veri) <- NULL
   ikili_kaydet(veri, "hazir_veri")
-  
+
   degistir <- function(tablo, satir, anahtar = "gosterge") {
     y <- rbind(tablo[tablo[[anahtar]] != ad, , drop = FALSE], satir); rownames(y) <- NULL; y
   }
   yeni_meta <- metaveri_olustur(setNames(list(ham), ad))
   ikili_kaydet(degistir(processed_oku("metaveri"), yeni_meta), "metaveri")
   ikili_kaydet(degistir(processed_oku("kalite_raporu"), kalite_raporu_olustur(ham)), "kalite_raporu")
-  
+
   h <- gosterge_hesapla(veri, ad, yeni_meta$kaynak)
   sonuc <- list(ozet = degistir(k$ozet, h$ozet), gelecek = degistir(k$gelecek, h$gelecek),
                 gecmis = degistir(k$gecmis, h$gecmis),

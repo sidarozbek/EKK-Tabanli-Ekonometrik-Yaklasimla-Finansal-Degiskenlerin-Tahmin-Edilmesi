@@ -1,21 +1,21 @@
-#NOTE
+#Bu kod, R ortamında CONFIG adında bir ayar değişkeni tanımlı değilse çalışmayı anında durdurarak kullanıcıdan önce R/config.R dosyasını yüklemesini isteyen bir kontrol mekanizmasıdır.
 if (!exists("CONFIG")) {
   stop("[utils.R] Önce config.R yükle: source('R/config.R')")
 }
 
-#NOTE
+#Asıl veri bozuk veya boşsa, B planındaki (yedek) veriyi kullan.
 varsayilan <- function(deger, yedek) {
   if (is.null(deger) || length(deger) == 0 || all(is.na(deger))) yedek else deger
 }
 
-#NOTE
+#Ayarlardaki (CONFIG$saklama) ismi "klasoru" ile biten tüm klasör yollarını bulur ve bilgisayarınızda bu klasörler henüz yoksa hepsini otomatik olarak oluşturur.
 klasor_hazirla <- function() {
   yollar <- unlist(CONFIG$saklama[grep("klasoru$", names(CONFIG$saklama))])
   for (y in yollar) dir.create(y, showWarnings = FALSE, recursive = TRUE)
   invisible(yollar)
 }
 
-#NOTE
+#Bu kod, verdilen mesajı tarih ve saat ekleyerek hem ekrana yazdıran hem de calisma.log adlı bir günlük dosyasına kaydeden bir kayıt (log) tutucudur.
 log_msg <- function(mesaj, seviye = "BILGI") {
   satir <- paste0("[", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "] [", seviye, "] ", mesaj)
   cat(satir, "\n")
@@ -25,13 +25,13 @@ log_msg <- function(mesaj, seviye = "BILGI") {
   invisible(NULL)
 }
 
-#NOTE
+#Bu kod, belirtilen bir dosyanın kaç gün önce düzenlendiğini (yaşını) hesaplar; eğer dosya hiç yoksa sonucu sonsuz (Inf) olarak döndürür.
 dosya_yasi_gun <- function(yol) {
   if (!file.exists(yol)) return(Inf)
   as.numeric(difftime(Sys.time(), file.mtime(yol), units = "days"))
 }
 
-#NOTE
+#Bu kod, verilen bir veriyi önbelleğe (cache) almak için belirtilen klasöre .rds uzantılı bir dosya olarak kaydeder.
 cache_yaz <- function(veri, ad) {
   klasor <- varsayilan(CONFIG$saklama$cache_klasoru, "data/cache")
   dir.create(klasor, showWarnings = FALSE, recursive = TRUE)
@@ -39,7 +39,7 @@ cache_yaz <- function(veri, ad) {
   invisible(NULL)
 }
 
-#NOTE
+#Bu kod, önbellekteki (cache) kaydedilmiş veriyi okur; eğer dosya yoksa veya belirlediğiniz süreden (varsayılan 1 gün) daha eskiyse veriyi eski kabul edip boş (NULL) döndürür.
 cache_oku <- function(ad, tazelik_gun = 1) {
   klasor <- varsayilan(CONFIG$saklama$cache_klasoru, "data/cache")
   yol <- file.path(klasor, paste0(ad, ".rds"))
@@ -48,7 +48,7 @@ cache_oku <- function(ad, tazelik_gun = 1) {
   tryCatch(readRDS(yol), error = function(e) NULL)
 }
 
-#NOTE
+#Bu kod, elinizdeki veriden sadece "tarih" ve "deger" sütunlarını seçip yedek klasörüne .csv dosyası olarak kaydeder.
 yedek_csv_yaz <- function(veri, ad) {
   klasor <- varsayilan(CONFIG$saklama$yedek_klasoru, "data/yedek")
   dir.create(klasor, showWarnings = FALSE, recursive = TRUE)
@@ -57,7 +57,7 @@ yedek_csv_yaz <- function(veri, ad) {
   invisible(NULL)
 }
 
-#NOTE
+#Bu kod, kaydedilmiş yedek .csv dosyasını okur; içindeki "tarih" ve "deger" bilgilerini doğru veri tiplerine (tarih ve sayıya) dönüştürüp, yanına bir de kimlik ekleyerek temiz bir tablo halinde geri verir.
 yedek_csv_oku <- function(ad) {
   yol <- file.path(varsayilan(CONFIG$saklama$yedek_klasoru, "data/yedek"), paste0(ad, ".csv"))
   if (!file.exists(yol)) return(NULL)
@@ -66,7 +66,7 @@ yedek_csv_oku <- function(ad) {
   data.frame(tarih = as.Date(d$tarih), deger = as.numeric(d$deger), kimlik = ad)
 }
 
-#NOTE
+#Bu kod, işlenmiş bir veriyi garanti olsun diye aynı anda iki farklı formatta (hem R dosyası .rds hem de Excel/metin dosyası .csv olarak) klasöre kaydeder.
 ikili_kaydet <- function(veri, ad) {
   klasor <- varsayilan(CONFIG$saklama$processed_klasoru, "data/processed")
   dir.create(klasor, showWarnings = FALSE, recursive = TRUE)
@@ -75,7 +75,7 @@ ikili_kaydet <- function(veri, ad) {
   invisible(NULL)
 }
 
-#NOTE
+#Bu kod, önceden işlenip data/processed klasörüne .rds olarak kaydedilmiş veriyi güvenle geri okur.
 processed_oku <- function(ad) {
   yol <- file.path(varsayilan(CONFIG$saklama$processed_klasoru, "data/processed"),
                    paste0(ad, ".rds"))
@@ -83,7 +83,7 @@ processed_oku <- function(ad) {
   tryCatch(readRDS(yol), error = function(e) NULL)
 }
 
-#NOTE
+#Bu kod, elinizdeki veriyi kronolojik sırasını bozmadan belirlediğiniz oranda (varsayılan olarak %80 model eğitimi, %20 sınama/test için) eğitim ve sınama kümesi olarak ikiye böler.
 tarihe_gore_bol <- function(veri, egitim_orani = NULL) {
   oran <- varsayilan(egitim_orani, varsayilan(CONFIG$model$egitim_orani, 0.80))
   n <- nrow(veri)
@@ -92,7 +92,7 @@ tarihe_gore_bol <- function(veri, egitim_orani = NULL) {
        sinama = veri[(kesim + 1):n, , drop = FALSE])
 }
 
-#NOTE
+#Bu kod, belirlediğiniz hedef ve girdi değişkenlerine isteğinize göre trend ve mevsim etkilerini de ekleyerek istatistiksel modeller için hazır bir formül (hedef ~ girdi1 + girdi2) oluşturur.
 formul_kur <- function(hedef, girdiler, trend = FALSE, mevsim = FALSE) {
   terimler <- girdiler
   if (trend)  terimler <- c(terimler, "trend")
@@ -100,19 +100,19 @@ formul_kur <- function(hedef, girdiler, trend = FALSE, mevsim = FALSE) {
   stats::as.formula(paste(hedef, "~", paste(terimler, collapse = " + ")))
 }
 
-#NOTE
+#Bu kod, bir tablodaki verileri inceleyip yalnızca belirlediğiniz tarihten (eski_tarih) daha yeni olan satırları filtreleyip size verir; eğer eski bir tarih belirtilmemişse verinin tamamını olduğu gibi geri döndürür.
 yeni_olanlar <- function(veri, tarih_sutunu, eski_tarih) {
   if (is.null(eski_tarih)) return(veri)
   veri[veri[[tarih_sutunu]] > eski_tarih, , drop = FALSE]
 }
 
-#NOTE
+#Bu kod, programda düzeltilemeyecek kritik bir sorun olduğunda (örneğin eksik veya bozuk bir dosya durumunda) özel bir "Kalıcı Hata" uyarısı fırlatarak çalışmayı durduran acil durum butonudur.
 kalici_hata <- function(mesaj) {
   stop(structure(class = c("kalici_hata", "error", "condition"),
                  list(message = mesaj, call = NULL)))
 }
 
-#NOTE
+#Bu kod, bir işlemi hemen pes etmeden belirli sayıda (varsayılan 3 defa) tekrar dener; eğer işlem "kalıcı hata" verirse zaman kaybetmeden durur, geçici bir hataysa aralarda bekleyip tekrar deneyerek log kaydı tutar.
 tekrar_dene <- function(islem, deneme = NULL, bekleme = NULL) {
   n <- varsayilan(deneme, varsayilan(CONFIG$baglanti$yeniden_deneme, 3))
   b <- varsayilan(bekleme, varsayilan(CONFIG$baglanti$yeniden_deneme_bekleme, 2))
@@ -120,7 +120,7 @@ tekrar_dene <- function(islem, deneme = NULL, bekleme = NULL) {
   for (i in seq_len(n)) {
     sonuc <- tryCatch(islem(), error = function(e) { son_hata <<- e; NULL })
     if (!is.null(sonuc)) return(sonuc)
-    if (inherits(son_hata, "kalici_hata")) break        # tekrar denemeye değmez
+    if (inherits(son_hata, "kalici_hata")) break
     if (i < n) {
       log_msg(paste0("Deneme ", i, "/", n, " başarısız, tekrar deneniyor"), "UYARI")
       Sys.sleep(b)
@@ -130,24 +130,24 @@ tekrar_dene <- function(islem, deneme = NULL, bekleme = NULL) {
   stop(conditionMessage(son_hata), call. = FALSE)
 }
 
-#NOTE
+#Bu kod, verilen bir tarihi belirlediğiniz zaman aralığına (örneğin aylık, çeyreklik veya yıllık döneme) göre yuvarlayarak, o dönemin ilk gününü (örneğin ayın veya çeyreğin 1. gününü) bulur.
 donem_basi <- function(tarih, frekans) {
   adim <- frekans_ayari(frekans)$ay_adimi
   y <- as.integer(format(tarih, "%Y")); m <- as.integer(format(tarih, "%m"))
   as.Date(sprintf("%04d-%02d-01", y, ((m - 1) %/% adim) * adim + 1))
 }
 
-#NOTE
+#Bu kod, belirlediğiniz başlangıç ve bitiş tarihleri arasında, seçtiğiniz periyoda (örneğin 1 ay, 3 ay veya 12 ay aralıklarla) uygun sıralı bir tarih listesi/dizisi oluşturur.
 donem_dizisi <- function(bas, son, frekans) {
   seq(bas, son, by = paste(frekans_ayari(frekans)$ay_adimi, "months"))
 }
 
-#NOTE
+#Bu kod, belirttiğiniz bir tarihin üzerine seçtiğiniz zaman aralığına göre (örneğin aylık veya çeyreklik) n adım sonrasındaki gelecek tarihleri hesaplayıp bir liste halinde verir.
 donem_ekle <- function(tarih, n, frekans) {
   seq(tarih, by = paste(frekans_ayari(frekans)$ay_adimi, "months"), length.out = n + 1)[-1]
 }
 
-#NOTE
+#Bu kod, verilen bir tarihi seçtiğiniz frekansa göre okunaklı bir metin etiketine dönüştürür; örneğin aylık için "Ocak 2024", çeyreklik için "2024 Ç1", yıllık için "2024" şeklinde veya tanınmayan bir frekansta doğrudan tarihin kendisini metin olarak döndürür.
 donem_etiketi <- function(tarih, frekans) {
   aylar <- c("Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos",
              "Eylül", "Ekim", "Kasım", "Aralık")
@@ -159,48 +159,48 @@ donem_etiketi <- function(tarih, frekans) {
          format(tarih))
 }
 
-#NOTE
+#Bu kod, sistem ayarlarındaki (CONFIG) göstergeleri tarayarak yalnızca duruma göre aktif olarak işaretlenmiş olan göstergelerin isimlerini bir liste halinde ayıklayıp size verir.
 aktif_gostergeler <- function() {
   names(Filter(function(g) isTRUE(g$aktif), CONFIG$gostergeler))
 }
 
-#NOTE
+#Bu kod, verilen bir gösterge kodunun (g) sistem ayarlarındaki özel adını bulur; eğer özel bir ad tanımlanmamışsa veya boşsa yedek plan olarak göstergenin kendi kod adını (g) geri verir.
 gosterge_etiketi <- function(g) varsayilan(CONFIG$gostergeler[[g]][["ad"]], g)
 
-#NOTE
+#Bu kod, verilen bir göstergenin (g) sistem ayarlarında tanımlı zaman frekansını (örneğin "ceyreklik" veya "yillik") bulur; eğer özel bir frekans belirtilmemişse varsayılan olarak "aylik" değerini döndürür.
 gosterge_frekansi <- function(g) varsayilan(CONFIG$gostergeler[[g]][["frekans"]], "aylik")
 
-#NOTE
+#Bu kod, belirtilen göstergenin (g) sistem ayarlarındaki öncelik sırasını/seviyesini okuyup getiren doğrudan bir erişim fonksiyonudur.
 gosterge_oncelik <- function(g) CONFIG$gostergeler[[g]][["oncelik"]]
 
-#NOTE
+#Bu kod, bir göstergenin modelde kaç dönem geriye dönük (geikmeli/lag) kullanılacağını bulur; sırasıyla göstergeye özel ayara, bulunamazsa frekansa özel ayara, o da yoksa genel model ayarlarına bakar ve hiçbir şey tanımlı değilse varsayılan olarak 3 değerini alır.
 gosterge_p <- function(g) {
   f <- gosterge_frekansi(g)
   varsayilan(CONFIG$gostergeler[[g]][["p"]],
              varsayilan(CONFIG$frekanslar[[f]][["lag_sayisi"]], varsayilan(CONFIG$model$lag_sayisi, 3)))
 }
 
-#NOTE
+#Bu kod, bir göstergenin analizinde veya modellemesinde kullanılacak zaman penceresi uzunluğunu (veri geçmişi derinliğini) belirler; sırasıyla göstergeye özel ayara, yoksa frekansa özel ayara, o da yoksa genel model ayarlarına bakar ve hiçbir yerde tanımlanmamışsa varsayılan olarak 48 değerini döndürür.
 gosterge_pencere <- function(g) {
   f <- gosterge_frekansi(g)
   varsayilan(CONFIG$gostergeler[[g]][["pencere"]],
              varsayilan(CONFIG$frekanslar[[f]][["pencere_uzunlugu"]], varsayilan(CONFIG$model$pencere_uzunlugu, 48)))
 }
 
-#NOTE
+#Bu kod, belirli bir gösterge için modelin kaç adım ileriye dönük tahmin yapacağını (tahmin ufkunu) belirler; öncelikle göstergeye özel ayara, yoksa frekansa özel ayara, o da yoksa genel model ayarlarına bakar ve hiçbir ayar bulunamazsa varsayılan olarak 6 değerini alır.
 gosterge_ufuk <- function(g) {
   f <- gosterge_frekansi(g)
   varsayilan(CONFIG$gostergeler[[g]][["tahmin_ufku"]],
              varsayilan(CONFIG$frekanslar[[f]][["tahmin_ufku"]], varsayilan(CONFIG$model$tahmin_ufku, 6)))
 }
 
-#NOTE
+#Bu kod, belirli bir gösterge için model optimizasyonunda denenecek pencere uzunluğu adaylarını (farklı geçmiş veri aralıklarını) getirir; öncelikle göstergeye özel tanımlanmış bir aday listesi var mı diye bakar, yoksa göstergenin frekansına uygun olan varsayılan pencere adaylarını döndürür.
 gosterge_pencere_adaylari <- function(g) {
   varsayilan(CONFIG$gostergeler[[g]][["pencere_adaylari"]],
              frekans_ayari(gosterge_frekansi(g))$pencere_adaylari)
 }
 
-#NOTE
+#Bu kod, utils.R dosyasının sonunda çalışan bir kalite kontrol testidir; kütüphanedeki tüm araçların (fonksiyonların) eksiksiz şekilde yüklenip yüklenmediğini denetler, eksik bir fonksiyon varsa hata vererek çalışmayı durdurur, hepsi tamsa alet çantasının başarıyla yüklendiğine dair onay mesajı verir.
 klasor_hazirla()
 
 local({
