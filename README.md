@@ -567,7 +567,7 @@ Bu bölüm, projeyle amaç, veri kaynağı veya yöntem bakımından örtüşen 
 
 |Proje|Dil|Ortak yön|Temel fark|
 |---|---|---|---|
-|[turkey-macro-dashboard](https://github.com/enesgencer18/turkey-macro-dashboard) (Gencer, 2022)|R|Türkiye enflasyonu; TCMB verisi; GitHub Actions ve Docker ile otomatikleştirilmiş veri ve model hattı; sabit pencereli zaman serisi çapraz doğrulaması (36 gözlemle eğitim, 3 dönemle sınama)|Yalnızca enflasyonu tahmin eder; çok değişkenli Elastic Net kullanır; sunum statik bir flexdashboard'dur|
+|[turkey-macro-dashboard](https://github.com/enesgencer18/turkey-macro-dashboard)|R|Türkiye enflasyonu; TCMB verisi; GitHub Actions ve Docker ile otomatikleştirilmiş veri ve model hattı; sabit pencereli zaman serisi çapraz doğrulaması (36 gözlemle eğitim, 3 dönemle sınama)|Yalnızca enflasyonu tahmin eder; çok değişkenli Elastic Net kullanır; sunum statik bir flexdashboard'dur|
 |[macroforecast](https://macroforecast.readthedocs.io/en/stable/guide/getting_started.html)|Python|Kayan veya genişleyen pencereyle sözde örnek dışı değerlendirme; AR karşılaştırma modeli; model seçimi için ayrı doğrulama bloğu|ABD verisi (FRED-MD) üzerinde çok sayıda modeli karşılaştırmaya yönelik genel bir çerçevedir|
 |[macro_dashboard](https://github.com/bluetouff/macro_dashboard)|Python (Streamlit)|FRED'den otomatik veri çekme, önbellek, API anahtarının ortam değişkeninden okunması, geriye dönük test|ABD verisiyle çalışır; amacı tahmin değil, bileşik bir stres skoru üretmektir|
 |[FREDHEAD](https://github.com/jameslamb/FREDHEAD)|R (Shiny)|FRED verisi üzerinde Shiny paneli|Tahmin modeli içermez; depo arşivlenmiştir|
