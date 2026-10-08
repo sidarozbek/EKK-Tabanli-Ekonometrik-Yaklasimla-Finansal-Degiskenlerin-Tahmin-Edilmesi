@@ -18,9 +18,9 @@ Bu proje, Atılım Üniversitesi bünyesinde TÜBİTAK 2209-A Üniversite Öğre
 7. [Yapılandırma](#7-yapılandırma)
 8. [Modül Referansı](#8-modül-referansı)
 9. [Genişletilebilirlik](#9-genişletilebilirlik)
-10.[Tasarım İlkeleri](#10-tasarım-i̇lkeleri)
-11.[İlgili Çalışmalar](#11-i̇lgili-çalışmalar)
-12.[Kaynakça](#11-kaynakça)
+10. [Tasarım İlkeleri](#10-tasarım-i̇lkeleri)
+11. [İlgili Çalışmalar](#11-i̇lgili-çalışmalar)
+12. [Kaynakça](#11-kaynakça)
 
 ---
 
