@@ -18,8 +18,9 @@ Bu proje, Atılım Üniversitesi bünyesinde TÜBİTAK 2209-A Üniversite Öğre
 7. [Yapılandırma](#7-yapılandırma)
 8. [Modül Referansı](#8-modül-referansı)
 9. [Genişletilebilirlik](#9-genişletilebilirlik)
-10. [Tasarım İlkeleri](#10-tasarım-i̇lkeleri)
-11. [Kaynakça](#11-kaynakça)
+10.[Tasarım İlkeleri](#10-tasarım-i̇lkeleri)
+11.[İlgili Çalışmalar](#11-i̇lgili-çalışmalar)
+12.[Kaynakça](#11-kaynakça)
 
 ---
 
@@ -558,7 +559,21 @@ Kart hatalıysa (ör. `oncelik[2]` ile `birincil_yedek` farklıysa ya da yedek t
 
 ---
 
-## 11. Kaynakça
+## 11. İlgili Çalışmalar
+
+Bu bölüm, projeyle amaç, veri kaynağı veya yöntem bakımından örtüşen açık kaynaklı yazılımları ve akademik çalışmaları özetler ve her birinin bu projeden nasıl ayrıştığını belirtir.
+
+### 11.1. Açık Kaynaklı Tahmin Sistemleri ve Paneller
+
+|Proje|Dil|Ortak yön|Temel fark|
+|---|---|---|---|
+|[turkey-macro-dashboard](https://github.com/enesgencer18/turkey-macro-dashboard) (Gencer, 2022)|R|Türkiye enflasyonu; TCMB verisi; GitHub Actions ve Docker ile otomatikleştirilmiş veri ve model hattı; sabit pencereli zaman serisi çapraz doğrulaması (36 gözlemle eğitim, 3 dönemle sınama)|Yalnızca enflasyonu tahmin eder; çok değişkenli Elastic Net kullanır; sunum statik bir flexdashboard'dur|
+|[macroforecast](https://macroforecast.readthedocs.io/en/stable/guide/getting_started.html)|Python|Kayan veya genişleyen pencereyle sözde örnek dışı değerlendirme; AR karşılaştırma modeli; model seçimi için ayrı doğrulama bloğu|ABD verisi (FRED-MD) üzerinde çok sayıda modeli karşılaştırmaya yönelik genel bir çerçevedir|
+|[macro_dashboard](https://github.com/bluetouff/macro_dashboard)|Python (Streamlit)|FRED'den otomatik veri çekme, önbellek, API anahtarının ortam değişkeninden okunması, geriye dönük test|ABD verisiyle çalışır; amacı tahmin değil, bileşik bir stres skoru üretmektir|
+|[FREDHEAD](https://github.com/jameslamb/FREDHEAD)|R (Shiny)|FRED verisi üzerinde Shiny paneli|Tahmin modeli içermez; depo arşivlenmiştir|
+
+
+## 12. Kaynakça
 
 - Hamilton, J. D. (1994). _Time Series Analysis._ Princeton University Press.
 - Pesaran, M. H., & Timmermann, A. (2007). _Selection of estimation window in the presence of breaks._ Journal of Econometrics.
