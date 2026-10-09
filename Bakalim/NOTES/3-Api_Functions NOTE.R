@@ -1,8 +1,8 @@
-#NOTE
+#Bu kod, api_functions.R dosyasının başında yer alan bir ön koşul kontrolüdür; API araçlarının çalışabilmesi için gerekli olan config.R ve utils.R dosyalarının önceden yüklenip yüklenmediğini denetler. Eksik bir bağımlılık varsa ne yapılması gerektiğini söyleyerek sistemi güvenli bir şekilde durdurur.
 if (!exists("CONFIG"))      stop("[api_functions.R] Önce config.R yükle: source('R/config.R')")
 if (!exists("tekrar_dene")) stop("[api_functions.R] Önce utils.R yükle: source('R/utils.R')")
 
-#NOTE
+#Bu kod, dış kaynaklardan (FRED, Dünya Bankası vb.) veri çekmek ve web bağlantılarını yönetmek için gerekli olan temel R kütüphanelerini sisteme yükler; bu sırada ekrana yansıyan gereksiz başlangıç/bilgilendirme mesajlarını gizleyerek konsolun temiz kalmasını sağlar.
 suppressPackageStartupMessages({
   library(fredr)
   library(httr)
@@ -10,7 +10,7 @@ suppressPackageStartupMessages({
   library(wbstats)
 })
 
-#NOTE
+#Bu kod, farklı formatlardaki tarih veya periyot metinlerini (gün-ay-yıl formatı "01-05-2024", çeyreklik periyot "2024-Q1", yıllık-aylık periyot "2024-05" veya sadece yıl "2024") tespit edip standart bir R Date tarih nesnesine dönüştürür; eşleşmeyen metinler içinse güvenli bir şekilde NA (boş değer) döndürür.
 donem_tarih_coz <- function(x) {
   x <- as.character(x)
   iso <- ifelse(grepl("^[0-9]{2}-[0-9]{2}-[0-9]{4}$", x),
@@ -26,7 +26,7 @@ donem_tarih_coz <- function(x) {
   as.Date(iso, format = "%Y-%m-%d")
 }
 
-#NOTE
+#Bu kod, ham zaman serisi verisini alıp temiz ve standart bir tabloya dönüştürür; eksik değerleri temizler, mükerrer tarihleri ayıklayıp son değeri tutar, veriyi belirlenen başlangıç-bitiş tarih aralığına kırpar ve tarih sırasına dizerek teslim eder.
 standartlastir <- function(tarih, deger, kimlik) {
   d <- data.frame(tarih = as.Date(tarih), deger = suppressWarnings(as.numeric(deger)),
                   kimlik = kimlik, stringsAsFactors = FALSE)
@@ -39,7 +39,7 @@ standartlastir <- function(tarih, deger, kimlik) {
   d
 }
 
-#NOTE
+#Bu kod, belirtilen web adresinden (url) veri indiren güvenli bir HTTP istek mekanizmasıdır; CONFIG üzerindeki zaman aşımı ve kullanıcı kimliği ayarlarını uygulayarak isteği atar, bağlantı kopukluklarını yakalar, 40x serisi istemci hatalarını tıkamayan kalıcı hata olarak işler ve başarılı olursa yanıt metnini (UTF-8 gövdesini) döndürür.
 http_al <- function(url, basliklar = NULL) {
   girdiler <- list(url, user_agent(CONFIG$baglanti$kullanici_araci),
                    timeout(CONFIG$baglanti$zaman_asimi))
@@ -56,7 +56,7 @@ http_al <- function(url, basliklar = NULL) {
   govde
 }
 
-#NOTE
+#Bu kod, FRED (St. Louis Fed) veri tabanından belirtilen gösterge koduna (kod) ait ekonomik verileri belirlenen tarih aralığında çeken ve çekilen ham veriyi standartlastir() fonksiyonundan geçirerek düzenli bir tablo halinde sunan özel veri çekme aracıdır.
 fred_cek <- function(kod, kimlik, filtre = NULL) {
   fredr_set_key(CONFIG$baglanti$fred_key)
   ham <- fredr(series_id = kod,
@@ -65,7 +65,7 @@ fred_cek <- function(kod, kimlik, filtre = NULL) {
   standartlastir(ham$date, ham$value, kimlik)
 }
 
-#NOTE
+#Bu kod, TCMB EVDS (Elektronik Veri Dağıtım Sistemi) API'sinden belirtilen gösterge koduna (kod) ait verileri tarih formatlarını EVDS'ye uygun hale getirerek (DD-MM-YYYY) çeken, gelen JSON verisini çözümleyip tarih ve değer sütunlarını ayıklayan ve standartlastir() fonksiyonu ile temiz bir tabloya dönüştüren özel veri çekme aracıdır.
 evds_cek <- function(kod, kimlik, filtre = NULL) {
   seri  <- gsub("_", ".", trimws(kod))
   bas   <- format(as.Date(CONFIG$veri$baslangic_tarihi), "%d-%m-%Y")
@@ -88,14 +88,14 @@ evds_cek <- function(kod, kimlik, filtre = NULL) {
   standartlastir(tarih, deger, kimlik)
 }
 
-#NOTE
+#Bu kod, Dünya Bankası (World Bank) veri kodlarını API'nin kabul edeceği standart formata dönüştüren bir string/metin temizleme yardımcısıdır; koda eklenmiş soru işaretli URL parametrelerini siler, "WB_WDI_" gibi sistem ön eklerini kaldırır ve alt çizgileri (_) Dünya Bankası'nın kullandığı nokta (.) formatına çevirir.
 wb_kod_temizle <- function(kod) {
   kod <- sub("\\?.*$", "", trimws(kod))
   kod <- sub("^WB_WDI_", "", kod)
   gsub("_", ".", kod)
 }
 
-#NOTE
+#Bu kod, Dünya Bankası API'sinden Türkiye ("TUR") için belirtilen göstergeye ait verileri belirlenen yıllar arasında çeken, gelen veriyi yıllık tarihe göre düzenleyen ve standartlastir() fonksiyonu ile sisteme uygun temiz bir tablo haline getiren özel veri çekme aracıdır.
 worldbank_cek <- function(kod, kimlik, filtre = NULL) {
   gosterge <- wb_kod_temizle(kod)
   bas   <- as.integer(format(as.Date(CONFIG$veri$baslangic_tarihi), "%Y"))
@@ -107,7 +107,7 @@ worldbank_cek <- function(kod, kimlik, filtre = NULL) {
   standartlastir(as.Date(paste0(ham$date, "-01-01")), ham[[gosterge]], kimlik)
 }
 
-#NOTE
+#Bu kod, OECD API'sinden SDMX boyut filtrelerini (filtre) kullanarak ilgili veri kümesine (kod) ait zaman serisini CSV formatında çeken, yanıtın tek bir benzersiz seriye ait olduğunu ve gerekli sütunları içerdiğini doğruladıktan sonra donem_tarih_coz() ve standartlastir() üzerinden standart veriye dönüştüren özel veri çekme aracıdır.
 oecd_cek <- function(kod, kimlik, filtre = NULL) {
   if (is.null(filtre) || !nzchar(filtre)) kalici_hata("OECD için filtre (SDMX anahtarı) gerekli")
   url <- paste0(CONFIG$baglanti$oecd_base_url, "/data/", kod, ",/", filtre,
@@ -125,7 +125,7 @@ oecd_cek <- function(kod, kimlik, filtre = NULL) {
   standartlastir(donem_tarih_coz(d$TIME_PERIOD), d$OBS_VALUE, kimlik)
 }
 
-#NOTE
+#Bu kod, Borsa İstanbul (BIST) hisse veya endeks verilerini Yahoo Finance API'si üzerinden çeken özel bir araçtır; verilen koda otomatik olarak BIST uzantısı (.IS) ekler, tarih aralığını Unix zaman damgasına dönüştürerek aylık kapanış fiyatlarını (close) indirir ve standartlastir() fonksiyonu ile temiz bir tabloya çevirir.
 bist_cek <- function(kod, kimlik, filtre = NULL) {
   sembol <- if (grepl("\\.", kod)) kod else paste0(kod, ".IS")
   p1 <- as.integer(as.POSIXct(as.Date(CONFIG$veri$baslangic_tarihi), tz = "UTC"))
@@ -142,19 +142,19 @@ bist_cek <- function(kod, kimlik, filtre = NULL) {
   standartlastir(as.Date(format(zaman, "%Y-%m-01", tz = "Europe/Istanbul")), kapanis, kimlik)
 }
 
-#NOTE
+#Bu kod, hedeflenen analiz tipi ile veri türünün (seri yapısının) uyumlu olup olmadığını denetleyen mantıksal bir filtredir; eğer hedef "yıllık değişim" ise verinin türünün "düzey" veya "oran" olmasına izin verir, diğer tüm hedefler için ise verinin mutlaka "düzey" türünde olmasını zorunlu kılarak TRUE veya FALSE yanıtı verir.
 tur_uyumlu <- function(hedef, tur) {
   if (identical(hedef, "yillik_degisim")) tur %in% c("duzey", "oran")
   else                                    identical(tur, "duzey")
 }
 
-#NOTE
+#Bu kod, kaynak verinin frekansının (sıklığının) hedef frekansa dönüştürülüp dönüştürülemeyeceğini denetleyen frekans uyumluluk kontrolüdür; frekansları hiyerarşik olarak sıralar (aylik > ceyreklik > yillik) ve kaynağın hedeften daha sık veya eşit sıklıkta olması durumunda TRUE, aksi takdirde FALSE döner.
 frekans_uyumlu <- function(hedef, kaynak_frekans) {
   sira <- c(yillik = 1, ceyreklik = 2, aylik = 3)
   sira[[kaynak_frekans]] >= sira[[hedef]]
 }
 
-#NOTE
+#Bu kod, belirli bir gösterge için veri çekilebilecek birincil ve alternatif kaynakların öncelik sırasını (yedekleme zincirini) oluşturan ana yönlendirme mekanizmasıdır; birincil kaynağı ilk sıraya koyar, yapılandırmadaki yedek kaynak iznine göre CSV_YEDEK seçeneğini değerlendirir, alternatif kaynakları tür ve frekans uyum filtrelerinden geçirerek geçerli bir kaynak listesi halinde döndürür.
 kaynak_zinciri <- function(gosterge_adi) {
   kart  <- CONFIG$gostergeler[[gosterge_adi]]
   hedef <- varsayilan(kart$donusum, "duzey")
@@ -189,7 +189,7 @@ kaynak_zinciri <- function(gosterge_adi) {
   zincir
 }
 
-#NOTE
+#Bu kod, zaman serisi verisini istenen frekansa (örneğin aylıktan çeyrekliğe veya yıllığa) dönüştüren bir toplulaştırma (aggregation) aracıdır; verilerin tarihlerini hedef dönemin başı olarak gruplar, her dönem için değerlerin ortalamasını (mean) alır ve temiz bir tablo halinde döndürür.
 frekansa_cevir <- function(d, frekans) {
   kimlik <- d$kimlik[1]
   d$tarih <- donem_basi(d$tarih, frekans)
@@ -197,7 +197,7 @@ frekansa_cevir <- function(d, frekans) {
   data.frame(tarih = a$tarih, deger = a$deger, kimlik = kimlik)
 }
 
-#NOTE
+#Bu kod, zaman serisi verisini ölçekleyen ve isteğe bağlı olarak yüzdesel yıllık değişime (büyüme oranına) dönüştüren bir hesaplama aracıdır; önce seriyi bir çarpanla (carpan) çarpar, ardından hedef "yıllık değişim" ise her bir tarihin tam 1 yıl önceki karşılığını bularak yıllık % değişimini hesaplar ve geçersiz/hesaplanamayan satırları temizleyerek sunar.
 seri_donustur <- function(d, hedef = "duzey", tur = "duzey", carpan = 1) {
   d$deger <- d$deger * carpan
   if (identical(hedef, "yillik_degisim") && identical(tur, "duzey")) {
@@ -210,7 +210,7 @@ seri_donustur <- function(d, hedef = "duzey", tur = "duzey", carpan = 1) {
   d
 }
 
-#NOTE
+#Bu kod, veri çekme işlemlerini ilgili servise yönlendiren merkezi bir dağıtıcı (santral) fonksiyondur; girilen kaynak adına göre uygun API kancasını (fred_cek, evds_cek vb.) veya CSV yedek mekanizmasını tetikler, listede karşılığı olmayan bilinmeyen bir kaynak girildiğinde ise işlemi güvenli bir şekilde keser.
 cek_kaynak <- function(kaynak, kod, kimlik, filtre = NULL) {
   switch(kaynak,
          FRED      = fred_cek(kod, kimlik, filtre),
@@ -222,7 +222,7 @@ cek_kaynak <- function(kaynak, kod, kimlik, filtre = NULL) {
          stop(paste("Bu kaynağın tercümanı yok:", kaynak), call. = FALSE))
 }
 
-#NOTE
+#Bu kod, çekilen veri tablosunun kendisine görünmez bir künye ve izleme etiketi ekleyen üst veri (metadata) zenginleştirme aracıdır; verinin nereden çekildiği (kaynak), kodu, çekim zamanı (cekim_zamani), frekansı ve dönüşüm türü gibi teknik bilgileri attr() yardımıyla nesnenin arkasına bağlayarak geri döndürür.
 meta_ekle <- function(veri, kaynak, kod, filtre, birincil, durum, cekim_zamani = Sys.time(),
                       donusum = "duzey", tur = "duzey", frekans = "aylik", yaklasik = FALSE) {
   attr(veri, "meta") <- list(kaynak = kaynak, kod = kod, filtre = filtre, birincil = birincil,
@@ -231,7 +231,7 @@ meta_ekle <- function(veri, kaynak, kod, filtre, birincil, durum, cekim_zamani =
   veri
 }
 
-#NOTE
+#Bu kod, sisteme tanımlı ekonomik göstergenin kart verisini çekip ön denetimini ve ön hazırlığını yapan ana orkestrasyon başlatıcısıdır; göstergenin sistemde tanımlı olup olmadığını ve aktiflik durumunu kontrol eder, veri tazelik süresini (cache) belirler, frekansını ve hedef dönüşüm türünü ayarlayarak veri çekme sürecinin zeminini hazırlar.
 fetch_indicator <- function(gosterge_adi, tazelik_gun = NULL, yenile = FALSE) {
   kart <- CONFIG$gostergeler[[gosterge_adi]]
   if (is.null(kart)) { log_msg(paste("Tanımsız gösterge:", gosterge_adi), "UYARI"); return(NULL) }
@@ -240,7 +240,7 @@ fetch_indicator <- function(gosterge_adi, tazelik_gun = NULL, yenile = FALSE) {
   frekans <- gosterge_frekansi(gosterge_adi)
   hedef   <- varsayilan(kart$donusum, "duzey")
   
-#NOTE
+#Bu kod, daha önce indirilip yerel belleğe kaydedilmiş verileri kontrol eden önbellek (cache) doğrulama mekanizmasıdır; zorunlu yenileme emri (yenile = FALSE) yoksa önbellekteki veriyi okur, verinin dönüşüm türünü, frekansını ve kaynak kodlarını güncel beklentilerle karşılaştırır, eğer veriler tam eşleşiyorsa API isteği atmadan veriyi doğrudan diskten/önbellekten sunarak süreci hızlandırır.
   if (!yenile) {
     onbellek <- cache_oku(gosterge_adi, tazelik)
     m <- attr(onbellek, "meta")
@@ -255,7 +255,7 @@ fetch_indicator <- function(gosterge_adi, tazelik_gun = NULL, yenile = FALSE) {
     }
   }
 
-#NOTE
+#Bu kod, bir gösterge için belirlenen yedek kaynak zincirini (halka) sırayla gezerek veriyi çekmeyi deneyen fallback (yedekli Veri Çekme) yürütücüsüdür; API anahtarı olmayan veya erişilemeyen kaynakları atlar, ağ/API hatalarını tryCatch ve tekrar_dene() ile sarmalayarak çökmeden bir sonraki alternatif kaynağa geçer ve başarılı olan ilk kaynaktan veriyi alıp sonuc değişkenine aktarır.
   for (halka in kaynak_zinciri(gosterge_adi)) {
     if (!kaynak_kullanilabilir(halka$kaynak)) {
       log_msg(paste0(gosterge_adi, ": ", halka$kaynak, " atlandı (anahtar yok)"), "UYARI")
@@ -271,7 +271,7 @@ fetch_indicator <- function(gosterge_adi, tazelik_gun = NULL, yenile = FALSE) {
         NULL
       })
   
-#NOTE
+#Bu kod, başarıyla çekilen ham veriyi son işleme tabi tutan, doğrulayan ve kaydeden kapanış ve önbellekleme bloğudur; veriyi hedef frekansa ve dönüşüm türüne çevirir, yeterli gözlem sayısına sahip olduğunu doğruladıktan sonra üst veri (metadata) bilgilerini ekler. Ardından veriyi bir sonraki kullanımlar için hem önbelleğe (cache_yaz) hem de çevrimdışı yedek CSV dosyasına (yedek_csv_yaz) kaydederek başarılı çıktıyı döner.
     if (!is.null(sonuc) && !csv_mi) {
       sonuc <- tryCatch(seri_donustur(frekansa_cevir(sonuc, frekans), hedef, halka$tur, halka$carpan),
                         error = function(e) NULL)
@@ -300,7 +300,7 @@ fetch_indicator <- function(gosterge_adi, tazelik_gun = NULL, yenile = FALSE) {
     }
   }
 
-#NOTE
+#Bu kod, tüm birincil API'ler ve yedek CSV kanalları başarısız olduğunda devreye giren en son çare (fallback) kurtarma bloğudur; süre kısıtlaması olmaksızın (Inf) diski tarayarak göstergeye ait en eski veya bayat önbellek (bayat_cache) verisini bulur, durum bilgisini güncelleyip uyarı vererek çalışmayı kesintisiz sürdürür; diskte hiçbir veri kalıntısı yoksa işlemi hata kaydıyla sonlandırır.
   eski <- cache_oku(gosterge_adi, Inf)
   if (!is.null(eski)) {
     m <- attr(eski, "meta"); if (is.null(m)) m <- list(kaynak = NA, kod = NA, birincil = NA)
@@ -312,7 +312,7 @@ fetch_indicator <- function(gosterge_adi, tazelik_gun = NULL, yenile = FALSE) {
   NULL
 }
 
-#NOTE
+#Bu kod, çekilen tüm gösterge sonuçlarını tarayarak genel sistem durumunu özetleyen meta veri raporu/sözlüğü oluşturan fonksiyondur; her bir göstergenin adını, rolünü, verinin hangi kaynaktan çekildiğini, kullanılan yedek mekanizmasını, tarih aralığını ve toplam gözlem sayısını tek bir düzenli veri çerçevesinde (data.frame) birleştirir.
 metaveri_olustur <- function(sonuclar) {
   satirlar <- lapply(names(sonuclar), function(ad) {
     kart <- CONFIG$gostergeler[[ad]]
@@ -337,7 +337,7 @@ metaveri_olustur <- function(sonuclar) {
   do.call(rbind, satirlar)
 }
 
-#NOTE
+#Bu kod, sistemdeki tüm aktif ekonomik göstergeleri sırayla çekip tek bir master tabloda birleştiren ana orkestratör (toplu yürütücü) fonksiyondur; aktif_gostergeler() listesini gezerek her biri için fetch_indicator() fonksiyonunu çalıştırır, çekim sonuçlarından genel bir meta veri raporu (metaveri) oluşturup diske kaydeder, verisi başarıyla gelen göstergelerin bireysel meta verilerini temizleyip hepsini alt alta uzun formatta dev bir veri tablosunda birleştirir ve arkasına genel meta veri özetini bağlayarak sunar.
 tum_gostergeleri_cek <- function(yenile = FALSE) {
   sonuclar <- list()
   for (ad in aktif_gostergeler()) {
@@ -356,14 +356,14 @@ tum_gostergeleri_cek <- function(yenile = FALSE) {
   uzun
 }
 
-#NOTE
+#Bu kod, sistemdeki tüm aktif ekonomik göstergeleri sırayla çekip tek bir master tabloda birleştiren ana orkestratör (toplu yürütücü) fonksiyondur; aktif_gostergeler() listesini gezerek her biri için fetch_indicator() fonksiyonunu çalıştırır, çekim sonuçlarından genel bir meta veri raporu (metaveri) oluşturup diske kaydeder, verisi başarıyla gelen göstergelerin bireysel meta verilerini temizleyip hepsini alt alta uzun formatta dev bir veri tablosunda birleştirir ve arkasına genel meta veri özetini bağlayarak sunar.
 veri_tazeligi <- function(veri, gosterge_adi) {
   alt <- veri[veri$kimlik == gosterge_adi, ]
   if (nrow(alt) == 0) return(NA)
   max(alt$tarih, na.rm = TRUE)
 }
 
-#NOTE
+#Bu kod, betik yüklenirken çalısan otomatik sistem doğrulama ve bütünlük (health check) kancasıdır; modül yüklendiğinde gerekli tüm API/yardımcı fonksiyonların eksiksiz olduğunu ve her aktif göstergenin geçerli bir birincil yedek kanalına (fall-back chain) sahip olduğunu doğrular, testler başarılı olursa konsola yeşil onay mesajı düşer.
 local({
   fonksiyonlar <- c("donem_tarih_coz", "standartlastir", "http_al",
                     "fred_cek", "evds_cek", "wb_kod_temizle", "worldbank_cek",
