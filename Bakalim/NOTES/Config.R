@@ -1,9 +1,9 @@
-#NOTE
+ #SÜRÜM KONTROLÜ İÇİN (SÜRÜM GÜNCEL DEĞİLSE UYARI VERİR)
 if (getRversion() < "4.1.0") {
   warning("[config.R] R 4.3+ önerilir; bazı sözdizimleri eski sürümde çalışmayabilir.")
 }
 
-#NOTE
+  #KÖK KLASÖRÜNÜ OTOMATİK BULUR, BULUNDUĞU DOSYADAN BAŞLAYARAK R/config.R DOSYASINI GÖRENE KADAR YUKARI ÇIKAR
 .proje_koku <- local({
   d <- normalizePath(getwd(), winslash = "/", mustWork = FALSE)
   repeat {
@@ -14,7 +14,8 @@ if (getRversion() < "4.1.0") {
   }
 })
 
-#NOTE
+  #GÜVENLİK İÇİN API ŞİFRELERİNİ KODA YAZMAK YERİNE .RENVİRON'DAN ÇEKER, 
+  #ANAHTAR BOŞSA UYARI VERİR
 .fred_key <- Sys.getenv("FRED_API_KEY")
 .evds_key <- Sys.getenv("EVDS_API_KEY")
 
@@ -25,7 +26,7 @@ if (!nzchar(.evds_key)) {
   warning("[config.R] EVDS_API_KEY boş; EVDS atlanacak. .Renviron'a ekleyip R'ı yeniden başlat.")
 }
 
-#NOTE
+  #PROJENİN BÜTÜN AYARLARININ TOPLANDIĞI YER, DİĞER DOSYALAR DA AYARLARI BURADAN OKUR
 CONFIG <- list(
   proje = list(
     baslik  = "EKK Tabanlı Ekonometrik Yaklaşımla Finansal Değişkenlerin Tahmin Edilmesi",
@@ -34,7 +35,7 @@ CONFIG <- list(
     surum   = "2.0.0"
   ),
   
-  #NOTE
+  #BAĞLANTI AYARLARI, API ADRESLERİ, ZAMAN AŞIMI (sn), YENİDEN DENEME HAKKI VE KAÇ sn ARAYLA DENENEBİLECEĞİ
   baglanti = list(
     fred_key       = .fred_key,
     evds_key       = .evds_key,
@@ -47,7 +48,8 @@ CONFIG <- list(
     yeniden_deneme_bekleme = 2
   ),
   
-  #NOTE
+  #VERİ AYARLARI: ÇEKİLECEK VERİNİN TARİH ARALIĞI, CACHE'NİN KAÇ GÜN TAZA SAYILACAĞI
+  #MİN GÖZLEM SAYISI VE AYKIRI DEĞERLERİ AYIKLAYAN HAMPEL EŞİĞİ
   veri = list(
     baslangic_tarihi  = "2000-01-01",
     bitis_tarihi      = Sys.Date(),
@@ -57,7 +59,8 @@ CONFIG <- list(
     hampel_esigi      = 3
   ),
   
-  #NOTE
+  #FREKANS AYARLARI: aylik/ceyreklik/yillik FREKANSLAR İÇİN GECİKME SAYISI (lag)
+  #KAYAN PENCERE UZUNLUĞU, EN BÜYÜK P VE ÇAPRAZ DOĞRULAMADA DENENECEK PENCERELER
   frekanslar = list(
     aylik = list(
       etiket = "Aylık", birim = "ay", ay_adimi = 1, yilda = 12,
@@ -79,7 +82,8 @@ CONFIG <- list(
     )
   ),
   
-  #NOTE
+  #MODEL AYARLARI: EKK MODELİNİN VARSAYLANLARI, MODEL SEÇİMİ (çapraz doğrulama veya varsayılan)
+  #TAHMİN UFKU, GÜVEN DÜZEYİ VE TEST ORANLARI
   model = list(
     lag_sayisi        = 3,  
     pencere_uzunlugu  = 48,        
@@ -91,13 +95,13 @@ CONFIG <- list(
     formulde_trend    = FALSE     
   ),
   
-  #NOTE
+  #GÜNCELLEME AYARLARI: VERİNİN OTOMATİK YENİLENİP YENİLENMEYCEĞİ VE NE KADAR SÜREDE YENİLECEĞİ İLE İLGİLİ
   guncelleme = list(
     otomatik    = TRUE,
     sikligi_gun = 1
   ),
   
-  #NOTE
+  #SAKLAMA AYARLARI: CACHE, İŞLENMİŞ VERİ, YEDEK CSV, MODEL VE LOG DOSYALARININ NEREYE YAZILACAĞINI BELİRTMEK İÇİN
   saklama = list(
     kok               = .proje_koku,
     cache_klasoru     = file.path(.proje_koku, "data", "cache"),
@@ -107,7 +111,8 @@ CONFIG <- list(
     log_klasoru       = file.path(.proje_koku, "logs")
   ),
   
-  #NOTE
+  #KAYNAK LİSTESİ: KODUN DESTEKLEDİĞİ VERİ KAYNAKLARI (FRED, EVDS,WORLD BANK, OECD,BIST,CSV_YEDEK)
+  #HER BİRİNİ KISA AÇIKLAMALARI, HERHANGİ BİR GÖSTERGE BU LİSTEDE OLMAYAN BİR KAYNAĞI KULLANAMAZ!
   kaynaklar = list(
     desteklenen = c("FRED", "EVDS", "WORLDBANK", "OECD", "BIST", "CSV_YEDEK"),
     katalog     = character(0),
@@ -121,7 +126,8 @@ CONFIG <- list(
     )
   ),
   
-  #NOTE
+  #SUNUM AYARLARI: GÖSTERGELERİN ARAYÜZDE HANGİ BAŞLIK ALTINDA GÖSTERİLECEĞİ (bağımlı/kontrol/ek) 
+  #"GENEL" GÖRÜNÜMDE VARSAYILAN GÖSTERGELER 
   sunum = list(
     roller = c(bagimli = "Bağımlı değişkenler",
                kontrol = "Kontrol değişkenleri",
@@ -130,9 +136,14 @@ CONFIG <- list(
     genel_azami      = 4
   ),
   
-  #NOTE
+  #ASIL KAYNAK -> YEDEK SIRALAMASI(oncelik) 
+#ASIL KAYNAĞIN ÇALIŞMAMASI DURUMUNDA ÖNCELİK SIRASINA GÖRE SIRADAKİ KAYNAĞA GEÇİLİR
   gostergeler = list(
     
+    
+    
+    #Enflasyon: (bağımlı): TÜFE'nin yıllık % değişimi, aylık
+    #EVDS -> FRED -> WORLD BANK -> OECD -> CSV
     ENFLASYON = list(
       aktif = TRUE, rol = "bagimli", ad = "Enflasyon Oranı (TÜFE, yıllık %)", frekans = "aylik",
       birim = "%", donusum = "yillik_degisim",
@@ -148,7 +159,10 @@ CONFIG <- list(
       )
     ),
     
-    #NOTE
+   
+    
+    #Büyüme (bağımlı): reel GSYH'nin yıllık % değişimi, çeyreklik.
+    # Zincir: EVDS -> FRED -> WORLD BANK -> CSV
     BUYUME = list(
       aktif = TRUE, rol = "bagimli", ad = "Ekonomik Büyüme (reel GSYH, yıllık %)", frekans = "ceyreklik",
       birim = "%", donusum = "yillik_degisim",
@@ -161,7 +175,11 @@ CONFIG <- list(
       )
     ),
     
-    #NOTE 
+   
+    
+    
+    #İşsizlik (bağımlı): işsizlik oranı, aylık
+    #EVDS -> FRED-> WORLD BANK -> CSV
     ISSIZLIK = list(
       aktif = TRUE, rol = "bagimli", ad = "İşsizlik Oranı", frekans = "aylik", birim = "%",
       kaynak = "EVDS", kod = "TP_YISGUCU2_G8",
@@ -173,7 +191,11 @@ CONFIG <- list(
       )
     ),
     
-    #NOTE
+   
+    
+    
+    #Dolar Kuru (bağımlı): USD/TRY aylık ort.
+    #EVDS -> WORLD BANK -> OECD -> CSV
     USDTRY = list(
       aktif = TRUE, rol = "bagimli", ad = "Döviz Kuru (USD/TRY)", frekans = "aylik", birim = "TL",
       kaynak = "EVDS", kod = "TP_DK_USD_A_YTL",
@@ -188,14 +210,24 @@ CONFIG <- list(
       )
     ),
     
-    #NOTE    
+    
+    
+    
+   
+    
+    #Borsa (bağımlı): BIST-100 endeksi, aylık, Yahoo Finance üzerinden
+    #BIST-> CSV
     BIST100 = list(                                   
       aktif = TRUE, rol = "bagimli", ad = "Borsa Endeksi (BIST-100)", frekans = "aylik",
       kaynak = "BIST", kod = "XU100",                
       oncelik = c("BIST", "CSV_YEDEK"), birincil_yedek = "CSV_YEDEK"
     ),
     
-    #NOTE  
+   
+    
+    
+    #Politika faizi(kontrol): TCMB Politika faizi, aylık, FRED üzerinden alınan yaklaşık değerdir
+    #EVDS-> FRED-> CSV
     FAIZ = list(
       aktif = TRUE, rol = "kontrol", ad = "TCMB Politika Faizi", frekans = "aylik", birim = "%",
       kaynak = "EVDS", kod = "TP_BISPOLFAIZ_TUR",
@@ -204,7 +236,11 @@ CONFIG <- list(
       alternatifler = list(FRED = list(kod = "INTDSRTRM193N", tur = "duzey", yaklasik = TRUE))
     ),
     
-    #NOTE    
+   
+    
+    
+    #Dış ticaret(kontrol): ithalat-ihracat farkı, aylık
+    #EVDS-> FRED-> CSV
     DIS_TICARET = list(
       aktif = TRUE, rol = "kontrol", ad = "Dış Ticaret Dengesi", frekans = "aylik",
       kaynak = "EVDS", kod = "TP_ODEAYRSUNUM6_Q4",
@@ -213,7 +249,11 @@ CONFIG <- list(
       alternatifler = list(FRED = list(kod = "TURXTNTVA01CXMLM", tur = "farkli", frekans="aylik")) 
     ),
     
-    #NOTE  
+    
+    
+    
+    #Sanayi üretimi (kontrol): Sanayi üretim endeksi, aylık
+    #EVDS-> FRED-> CSV
     SANAYI_URETIM = list(
       aktif = TRUE, rol = "kontrol", ad = "Sanayi Üretim Endeksi", frekans = "aylik",
       kaynak = "EVDS", kod = "TP_TSANAY2021_BCD",
@@ -222,7 +262,11 @@ CONFIG <- list(
       alternatifler = list(FRED = list(kod = "TURPRINTO01GYSAM", tur = "oran",frekans="aylik")) 
     ),
     
-    #NOTE    
+    
+    
+    
+    #Tüketici güveni (kontrol): Tüketici güven endeksi, aylık
+    #EVDS-> CSV
     TUKETICI_GUVEN = list(
       aktif = TRUE, rol = "kontrol", ad = "Tüketici Güven Endeksi", frekans = "aylik",
       kaynak = "EVDS", kod = "TP_TG2_Y01",
@@ -230,7 +274,11 @@ CONFIG <- list(
       p = 12, pencere = 60
     ),
     
-    #NOTE    
+    
+    
+    
+    #Cari denge(ek): Cari işlemler dengesi, çeyreklik
+    #EVDS-> FRED-> WORLD BANK-> OECD-> CSV
     CARI_DENGE = list(
       aktif = TRUE, rol = "ek", ad = "Cari İşlemler Dengesi", frekans = "ceyreklik",
       kaynak = "EVDS", kod = "TP_IMFCA_TUR",
@@ -245,7 +293,11 @@ CONFIG <- list(
       )
     ),
     
-    #NOTE    
+    
+    
+    
+    #Bütçe dengesi (ek): Bütçe gider-gelir farkı, aylık, FRED değeri yıllık alınıyor
+    #EVDS-> FRED-> CSV
     BUTCE_DENGESI = list(
       aktif = TRUE, rol = "ek", ad = "Bütçe Dengesi", frekans = "aylik",
       kaynak = "EVDS", kod = "TP_KB_GEN35",
@@ -254,7 +306,11 @@ CONFIG <- list(
       alternatifler = list(FRED = list(kod = "GGNLBATRA188N", tur = "farkli", frekans = "yillik"))
     ),
     
-    #NOTE    
+    
+    
+    
+    #ÜFE(ek): üretici fiyat endeksi, aylık
+    #EVDS-> CSV
     UFE = list(
       aktif = TRUE, rol = "ek", ad = "Üretici Fiyat Endeksi (ÜFE)", frekans = "aylik",
       kaynak = "EVDS", kod = "TP_TUFE1YI_T1",
@@ -262,7 +318,11 @@ CONFIG <- list(
       p = 12, pencere = 48
     ),
     
-    #NOTE    
+    
+    
+    
+    #M2(ek): geniş tanımlı para arzı, aylık
+    #EVDS-> CSV
     M2 = list(
       aktif = TRUE, rol = "ek", ad = "M2 Para Arzı", frekans = "aylik",
       kaynak = "EVDS", kod = "TP_PBD_H09",
@@ -270,7 +330,11 @@ CONFIG <- list(
       p = 12, pencere = 42
     ),
     
-    #NOTE    
+    
+    
+    
+    #Euro Kuru(bağımlı): EUR/TRY aylık
+    #EVDS-> CSV
     EURTRY = list(
       aktif = TRUE, rol = "bagimli", ad = "Döviz Kuru (EUR/TRY)", frekans = "aylik", birim = "TL",
       kaynak = "EVDS", kod = "TP_DK_EUR_A_YTL",
@@ -278,11 +342,15 @@ CONFIG <- list(
       p =3 , pencere =36,
       alternatifler = list(
         EVDS = list(kod = "TP_DK_EUR_A_YTL", tur = "duzey",
-                    filtre = "frequency=5&aggregationTypes=avg")a
+                    filtre = "frequency=5&aggregationTypes=avg")
       )
     ),
     
-    #NOTE    
+    
+    
+    
+    #Reel Kesim Güveni(ek): İmalat sanayi güven endeksi, aylık
+    #EVDS-> FRED-> CSV
     REEL_KESIM_GUVEN = list(
       aktif = TRUE, rol = "ek", ad = "Reel Kesim Güven Endeksi", frekans = "aylik",
       kaynak = "EVDS", kod = "TP_GY1_N2",
@@ -291,7 +359,11 @@ CONFIG <- list(
       alternatifler = list(FRED = list(kod = "BSCICP02TRM460S", tur = "farkli", frekans="aylik"))  
     ),
     
-    #NOTE    
+   
+    
+    
+    #Kapasite kullanımı(ek): sanayinin kapasite kullanım oranı, aylık
+    #EVDS-> FRED-> OECD-> CSV
     KAPASITE_KULLANIM = list(
       aktif = TRUE, rol = "ek", ad = "Kapasite Kullanım Oranı", frekans = "aylik", birim = "%",
       kaynak = "EVDS", kod = "TP_KKO2_IS_TOP",
@@ -301,7 +373,11 @@ CONFIG <- list(
                            OECD = "BSCURT02")                
     ),
     
-    #NOTE    
+    
+    
+    
+    #Genç işsizlik(ek): 15-24 yaş arası işsizlik oranı, yıllık, asıl kaynak FRED
+    #FRED-> WORLD BANK-> OECD-> CSV
     GENC_ISSIZLIK = list(               
       aktif = TRUE, rol = "ek", ad = "Genç İşsizlik Oranı", frekans = "yillik", birim = "%",
       kaynak = "FRED", kod = "SLUEM1524ZSTUR",
@@ -311,7 +387,11 @@ CONFIG <- list(
                            OECD = "DSD_EAG_LSO_EA@DF_LSO_NEAC_UNEMP")     
     ),
     
-    #NOTE    
+    
+    
+    
+    #Perakende satış(ek): perakende satış hacmi endeksi, çeyreklik, FRED asıl kaynak
+    #FRED-> CSV
     PERAKENDE_SATIS = list(           
       aktif = TRUE, rol = "ek", ad = "Perakende Satış Hacim Endeksi", frekans = "ceyreklik",
       kaynak = "FRED", kod = "TURSLRTTO01GYSAQ",
@@ -319,7 +399,11 @@ CONFIG <- list(
       p = 1, pencere = 16,
     ),
     
-    #NOTE    
+    
+    
+    
+    #Konut fiyatları(ek): Konut fiyat endeksi, aylık, FRED üzerinden alınan veriler çeyreklik
+    #EVDS-> FRED-> CSV
     KONUT_FIYAT = list(
       aktif = TRUE, rol = "ek", ad = "Konut Fiyat Endeksi", frekans = "aylik",
       kaynak = "EVDS", kod = "TP_KFE_TR",
@@ -328,7 +412,11 @@ CONFIG <- list(
       alternatifler = list(FRED = list(kod = "QTRN628BIS", tur = "farkli", frekans = "ceyreklik"))
     ),
     
-    #NOTE    
+    
+    
+    
+    #Turizm gelirleri(ek): turizmden elde edilen gelir, aylık
+    #EVDS-> OECD-> CSV
     TURIZM_GELIRI = list(
       aktif = TRUE, rol = "ek", ad = "Turizm Gelirleri", frekans = "aylik",
       kaynak = "EVDS", kod = "TP_TURIZMGELGIT_GK178635",
@@ -336,7 +424,11 @@ CONFIG <- list(
       p = 12, pencere = 54,
       alternatifler = list(OECD = "DSD_TOURISM_RECEIPTS") ),
     
-    #NOTE    
+    
+    
+    
+    #Gini(ek): gelir eşitsizliği endeksi, yıllık, FRED asıl kaynak
+    #FRED-> CSV
     GINI = list(                                             # p / pencere: Excel'de boş
       aktif = TRUE, rol = "ek", ad = "Gini Endeksi", frekans = "yillik",
       kaynak = "FRED", kod = "SIPOVGINITUR",
@@ -346,7 +438,13 @@ CONFIG <- list(
   )
 )
 
-#NOTE
+
+
+
+
+
+  #DOSYA YÜKLENİRKEN TÜM AYARLARI KONTROL EDER VE BİR AYAR EKSİK YA DA HATALIYSA
+  #MODEL ÇALIŞMADAN ÖNCE NEDENİ AÇIKLAYAN BİR HATA MESAJIYLA DURUR
 local({
   bos <- function(x) is.null(x) || length(x) == 0 || is.na(x[1])
   vs  <- function(x, y) if (bos(x)) y else x            # utils.R henüz yüklü değil
@@ -386,7 +484,10 @@ local({
       hata("Kaynağı desteklenmeyen aktif gösterge: ", ad, " (tercümanı yoksa aktif = FALSE yap)")
     }
     
-    #NOTE
+    #YEDEK (ÖNCELİK) KURALLARI: 
+    #EN AZ 2 KAYNAK OLMASI LAZIM
+    #1. KAYNAK ASIL KAYNAK, 2. KAYNAK BİRİNCİL YEDEK
+    #TANIMLANMAYAN YA DA TEKRAR EDEN KAYNAK OLMAMALI
     o <- g$oncelik
     if (length(o) < 2) hata(ad, ": en az bir yedek kanal tanımlı olmalı (oncelik >= 2 eleman)")
     if (!identical(o[1], g$kaynak)) hata(ad, ": oncelik[1] asıl kaynakla (", g$kaynak, ") aynı olmalı")
@@ -396,7 +497,8 @@ local({
     if (length(yabanci) > 0) hata(ad, ": oncelik'te alternatifi tanımsız kaynak: ", paste(yabanci, collapse = ", "))
     if (anyDuplicated(o) > 0) hata(ad, ": oncelik'te tekrar eden kaynak var")
     
-    #NOTE
+    #ALTERNATİF KAYNAKLARI KONTROL ETMEK İÇİN: KAYNAK TANINIYOR MU, SERİ KODU YAZILMIŞ MI
+    #TÜR (düzey/oran/farklı) VE FREKANS GEÇERLİ Mİ
     for (k in names(g$alternatifler)) {
       a <- g$alternatifler[[k]]
       if (!k %in% desteklenen) hata("Bilinmeyen alternatif kaynak '", k, "' (gösterge: ", ad, ")")
@@ -407,13 +509,16 @@ local({
       }
     }
     
-    #NOTE
-    sira <- c(yillik = 1, ceyreklik = 2, aylik = 3)
+    #FREKANS UYUMU KONTROL EDİLİR, SIRALAMA: yillik< ceyreklik< aylik
+    #YILLIK VERİDEN AYLIK SERİ OLUŞTURULMAZ
+    #BU YÜZDEN ASIL KAYNAK ATANAN FREKANSTAN SEYREK OLMAMALI!
+   sira <- c(yillik = 1, ceyreklik = 2, aylik = 3)
     if (sira[[vs(g$kaynak_frekans, g$frekans)]] < sira[[g$frekans]]) {
       hata(ad, ": asıl kaynağın frekansı atanan frekanstan seyrek")
     }
     
-    #NOTE
+    #PENCERE UZUNLUĞU, LAG SAYISINDAN(p) EN AZ 2 FAZLA OLMALI
+   #YOKSA MODELİ TAHMİN ETMEYE YETERLİ GÖZLEM KALMAZ
     p <- g[["p"]]; w <- g[["pencere"]]
     if (!is.null(p) && !is.null(w) && w <= p + 1) hata("Pencere (", w, ") P değerinden (", p, ") küçük/eşit: ", ad)
     if (!is.null(g[["pencere_adaylari"]]) && !is.numeric(g[["pencere_adaylari"]])) hata(ad, ": pencere_adaylari sayısal olmalı")
