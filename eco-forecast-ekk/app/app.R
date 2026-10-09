@@ -1,21 +1,4 @@
-# =============================================================================
-# app/app.R — Arayüz (shinydashboard + plotly + DT + shinyWidgets)
-# -----------------------------------------------------------------------------
-# Sonucu bir insanın diline çevirir: teknik bilgi gerektirmeden göstergeleri
-# izlemek, bir sonraki dönemin tahminlerini görmek, istenen dönemin tahminini
-# takvimden seçmek ve verileri güncellemek.
-#
-# TASARIM İLKESİ: Modelin teknik ayarları (pencere, tahmin ufku, p, çapraz
-# doğrulama) arayüzde SEÇTİRİLMEZ. Sistem, her veri için config'te tanımlı
-# ayarlarla otomatik tahmin yapar; kullanılan değerler yalnızca BİLGİ olarak
-# gösterilir. Kullanıcı yalnızca ne görmek istediğini seçer: hangi grafikler
-# (Genel Bakış) ve hangi dönemin tahmini (Tahmin, takvim).
-#
-# Çalıştırma:   shiny::runApp("app")     (proje kökünden ya da app/ içinden)
-# =============================================================================
-
-# --- Paketler -----------------------------------------------------------------
-# install.packages(c("shiny", "shinydashboard", "shinyWidgets", "plotly", "DT"))
+#NOTE
 suppressPackageStartupMessages({
   library(shiny)
   library(shinydashboard)
@@ -24,9 +7,7 @@ suppressPackageStartupMessages({
   library(DT)
 })
 
-# --- Motoru yükle -------------------------------------------------------------
-# Proje kökü: çalışma dizininden yukarı doğru "R/config.R" aranır (shiny::runApp
-# çalışma dizinini app/ yapar). setwd() KULLANILMAZ; yollar config'te mutlaktır.
+#NOTE
 kok_bul <- function() {
   d <- normalizePath(getwd(), winslash = "/", mustWork = FALSE)
   repeat {
@@ -41,23 +22,15 @@ for (.dosya in c("config", "utils", "api_functions", "data.prep", "models")) {
   source(file.path(.kok, "R", paste0(.dosya, ".R")), encoding = "UTF-8")
 }
 
-# jsonlite (api_functions.R) da bir validate() dışa aktarır ve shiny'ninkini
-# gölgeler; öneksiz kullanımda "is.character(txt) is not TRUE" hatası çıkar.
+#NOTE
 validate <- shiny::validate
-# httr (api_functions.R) de bir config() dışa aktarır; plotly::config'i gölgeler.
-# Grafiklerde her zaman plotly::config(...) yazılır.
-
-# --- Başlangıç verisi ---------------------------------------------------------
-# Taze kayıt varsa okunur; yoksa (ve güncelleme açıksa) kaynaklardan çekilip hesaplanır.
+#NOTE
 baslangic <- sonuclari_getir(FALSE)
 
-# =============================================================================
-# YARDIMCILAR
-# =============================================================================
-
+#NOTE
 renkler_rol <- c(bagimli = "#1f6fb2", kontrol = "#e08a1e", ek = "#7a8b99")
 
-#' Gösterge menüsü seçenekleri: role göre gruplu, okunur adlı
+#NOTE
 gosterge_secenekleri <- function(ozet) {
   sonuc <- list()
   for (rol in names(CONFIG$sunum$roller)) {
@@ -67,29 +40,27 @@ gosterge_secenekleri <- function(ozet) {
   sonuc
 }
 
-#' Sayıyı okunur biçime getir (çok büyük/küçük değerlerde bilimsel gösterim)
+#NOTE
 sayi_bicimle <- function(x, basamak = 2) {
   ifelse(is.na(x), "-",
          ifelse(abs(x) >= 1e6 | (abs(x) < 0.01 & x != 0), formatC(x, format = "e", digits = 2),
                 formatC(x, format = "f", digits = basamak, big.mark = ".", decimal.mark = ",")))
 }
 
-#' Göstergenin biriminde değer metni ("30,7 %", "48,5 TL")
+#NOTE
 deger_metni <- function(g, x) {
   b <- CONFIG$gostergeler[[g]][["birim"]]
   paste0(sayi_bicimle(x), if (!is.null(b)) paste0(" ", b) else "")
 }
 
-#' Genel Bakış için varsayılan grafik seçimi (config'ten, mevcut olanlar)
+#NOTE
 genel_baslangic_secimi <- function(ozet) {
   s <- intersect(CONFIG$sunum$genel_varsayilan, ozet$gosterge)
   if (length(s) == 0) s <- utils::head(ozet$gosterge, CONFIG$sunum$genel_azami)
   utils::head(s, CONFIG$sunum$genel_azami)
 }
 
-# =============================================================================
-# GÖRÜNEN KISIM (UI) — "neyin nerede durduğu"
-# =============================================================================
+#NOTE
 ui <- dashboardPage(
   skin = "blue",
 
@@ -156,8 +127,7 @@ ui <- dashboardPage(
 
     tabItems(
 
-      # ---- Genel Bakış -------------------------------------------------------
-      # Az, seçilebilir grafik; bir sonraki dönemin tahmini görünür.
+      #NOTE
       tabItem(tabName = "genel",
         pickerInput("genel_secim", "Gösterilecek grafikler",
                     choices = gosterge_secenekleri(baslangic$ozet), multiple = TRUE,
@@ -171,7 +141,7 @@ ui <- dashboardPage(
         uiOutput("genel_alan")
       ),
 
-      # ---- Tahmin ------------------------------------------------------------
+      #NOTE
       tabItem(tabName = "tahmin",
         fluidRow(
           column(width = 4,
@@ -201,7 +171,7 @@ ui <- dashboardPage(
         )
       ),
 
-      # ---- Model Karşılaştırma -----------------------------------------------
+      #NOTE
       tabItem(tabName = "karsilastirma",
         fluidRow(
           box(title = "Tüm göstergeler", width = 12, status = "primary", solidHeader = TRUE,
@@ -223,7 +193,7 @@ ui <- dashboardPage(
         )
       ),
 
-      # ---- Veri ve Metaveri --------------------------------------------------
+      #NOTE
       tabItem(tabName = "veri",
         fluidRow(
           box(title = "Metaveri: kaynak önceliği, birincil yedek ve kullanılan kaynak", width = 12,
@@ -241,7 +211,7 @@ ui <- dashboardPage(
         )
       ),
 
-      # ---- Metodoloji --------------------------------------------------------
+      #NOTE
       tabItem(tabName = "metod",
         withMathJax(),
         box(title = "Yöntem", width = 12, status = "primary", solidHeader = TRUE,
@@ -284,12 +254,10 @@ ui <- dashboardPage(
   )
 )
 
-# =============================================================================
-# ÇALIŞAN KISIM (SERVER) — "işin nasıl yapıldığı"
-# =============================================================================
+#NOTE
 server <- function(input, output, session) {
 
-  # ---- Ortak durum: güncelleme düğmeleri bunu yeniler -------------------------
+  #NOTE
   durum <- reactiveValues(veri = baslangic$veri, ozet = baslangic$ozet, gelecek = baslangic$gelecek,
                           gecmis = baslangic$gecmis, cv = baslangic$cv, meta = baslangic$meta,
                           kalite = baslangic$kalite, zaman = baslangic$zaman)
@@ -305,7 +273,7 @@ server <- function(input, output, session) {
     paste("Son hesaplama:", format(durum$zaman, "%d.%m.%Y %H:%M"))
   })
 
-  # ---- Tüm verileri güncelle ---------------------------------------------------
+  #NOTE
   observeEvent(input$guncelle, {
     sonuc <- withProgress(message = "Veriler kaynak önceliklerine göre çekiliyor, modeller kuruluyor...",
                           value = 0.3, tryCatch(calistir_hepsi(yenile = TRUE), error = function(e) e))
@@ -320,7 +288,7 @@ server <- function(input, output, session) {
                      type = "message")
   })
 
-  # ---- Tek göstergeyi güncelle (verinin kendi ayarlarıyla) ---------------------
+  #NOTE
   observeEvent(input$gosterge_guncelle, {
     g <- req(input$gosterge)
     sonuc <- withProgress(message = paste("Güncelleniyor:", gosterge_etiketi(g)), value = 0.3,
@@ -333,14 +301,12 @@ server <- function(input, output, session) {
     showNotification(paste("Güncellendi:", gosterge_etiketi(g)), type = "message")
   })
 
-  # ===========================================================================
-  # GENEL BAKIŞ — seçilen grafikler ve bir sonraki dönemin tahmini
-  # ===========================================================================
+  #NOTE
   genel_gostergeler <- reactive({
     utils::head(intersect(input$genel_secim, durum$ozet$gosterge), CONFIG$sunum$genel_azami)
   })
 
-  # Bir göstergenin ilk tahmin dönemi, değeri ve son gerçek değere göre değişimi
+  #NOTE
   sonraki_tahmin <- function(g) {
     f <- durum$gelecek[durum$gelecek$gosterge == g, ]
     s <- gosterge_serisi(durum$veri, g); s <- s[s$gercek, ]
@@ -376,7 +342,7 @@ server <- function(input, output, session) {
         s <- gosterge_serisi(durum$veri, gg)
         f <- durum$gelecek[durum$gelecek$gosterge == gg, ]
         o <- durum$ozet[durum$ozet$gosterge == gg, ]
-        s <- utils::tail(s, max(24, 2 * o$UFUK + 12))                       # kısa geçmiş: sade grafik
+        s <- utils::tail(s, max(24, 2 * o$UFUK + 12))
         plot_ly() %>%
           add_lines(data = s, x = ~tarih, y = ~deger, name = "Gerçek", line = list(color = "#1f2d3d", width = 1.6)) %>%
           add_ribbons(data = f, x = ~tarih, ymin = ~alt, ymax = ~ust, name = "Bant", showlegend = FALSE,
@@ -391,12 +357,7 @@ server <- function(input, output, session) {
     })
   })
 
-  # ===========================================================================
-  # TAHMİN — gösterge + takvim
-  # ===========================================================================
-
-  # Seçilebilir dönemler: bu göstergenin tahmin kapsamı (geçmişe dönük + ileriye dönük).
-  # Frekansa göre otomatik daralır: çeyreklikte yalnız çeyrek başı, yıllıkta yalnız yıl başı.
+  #NOTE
   secilebilir <- reactive({
     g <- req(input$gosterge)
     sort(unique(c(durum$gecmis$tarih[durum$gecmis$gosterge == g],
@@ -406,8 +367,7 @@ server <- function(input, output, session) {
     g <- req(input$gosterge); durum$gelecek$tarih[durum$gelecek$gosterge == g]
   })
 
-  # Varsayılan dönem HER ZAMAN aynı kuralla seçilir: içinde bulunulan ay; o gösterge için
-  # seçilemiyorsa ondan sonraki ilk seçilebilir dönem (yoksa en son dönem).
+  #NOTE
   varsayilan_donem <- function(sec) {
     ref <- as.Date(format(Sys.Date(), "%Y-%m-01"))
     ileri <- sec[sec >= ref]
@@ -418,7 +378,7 @@ server <- function(input, output, session) {
   takvim_yili   <- reactiveVal(NULL)
   son_gosterge  <- reactiveVal(NULL)
 
-  # Gösterge değişince varsayılan döneme dön; aynı göstergede veri güncellenirse seçimi koru.
+  #NOTE
   observeEvent(list(input$gosterge, durum$gelecek), {
     sec <- secilebilir(); req(length(sec) > 0)
     onceki <- secili_donem()
@@ -428,7 +388,7 @@ server <- function(input, output, session) {
     takvim_yili(as.integer(format(yeni, "%Y")))
   })
 
-  # Seçilemeyen (gri) dönemler sunucuda da reddedilir: yalnız tahmin kapsamındakiler seçilebilir.
+  #NOTE
   observeEvent(input$secili_donem, {
     d <- tryCatch(as.Date(input$secili_donem), error = function(e) NA)
     if (!is.na(d) && d %in% secilebilir()) secili_donem(d)
@@ -486,7 +446,7 @@ server <- function(input, output, session) {
 
   output$grafik_baslik <- renderText({ req(input$gosterge); gosterge_etiketi(input$gosterge) })
 
-  # Seçili dönemin sonucu: ileriye dönükse tahmin ve bant; geçmişe dönükse tahmin, gerçek ve hata
+  #NOTE
   output$secili_sonuc <- renderUI({
     g <- req(input$gosterge); d <- req(secili_donem()); f_ad <- gosterge_frekansi(g)
     f <- durum$gelecek[durum$gelecek$gosterge == g & durum$gelecek$tarih == d, ]
@@ -559,9 +519,7 @@ server <- function(input, output, session) {
       utils::write.csv(cikti, file, row.names = FALSE)
     })
 
-  # ===========================================================================
-  # MODEL KARŞILAŞTIRMA
-  # ===========================================================================
+  #NOTE
   output$tablo_ozet <- renderDT({
     o <- durum$ozet
     tablo <- data.frame(
@@ -594,9 +552,7 @@ server <- function(input, output, session) {
     p
   })
 
-  # ===========================================================================
-  # VERİ VE METAVERİ
-  # ===========================================================================
+  #NOTE
   output$tablo_meta <- renderDT({
     m <- durum$meta
     tablo <- data.frame(
@@ -627,7 +583,5 @@ server <- function(input, output, session) {
   })
 }
 
-# =============================================================================
-# UYGULAMAYI AYAĞA KALDIR
-# =============================================================================
+#NOTE
 shinyApp(ui, server)

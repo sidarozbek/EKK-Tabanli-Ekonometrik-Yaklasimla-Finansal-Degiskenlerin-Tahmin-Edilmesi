@@ -1,18 +1,15 @@
 # Bu kod, veri hazırlık sürecine başlamadan önce gerekli bağımlılıkların tamam olup olmadığını kontrol eden bir güvenlik adımıdır.
-
 if (!exists("CONFIG"))  stop("[data.prep.R] Önce config.R yükle: source('R/config.R')")
 if (!exists("log_msg")) stop("[data.prep.R] Önce utils.R yükle: source('R/utils.R')")
 if (!exists("tum_gostergeleri_cek")) stop("[data.prep.R] Önce api_functions.R yükle")
 
 # Kodun düzgün çalışması için ihtiyaç duyduğumuz iki temel kütüphaneyi (dplyr ve zoo) projeye çağırıyoruz.
-
 suppressPackageStartupMessages({
 library(dplyr)
 library(zoo)
 })
 
 #Bu kod, elimizdeki ham veriyi alıp zaman serisi analizine uygun, boşluksuz ve derli toplu bir tablo haline getiriyor.
-
 seri_hazirla <- function(d, g) {
 f <- gosterge_frekansi(g)
 d <- d[!is.na(d$deger), ]
@@ -27,23 +24,9 @@ stringsAsFactors = FALSE)
 }
 
 # Bu kod, hazırlanan veri tablosunda kaç tane dönemin aslında boş olup sonradan bizim tarafımızdan doldurulduğunu hesaplar.
-
 ic_bosluk_say <- function(veri) sum(!veri$gercek)
 
-#Bu kod, bir veri serisinde ani ve olağandışı sıçrama yapan aykırı değerleri Hampel filtresi yöntemiyle tespit etmemizi sağlar.
-
-hampel_sapan <- function(x, esik = NULL) {
-esik <- varsayilan(esik, varsayilan(CONFIG$veri$hampel_esigi, 3))
-if (length(x) < 8) return(rep(FALSE, length(x)))
-fark <- c(NA, diff(x))
-mad_ <- stats::mad(fark, na.rm = TRUE)
-if (!is.finite(mad_) || mad_ == 0) return(rep(FALSE, length(x)))
-z <- abs(fark - stats::median(fark, na.rm = TRUE)) / mad_
-!is.na(z) & z > esik
-}
-
 #Bu kod, elimizdeki tüm göstergelerin veri kalitesini ve durumunu detaylıca analiz edip tek bir özet rapor tablosu haline getirir.
-
 kalite_raporu_olustur <- function(uzun) {
 bugun <- as.Date(CONFIG$veri$bitis_tarihi)
 satirlar <- lapply(unique(uzun$kimlik), function(g) {
@@ -52,14 +35,11 @@ d <- uzun[uzun$kimlik == g, ]; d <- d[order(d$tarih), ]
 d$tarih <- donem_basi(d$tarih, f)
 kapsam <- length(donem_dizisi(min(d$tarih), max(d$tarih), f))
 gecikme <- max(0, length(donem_dizisi(max(d$tarih), max(donem_basi(bugun, f), max(d$tarih)), f)) - 1)
-sapan <- hampel_sapan(d$deger)
 kart <- CONFIG$gostergeler[[g]]
 data.frame(
 gosterge = g, ad = varsayilan(kart$ad, g), rol = varsayilan(kart$rol, NA), frekans = f,
 gozlem = nrow(d), ilk_tarih = min(d$tarih), son_tarih = max(d$tarih),
 gecikme_donem = gecikme, eksik_donem_orani = round(1 - nrow(d) / kapsam, 3),
-sapan_sayisi = sum(sapan),
-sapan_tarihleri = paste(utils::head(format(d$tarih[sapan], "%Y-%m"), 3), collapse = ", "),
 stringsAsFactors = FALSE)
 })
 do.call(rbind, satirlar)
@@ -75,7 +55,6 @@ d
 }
 
 # Bu kod, modele veya analize sokulacak tek bir göstergenin verisini alıp onun gecikmeli (lag) değerlerini ve isteğe bağlı trend değişkenini içeren hazır bir veri tablosuna dönüştürür.
-
 gosterge_verisi <- function(veri, g, p = NULL, trend = FALSE) {
 p <- varsayilan(p, gosterge_p(g))
 d <- gosterge_serisi(veri, g)
@@ -90,7 +69,6 @@ out
 }
 
 #Bu kod, sisteme giren ham veriyi alıp uçtan uca işleyen ve analize hazır hale getiren ana veri hazırlama akışını yönetir.
-
 veriyi_hazirla <- function(ham) {
 log_msg("Veri hazırlama akışı başladı (her gösterge kendi frekansında)")
 parcalar <- lapply(unique(ham$kimlik), function(g) {
@@ -106,9 +84,9 @@ sonuc
 }
 
 # Bu kod, daha önceden işlenip diskte saklanan hazır veriyi getiren veya duruma göre ham kaynaklardan yenileyip sıfırdan oluşturan önbellek (cache) mekanizmasını yönetir.
-
 hazir_veriyi_getir <- function(yenile = FALSE) {
 yol <- file.path(CONFIG$saklama$processed_klasoru, "hazir_veri.rds")
+  # Eski sürümün (geniş, aylık) kaydı ya da bozuk dosya "hazır veri" sayılmaz: yeniden üretilir.
 oku <- function() {
 x <- if (file.exists(yol)) tryCatch(readRDS(yol), error = function(e) NULL) else NULL
 if (is.data.frame(x) && all(c("gosterge", "tarih", "deger", "gercek") %in% names(x))) x else NULL
@@ -136,14 +114,12 @@ veriyi_hazirla(ham)
 }
 
 # Bu kod, betiğin en sonunda çalışan ve tanımlanan tüm veri hazırlama fonksiyonlarının belleğe eksiksiz yüklenip yüklenmediğini denetleyen bir doğrulama testidir.
-
 local({
-fonksiyonlar <- c("seri_hazirla", "ic_bosluk_say", "hampel_sapan", "kalite_raporu_olustur",
+fonksiyonlar <- c("seri_hazirla", "ic_bosluk_say", "kalite_raporu_olustur",
 "gosterge_serisi", "gosterge_verisi", "veriyi_hazirla", "hazir_veriyi_getir")
 eksik <- fonksiyonlar[!sapply(fonksiyonlar, exists, mode = "function")]
 if (length(eksik) > 0) {
 stop("[data.prep.R] Eksik fonksiyon: ", paste(eksik, collapse = ", "))
 }
 message("[data.prep.R] Veri hazırlama yüklendi: ", length(fonksiyonlar), " fonksiyon yerinde. ✔")
-})
 })

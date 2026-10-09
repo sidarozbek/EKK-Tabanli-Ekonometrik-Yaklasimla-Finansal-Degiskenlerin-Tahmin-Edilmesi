@@ -1,0 +1,54 @@
+[2026-10-09 16:31:09] [BILGI] Veri yenileniyor (kaynaklar) 
+[2026-10-09 16:31:39] [UYARI] Deneme 1/3 başarısız, tekrar deneniyor 
+[2026-10-09 16:31:49] [UYARI] Deneme 1/3 başarısız, tekrar deneniyor 
+[2026-10-09 16:31:51] [UYARI] Deneme 2/3 başarısız, tekrar deneniyor 
+[2026-10-09 16:31:53] [UYARI] Veri alınamadı: BUTCE_DENGESI [WORLDBANK] - World Bank API request failed for indicator GC.BAL.CASH.GD.ZS The following message was returned from the server
+id: 175
+key: Invalid format
+value: The indicator was not found. It may have been deleted or archived.
+
+failed request:
+https://api.worldbank.org/v2/en/country/tur/indicator/GC.BAL.CASH.GD.ZS?date=2000%3A2026&footnote=y&cntrycode=y&per_page=20000&format=json 
+[2026-10-09 16:31:53] [HATA] Gösterge alınamadı: BUTCE_DENGESI 
+[2026-10-09 16:32:13] [UYARI] Deneme 1/3 başarısız, tekrar deneniyor 
+[2026-10-09 16:32:29] [BILGI] Çekim tamamlandı: 20/21 gösterge 
+[2026-10-09 16:32:29] [BILGI] Veri hazırlama akışı başladı (her gösterge kendi frekansında) 
+[2026-10-09 16:32:29] [BILGI] Veri hazırlama bitti: 20 gösterge, 3680 gözlem (interpolasyonla doldurulan: 0); kaydedildi 
+[2026-10-09 16:32:37] [UYARI] Veride yok, atlandı: BUTCE_DENGESI 
+[2026-10-09 16:32:37] [BILGI] Tahmin tamamlandı: 20 gösterge; kaydedildi 
+[2026-10-09 16:39:33] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 16:39:56] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 16:40:13] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 16:40:22] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 16:41:06] [BILGI] Gösterge güncellendi: BUTCE_DENGESI (kaynak: FRED, p = 2, pencere = 15, ufuk = 3) 
+[2026-10-09 16:41:59] [BILGI] Model Lab: ENFLASYON genişletilmiş ızgara 60 model, optimum p=5, w=60 (RMSE 2.475) 
+[2026-10-09 16:42:59] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 16:43:36] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 16:43:44] [BILGI] Tahmin tamamlandı: 21 gösterge; kaydedildi 
+[2026-10-09 16:45:04] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 16:47:22] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 16:47:29] [BILGI] Tahmin tamamlandı: 21 gösterge; kaydedildi 
+[2026-10-09 16:49:18] [BILGI] Gösterge güncellendi: UFE (kaynak: EVDS, p = 4, pencere = 60, ufuk = 6) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: FAIZ (EVDS) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: BIST100 (BIST) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: EURTRY (EVDS) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: UFE (EVDS) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: M2 (EVDS) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: SANAYI_URETIM (FRED) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: TUKETICI_GUVEN (EVDS) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: REEL_KESIM_GUVEN (EVDS) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: KAPASITE_KULLANIM (EVDS) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: KONUT_FIYAT (EVDS) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: PERAKENDE_SATIS (FRED) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: GENC_ISSIZLIK (FRED) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: GINI (FRED) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: CARI_DENGE (WORLDBANK) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: DIS_TICARET (WORLDBANK) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: BUTCE_DENGESI (FRED) 
+[2026-10-09 17:05:10] [BILGI] Cache'ten geldi: TURIZM_GELIRI (WORLDBANK) 
+[2026-10-09 17:05:10] [BILGI] Çekim tamamlandı: 17/17 gösterge 
+[2026-10-09 17:05:10] [BILGI] Veri hazırlama akışı başladı (her gösterge kendi frekansında) 
+[2026-10-09 17:05:10] [BILGI] Veri hazırlama bitti: 17 gösterge, 2771 gözlem (interpolasyonla doldurulan: 0); kaydedildi 
+[2026-10-09 17:05:26] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 17:13:04] [BILGI] Hazır veri bulundu, kullanılıyor 
+[2026-10-09 17:23:23] [BILGI] Hazır veri bulundu, kullanılıyor 

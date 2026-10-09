@@ -1,0 +1,12 @@
+name: Bumba
+title: Bumba
+username: econolab77
+account: econolab77
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 18139414
+bundleId: 12669398
+url: https://econolab77.shinyapps.io/Bumba/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

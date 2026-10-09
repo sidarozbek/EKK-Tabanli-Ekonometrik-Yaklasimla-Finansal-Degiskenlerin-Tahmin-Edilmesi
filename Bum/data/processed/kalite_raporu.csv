@@ -1,0 +1,18 @@
+"gosterge","ad","rol","frekans","gozlem","ilk_tarih","son_tarih","gecikme_donem","eksik_donem_orani"
+"FAIZ","Politika / Fonlama Faizi","Bağımlı","aylik",190,2011-01-01,2026-10-01,0,0
+"BIST100","BIST 100 Endeksi","Bağımlı","aylik",322,2000-01-01,2026-10-01,0,0
+"EURTRY","EUR/TRY Kuru","Kontrol","aylik",322,2000-01-01,2026-10-01,0,0
+"UFE","Yİ-ÜFE","Kontrol","aylik",309,2001-01-01,2026-09-01,1,0
+"M2","Para Arzı (M2)","Kontrol","aylik",308,2001-01-01,2026-08-01,2,0
+"SANAYI_URETIM","Sanayi Üretimi","Kontrol","aylik",279,2001-01-01,2024-03-01,31,0
+"TUKETICI_GUVEN","Tüketici Güven Endeksi","Ek","aylik",177,2012-01-01,2026-09-01,1,0
+"REEL_KESIM_GUVEN","Reel Kesim Güven Endeksi","Ek","aylik",237,2007-01-01,2026-09-01,1,0
+"KAPASITE_KULLANIM","Kapasite Kullanım Oranı","Ek","aylik",237,2007-01-01,2026-09-01,1,0
+"KONUT_FIYAT","Konut Fiyat Endeksi","Ek","aylik",188,2011-01-01,2026-08-01,2,0
+"PERAKENDE_SATIS","Perakende Satış (yıllık %)","Ek","ceyreklik",62,2011-01-01,2026-04-01,2,0
+"GENC_ISSIZLIK","Genç İşsizlik (15-24)","Ek","yillik",26,2000-01-01,2025-01-01,1,0
+"GINI","GINI Endeksi","Ek","yillik",22,2002-01-01,2023-01-01,3,0
+"CARI_DENGE","Cari Denge / GSYH (%)","Ek","yillik",26,2000-01-01,2025-01-01,1,0
+"DIS_TICARET","Dış Ticaret / GSYH (%)","Ek","yillik",26,2000-01-01,2025-01-01,1,0
+"BUTCE_DENGESI","Genel Devlet Dengesi / GSYH (%)","Ek","yillik",24,2000-01-01,2023-01-01,3,0
+"TURIZM_GELIRI","Turizm Gelirleri (USD)","Ek","yillik",16,2005-01-01,2020-01-01,6,0
