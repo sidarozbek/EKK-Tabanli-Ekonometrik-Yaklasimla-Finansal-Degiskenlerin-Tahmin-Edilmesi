@@ -1,4 +1,4 @@
-#NOTE
+#Bu kodu çalıştırmadan önce sırasıyla gerekli diğer dosyaları (config.R, utils.R, data.prep.R) yüklemiş olman gerekiyor; aksi takdirde kod hata verir diyen bir ön koşul kontrolüdür.
 if (!exists("CONFIG"))          stop("[models.R] Önce config.R yükle: source('R/config.R')")
 if (!exists("formul_kur"))      stop("[models.R] Önce utils.R yükle: source('R/utils.R')")
 if (!exists("gosterge_verisi")) stop("[models.R] Önce data.prep.R yükle: source('R/data.prep.R')")
