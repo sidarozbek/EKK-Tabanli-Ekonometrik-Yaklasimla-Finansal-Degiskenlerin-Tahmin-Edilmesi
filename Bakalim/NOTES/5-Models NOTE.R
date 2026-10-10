@@ -3,35 +3,35 @@ if (!exists("CONFIG"))          stop("[models.R] Önce config.R yükle: source('
 if (!exists("formul_kur"))      stop("[models.R] Önce utils.R yükle: source('R/utils.R')")
 if (!exists("gosterge_verisi")) stop("[models.R] Önce data.prep.R yükle: source('R/data.prep.R')")
 
-#NOTE
+#Bu kod, MAE (Ortalama Mutlak Hata - Mean Absolute Error) metriğini hesaplayan özel bir fonksiyon tanımlar.
 mae <- function(gercek, tahmin) mean(abs(gercek - tahmin), na.rm = TRUE)
 
-#NOTE
+#Bu kod, MSE (Ortalama Kare Hata - Mean Squared Error) metriğini hesaplayan bir fonksiyon tanımlar.
 mse <- function(gercek, tahmin) mean((gercek - tahmin)^2, na.rm = TRUE)
 
-#NOTE
+#Bu kod, RMSE (Kök Ortalama Kare Hata - Root Mean Squared Error) metriğini hesaplayan bir fonksiyon tanımlar.
 rmse <- function(gercek, tahmin) sqrt(mse(gercek, tahmin))
 
-#NOTE
+#Bu kod, MAPE (Ortalama Mutlak Yüzde Hata - Mean Absolute Percentage Error) metriğini hesaplayan bir fonksiyon tanımlar.
 mape <- function(gercek, tahmin) {
   gecerli <- gercek != 0 & !is.na(gercek) & !is.na(tahmin)
   100 * mean(abs((gercek[gecerli] - tahmin[gecerli]) / gercek[gecerli]))
 }
 
-#NOTE
+#Bu kod, Theil'in U İstatistiği (Theil'in Eşitsizlik Katsayısı - Theil's U) metriğini hesaplayan bir fonksiyon tanımlar.
 theil_u <- function(gercek, tahmin) {
   ok <- !is.na(gercek) & !is.na(tahmin)
   sqrt(sum((tahmin[ok] - gercek[ok])^2)) / sqrt(sum(gercek[ok]^2))
 }
 
-#NOTE
+#Bu kod, zaman serisi analizinde kullanılan Basit Otoregresif (AR - Autoregressive) modelini kuran bir fonksiyon tanımlar.
 basit_ar <- function(veri, gosterge, p = NULL) {
   p <- varsayilan(p, gosterge_p(gosterge))
   d <- gosterge_verisi(veri, gosterge, p)
   lm(formul_kur(gosterge, paste0(gosterge, "_lag", seq_len(p))), data = d)
 }
 
-#NOTE
+#Bu kod, zaman serisi modellerinde kayan pencere (rolling window) yöntemiyle ileriye dönük tahminler yapan ve model performansını test eden bir fonksiyon tanımlar.
 kayan_pencere_tahmin <- function(veri, gosterge, pencere = NULL, p = NULL, son_n = NULL) {
   p <- varsayilan(p, gosterge_p(gosterge))
   w <- varsayilan(pencere, gosterge_pencere(gosterge))
@@ -74,7 +74,7 @@ kayan_pencere_tahmin <- function(veri, gosterge, pencere = NULL, p = NULL, son_n
   s
 }
 
-#NOTE
+#Bu kod, kurulan tahmin modelinin başarımını değerlendirmek için tüm hata ve performans metriklerini tek bir tabloda (data.frame) toplayan bir özet fonksiyon tanımlar.
 metrikler <- function(s) {
   ic <- attr(s, "ornek_ici")
   naif_rmse <- rmse(s$gercek, s$naif)
@@ -87,7 +87,7 @@ metrikler <- function(s) {
   )
 }
 
-#NOTE
+#Bu kod, bir zaman serisi modeli için en uygun gecikme (p) sayısını AIC veya BIC gibi kriterlere göre otomatik olarak seçen bir fonksiyon tanımlar.
 p_sec <- function(veri, gosterge, kriter = "AIC", p_max = NULL) {
   p_max <- varsayilan(p_max, frekans_ayari(gosterge_frekansi(gosterge))$p_max)
   n <- nrow(gosterge_serisi(veri, gosterge))
@@ -101,7 +101,7 @@ p_sec <- function(veri, gosterge, kriter = "AIC", p_max = NULL) {
   list(p = tablo$p[which.min(tablo[[kriter]])], tablo = tablo)
 }
 
-#NOTE
+#Bu kod, bir zaman serisi modeli için en ideal gecikme ($p$) ve pencere ($w$) değerlerini çapraz doğrulama (cross-validation) yöntemiyle en düşük hata oranına (RMSE) göre otomatik olarak seçen bir fonksiyon tanımlar.
 model_sec <- function(veri, g) {
   p0 <- gosterge_p(g); w0 <- gosterge_pencere(g)
   varsayilan_sonuc <- list(p = p0, pencere = w0, yontem = "varsayilan", tablo = NULL, son_n = NA)
@@ -143,7 +143,7 @@ model_sec <- function(veri, g) {
        tablo = izgara, son_n = son_n)
 }
 
-#NOTE
+#Bu kod, eğitilen zaman serisi modelini kullanarak geleceğe yönelik tahminler yapan ve bu tahminlerin güven aralıklarını (alt ve üst sınırlarını) hesaplayan bir fonksiyon tanımlar.
 gelecek_tahmin <- function(veri, gosterge, ufuk = NULL, pencere = NULL, p = NULL) {
   ufuk <- varsayilan(ufuk, gosterge_ufuk(gosterge))
   p    <- varsayilan(p, gosterge_p(gosterge))
@@ -182,7 +182,7 @@ gelecek_tahmin <- function(veri, gosterge, ufuk = NULL, pencere = NULL, p = NULL
   out
 }
 
-#NOTE
+#Bu kod, daha önce tanımlanan tüm model adımlarını (model seçimi, kayan pencere tahmini, gelecek tahmini, hata metrikleri hesaplama) tek bir çatı altında birleştirerek bir gösterge için uçtan uca analiz raporu ve tahmin üreten ana fonksiyonu tanımlar.
 gosterge_hesapla <- function(veri, ad, kaynak = NA) {
   ms <- model_sec(veri, ad)
   s  <- kayan_pencere_tahmin(veri, ad, pencere = ms$pencere, p = ms$p)
@@ -202,7 +202,7 @@ gosterge_hesapla <- function(veri, ad, kaynak = NA) {
        gecmis = cbind(data.frame(gosterge = ad), s), cv = cv)
 }
 
-#NOTE
+#Bu kod, projede tanımlı olan tüm aktif göstergeler için döngü çalıştırarak uçtan uca tahmin ve analiz süreçlerini toplu halde yürüten ana pipeline (boru hattı) fonksiyonudur.
 tum_gostergeleri_tahminle <- function(veri) {
   meta <- processed_oku("metaveri")
   parcalar <- list()
@@ -221,7 +221,7 @@ tum_gostergeleri_tahminle <- function(veri) {
        gecmis = birlestir("gecmis"), cv = birlestir("cv"))
 }
 
-#NOTE
+#Bu kod, elde edilen tüm tahmin ve analiz sonuçlarını hem özel dosya formatlarında hem de toplu olarak bilgisayara (diske) kaydeden bir fonksiyon tanımlar.
 sonuclari_kaydet <- function(sonuc) {
   ikili_kaydet(sonuc$ozet, "tahmin_ozeti")
   ikili_kaydet(sonuc$gelecek, "gelecek_tahmin")
@@ -234,14 +234,14 @@ sonuclari_kaydet <- function(sonuc) {
   invisible(zaman)
 }
 
-#NOTE
+#Bu kod, analiz sonuçlarını, ham veriyi, metaveriyi, kalite raporunu ve işlem zamanını tek bir çatı altında bir araya getirerek kapsamlı bir sonuç paketi (rapor listesi) oluşturan bir fonksiyon tanımlar.
 sonuc_paketi <- function(veri, sonuc, zaman) {
   list(veri = veri, ozet = sonuc$ozet, gelecek = sonuc$gelecek, gecmis = sonuc$gecmis,
        cv = sonuc$cv, meta = processed_oku("metaveri"), kalite = processed_oku("kalite_raporu"),
        zaman = zaman)
 }
 
-#NOTE
+#Bu kod, projenin tüm veri hazırlama, modelleme, tahmin üretme, doğrulama ve kaydetme adımlarını baştan sona tek komutla koşturan ana yürütme fonksiyonunu tanımlar.
 calistir_hepsi <- function(yenile = FALSE) {
   veri  <- hazir_veriyi_getir(yenile)
   sonuc <- tum_gostergeleri_tahminle(veri)
@@ -251,7 +251,7 @@ calistir_hepsi <- function(yenile = FALSE) {
   invisible(sonuc_paketi(veri, sonuc, zaman))
 }
 
-#NOTE
+#Bu kod, projedeki tüm göstergeleri baştan hesaplamak yerine yalnızca belirli bir tek göstergeyi (ad) güncelleyen optimize edilmiş bir güncelleme fonksiyonunu tanımlar.
 gosterge_guncelle <- function(ad) {
   if (!ad %in% aktif_gostergeler()) stop("Aktif olmayan gösterge: ", ad, call. = FALSE)
   eski <- processed_oku("hazir_veri"); yol_k <- file.path(CONFIG$saklama$model_klasoru, "sonuclar.rds")
@@ -287,7 +287,7 @@ gosterge_guncelle <- function(ad) {
   invisible(sonuc_paketi(veri, sonuc, zaman))
 }
 
-#NOTE
+#Bu kod, daha önceden hesaplanıp kaydedilmiş olan model sonuçlarını diskten getiren, ancak dosyanın güncelliğini kontrol ederek gerekirse otomatik olarak yeniden hesaplayan akıllı bir veri getirme (cache/önbellek) fonksiyonu tanımlar.
 sonuclari_getir <- function(yenile = FALSE) {
   yol <- file.path(CONFIG$saklama$model_klasoru, "sonuclar.rds")
   if (yenile) return(calistir_hepsi(TRUE))
@@ -301,7 +301,7 @@ sonuclari_getir <- function(yenile = FALSE) {
   sonuc_paketi(veri, k, k$zaman)
 }
 
-#NOTE
+#Bu kod, models.R adlı tahmin katmanı betiğinin açılış (bootstrap) ve güvenlik kontrolü mekanizmasını tanımlar.
 local({
   fonksiyonlar <- c("mae", "mse", "rmse", "mape", "theil_u", "basit_ar",
                     "kayan_pencere_tahmin", "metrikler", "p_sec", "model_sec",
