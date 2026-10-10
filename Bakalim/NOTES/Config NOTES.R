@@ -168,7 +168,7 @@ CONFIG <- list(
       birim = "%", donusum = "yillik_degisim",
       kaynak = "EVDS", kod = "TP_GSYIH20_BY_B1GQ",
       oncelik = c("EVDS", "FRED", "WORLDBANK", "CSV_YEDEK"), birincil_yedek = "FRED",
-      p = 8, pencere = 18,
+      p = 4, pencere = 20,
       alternatifler = list(
         FRED      = list(kod = "NGDPRSAXDCTRQ", tur = "farkli", frekans="ceyreklik"),     
         WORLDBANK = list(kod = "WB_WDI_NY_GDP_MKTP_KD_ZG", tur = "oran", frekans = "yillik")
@@ -283,7 +283,7 @@ CONFIG <- list(
       aktif = TRUE, rol = "ek", ad = "Cari İşlemler Dengesi", frekans = "ceyreklik",
       kaynak = "EVDS", kod = "TP_IMFCA_TUR",
       oncelik = c("EVDS","FRED" ,"WORLDBANK", "OECD", "CSV_YEDEK"), birincil_yedek = "FRED",
-      p = 8, pencere = 20,
+      p = 4, pencere = 20,
       alternatifler = list(
         FRED      = list(kod = "TURB6BLTT02STSAQ", tur = "farkli", frekans="ceyreklik"),
         WORLDBANK = list(kod = "BN.CAB.XOKA.GD.ZS", tur = "farkli", frekans = "yillik"),
@@ -382,7 +382,7 @@ CONFIG <- list(
       aktif = TRUE, rol = "ek", ad = "Genç İşsizlik Oranı", frekans = "yillik", birim = "%",
       kaynak = "FRED", kod = "SLUEM1524ZSTUR",
       oncelik = c("FRED", "WORLDBANK","OECD", "CSV_YEDEK"), birincil_yedek = "WORLDBANK",
-      p = 2, pencere = 20,
+      p = 2, pencere = 16,
       alternatifler = list(WORLDBANK = list(kod = "SL.UEM.1524.ZS", tur = "duzey", frekans="yillik"),
                            OECD = "DSD_EAG_LSO_EA@DF_LSO_NEAC_UNEMP")     
     ),
@@ -396,7 +396,7 @@ CONFIG <- list(
       aktif = TRUE, rol = "ek", ad = "Perakende Satış Hacim Endeksi", frekans = "ceyreklik",
       kaynak = "FRED", kod = "TURSLRTTO01GYSAQ",
       oncelik = c("FRED", "CSV_YEDEK"), birincil_yedek = "CSV_YEDEK",
-      p = 1, pencere = 16,
+      p = 1, pencere = 16
     ),
     
     
@@ -433,7 +433,7 @@ CONFIG <- list(
       aktif = TRUE, rol = "ek", ad = "Gini Endeksi", frekans = "yillik",
       kaynak = "FRED", kod = "SIPOVGINITUR",
       oncelik = c("FRED","CSV_YEDEK"), birincil_yedek = "CSV_YEDEK",
-      p = 2, pencere = 20,
+      p = 2, pencere = 16
     )
   )
 )
