@@ -11,7 +11,7 @@ file.exists("R/config.R")
 * [ ] Config dosyasının tam yolunu bir değişkene yaz (çalışma dizini değişse de doğru dosyayı göstersin diye):
 
 ```r
-config_yolu <- normalizePath("R/config.R", winslash = "/")
+config_yolu <- normalizePath("config.R", winslash = "/")
 
 ```
 
