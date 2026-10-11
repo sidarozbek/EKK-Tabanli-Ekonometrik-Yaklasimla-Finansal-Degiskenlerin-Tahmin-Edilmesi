@@ -11,10 +11,13 @@ list.files("R")
 * [ ] Dosyaların tam yollarını değişkenlere yaz (veri hazırlama dosyasının adı farklıysa `data_prep.R` kısmını listede gördüğün adla değiştir):
 
 ```r
-config_yolu <- normalizePath("R/config.R", winslash = "/")
-utils_yolu  <- normalizePath("R/utils.R", winslash = "/")
-prep_yolu   <- normalizePath("R/data.prep.R", winslash = "/")
-file.exists(c(config_yolu, utils_yolu, prep_yolu))
+config_yolu <- file.path(getwd(), "config.R")
+utils_yolu  <- file.path(getwd(), "utils.R")
+prep_yolu   <- file.path(getwd(), "data_prep.R")
+
+file.exists(config_yolu)
+file.exists(utils_yolu)
+file.exists(prep_yolu)
 
 ```
 
