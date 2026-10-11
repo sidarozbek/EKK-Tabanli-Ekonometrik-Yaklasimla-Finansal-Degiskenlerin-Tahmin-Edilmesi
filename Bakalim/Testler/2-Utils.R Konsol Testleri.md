@@ -11,8 +11,11 @@
 * [ ] Dosyaların tam yollarını değişkenlere yaz:
 
   ```r
-  config_yolu <- normalizePath("R/config.R", winslash = "/")
-  utils_yolu  <- normalizePath("R/utils.R", winslash = "/")
+  config_yolu <- file.path(getwd(), "config.R")
+  utils_yolu  <- file.path(getwd(), "utils.R")
+
+  file.exists(config_yolu)
+  file.exists(utils_yolu)
   ```
 
 * [ ] Gerçek API anahtarlarını sakla ve testler için sahte anahtar tanımla:
