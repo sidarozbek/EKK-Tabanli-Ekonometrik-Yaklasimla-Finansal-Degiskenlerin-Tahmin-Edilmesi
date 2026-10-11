@@ -33,11 +33,14 @@ basit_ar <- function(veri, gosterge, p = NULL) {
 
 #Bu kod, zaman serisi modellerinde kayan pencere (rolling window) yöntemiyle ileriye dönük tahminler yapan ve model performansını test eden bir fonksiyon tanımlar.
 kayan_pencere_tahmin <- function(veri, gosterge, pencere = NULL, p = NULL, son_n = NULL) {
+  if (!is.null(son_n) && son_n < 1) stop("son_n en az 1 olmalı", call. = FALSE)
   p <- varsayilan(p, gosterge_p(gosterge))
   w <- varsayilan(pencere, gosterge_pencere(gosterge))
   trend <- isTRUE(CONFIG$model$formulde_trend)
   d <- gosterge_verisi(veri, gosterge, p, trend = trend)
-  formul <- formul_kur(gosterge, paste0(gosterge, "_lag", seq_len(p)), trend = trend)
+  girdiler <- c(paste0(gosterge, "_lag", seq_len(p)), if (trend) "trend")
+  X <- cbind(rep(1, nrow(d)), as.matrix(d[, girdiler, drop = FALSE]))
+  yv <- d[[gosterge]]
   n <- nrow(d)
 
   if (w <= p + 1 + trend) {
@@ -48,25 +51,25 @@ kayan_pencere_tahmin <- function(veri, gosterge, pencere = NULL, p = NULL, son_n
   t_ilk <- if (is.null(son_n)) w else max(w, n - son_n)
   idx <- t_ilk:(n - 1)
   m <- length(idx)
-  gercek <- tahmin <- naif <- numeric(m)
+  gercek <- tahmin <- numeric(m)
   tarih  <- as.Date(rep(NA, m))
   ic     <- matrix(NA_real_, m, 3)
 
   for (i in seq_len(m)) {
     t       <- idx[i]
-    egitim  <- d[(t - w + 1):t, , drop = FALSE]
-    model   <- lm(formul, data = egitim)
-    sonraki <- d[t + 1, , drop = FALSE]
-    tahmin[i] <- suppressWarnings(as.numeric(predict(model, newdata = sonraki)))
-    gercek[i] <- sonraki[[gosterge]]
-    naif[i]   <- sonraki[[paste0(gosterge, "_lag1")]]
-    tarih[i]  <- sonraki$tarih
+    satir   <- (t - w + 1):t
+    q       <- qr(X[satir, , drop = FALSE])
+    y       <- yv[satir]
+    b       <- qr.coef(q, y); b[is.na(b)] <- 0
+    tahmin[i] <- sum(X[t + 1, ] * b)
+    gercek[i] <- yv[t + 1]
+    tarih[i]  <- d$tarih[t + 1]
 
-    hata <- stats::residuals(model); y <- egitim[[gosterge]]
+    hata <- qr.resid(q, y)
     ic[i, ] <- c(mean(abs(hata)), mean(hata^2),
                  100 * mean(abs(hata[y != 0] / y[y != 0])))
   }
-  s <- data.frame(tarih = tarih, gercek = gercek, tahmin = tahmin, naif = naif)
+  s <- data.frame(tarih = tarih, gercek = gercek, tahmin = tahmin)
   attr(s, "p") <- p
   attr(s, "pencere") <- w
   attr(s, "ornek_ici") <- c(MAE = mean(ic[, 1]), MSE = mean(ic[, 2]),
@@ -77,18 +80,17 @@ kayan_pencere_tahmin <- function(veri, gosterge, pencere = NULL, p = NULL, son_n
 #Bu kod, kurulan tahmin modelinin başarımını değerlendirmek için tüm hata ve performans metriklerini tek bir tabloda (data.frame) toplayan bir özet fonksiyon tanımlar.
 metrikler <- function(s) {
   ic <- attr(s, "ornek_ici")
-  naif_rmse <- rmse(s$gercek, s$naif)
   data.frame(
     MAE = mae(s$gercek, s$tahmin), MSE = mse(s$gercek, s$tahmin),
     RMSE = rmse(s$gercek, s$tahmin), MAPE = mape(s$gercek, s$tahmin),
     THEIL_U = theil_u(s$gercek, s$tahmin),
-    NAIF_RMSE = naif_rmse, GORELI_RMSE = rmse(s$gercek, s$tahmin) / naif_rmse,
     IC_MAE = unname(ic["MAE"]), IC_RMSE = unname(ic["RMSE"]), IC_MAPE = unname(ic["MAPE"])
   )
 }
 
 #Bu kod, bir zaman serisi modeli için en uygun gecikme (p) sayısını AIC veya BIC gibi kriterlere göre otomatik olarak seçen bir fonksiyon tanımlar.
 p_sec <- function(veri, gosterge, kriter = "AIC", p_max = NULL) {
+  kriter <- match.arg(toupper(kriter), c("AIC", "BIC"))
   p_max <- varsayilan(p_max, frekans_ayari(gosterge_frekansi(gosterge))$p_max)
   n <- nrow(gosterge_serisi(veri, gosterge))
   p_ust <- min(p_max, floor(n / 4))
@@ -131,9 +133,12 @@ model_sec <- function(veri, g) {
 
   izgara$RMSE <- NA_real_; izgara$MAE <- NA_real_
   for (i in seq_len(nrow(izgara))) {
-    s <- tryCatch(kayan_pencere_tahmin(veri, g, pencere = izgara$pencere[i], p = izgara$p[i], son_n = son_n),
+    s <- tryCatch(kayan_pencere_tahmin(veri, g, pencere = izgara$pencere[i], p = izgara$p[i],
+                                       son_n = son_n),
                   error = function(e) NULL)
-    if (!is.null(s)) { izgara$RMSE[i] <- rmse(s$gercek, s$tahmin); izgara$MAE[i] <- mae(s$gercek, s$tahmin) }
+    if (!is.null(s)) {
+      izgara$RMSE[i] <- rmse(s$gercek, s$tahmin); izgara$MAE[i] <- mae(s$gercek, s$tahmin)
+    }
   }
   izgara <- izgara[!is.na(izgara$RMSE), , drop = FALSE]
   if (nrow(izgara) == 0) return(varsayilan_sonuc)
@@ -268,6 +273,7 @@ gosterge_guncelle <- function(ad) {
   ikili_kaydet(veri, "hazir_veri")
 
   degistir <- function(tablo, satir, anahtar = "gosterge") {
+    if (is.null(tablo)) return(satir)
     y <- rbind(tablo[tablo[[anahtar]] != ad, , drop = FALSE], satir); rownames(y) <- NULL; y
   }
   yeni_meta <- metaveri_olustur(setNames(list(ham), ad))
@@ -277,7 +283,7 @@ gosterge_guncelle <- function(ad) {
   h <- gosterge_hesapla(veri, ad, yeni_meta$kaynak)
   sonuc <- list(ozet = degistir(k$ozet, h$ozet), gelecek = degistir(k$gelecek, h$gelecek),
                 gecmis = degistir(k$gecmis, h$gecmis),
-                cv = if (is.null(h$cv)) k$cv else degistir(k$cv, h$cv))
+                cv = degistir(k$cv, h$cv))
   # Aktif gösterge sırası korunur
   sirala <- function(t) if (is.null(t)) t else t[order(match(t$gosterge, aktif_gostergeler())), , drop = FALSE]
   sonuc[c("ozet", "gelecek", "gecmis", "cv")] <- lapply(sonuc[c("ozet", "gelecek", "gecmis", "cv")], sirala)
@@ -308,7 +314,9 @@ local({
                     "gelecek_tahmin", "gosterge_hesapla", "tum_gostergeleri_tahminle",
                     "sonuclari_kaydet", "sonuc_paketi", "calistir_hepsi",
                     "gosterge_guncelle", "sonuclari_getir")
-  eksik <- fonksiyonlar[!sapply(fonksiyonlar, exists, mode = "function")]
+  ortam <- environment()
+  eksik <- fonksiyonlar[!vapply(fonksiyonlar, function(f) exists(f, envir = ortam, mode = "function"),
+                        logical(1))]
   if (length(eksik) > 0) {
     stop("[models.R] Eksik fonksiyon: ", paste(eksik, collapse = ", "))
   }
