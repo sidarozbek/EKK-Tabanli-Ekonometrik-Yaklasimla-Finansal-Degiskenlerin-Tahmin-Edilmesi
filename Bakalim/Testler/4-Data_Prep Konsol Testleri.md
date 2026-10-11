@@ -13,7 +13,7 @@ list.files("R")
 ```r
 config_yolu <- normalizePath("R/config.R", winslash = "/")
 utils_yolu  <- normalizePath("R/utils.R", winslash = "/")
-prep_yolu   <- normalizePath("R/data_prep.R", winslash = "/")
+prep_yolu   <- normalizePath("R/data.prep.R", winslash = "/")
 file.exists(c(config_yolu, utils_yolu, prep_yolu))
 
 ```
@@ -113,7 +113,7 @@ satirlar <- readLines(prep_yolu, encoding = "UTF-8", warn = FALSE)
 
 ## 1) Sözdizimi, kodlama ve biçim
 
-* [ ] Sözdizimi hatası olmadığını kontrol et ve tanımlanan fonksiyonları listele; **8** fonksiyon olmalı:
+* [ ] Sözdizimi hatası olmadığını kontrol et ve tanımlanan fonksiyonları listele; **7** fonksiyon olmalı:
 
 ```r
 ifadeler <- parse(prep_yolu, encoding = "UTF-8")
@@ -166,12 +166,17 @@ dene(e3)
 
 ```
 
-* [ ] Yüklemenin uyarısız olduğunu ve "8 fonksiyon yerinde" mesajı verdiğini kontrol et; `uyarilar` `character(0)` olmalı:
+* [ ] Yüklemenin uyarısız olduğunu ve "7 fonksiyon yerinde" mesajı verdiğini kontrol et; `uyarilar` `character(0)` olmalı (mesajın yakalanabilmesi için dosyalar burada `suppressMessages` olmadan yüklenir):
 
 ```r
 mesajlar <- uyarilar <- character(0)
-withCallingHandlers(
-  invisible(yukle_hazirlik()),
+withCallingHandlers({
+    e4 <- new.env(parent = globalenv())
+    sys.source(config_yolu, envir = e4, toplevel.env = e4)
+    sys.source(utils_yolu,  envir = e4, toplevel.env = e4)
+    e4$tum_gostergeleri_cek <- function(yenile = FALSE) NULL
+    sys.source(prep_yolu,   envir = e4, toplevel.env = e4)
+  },
   message = function(m) { mesajlar <<- c(mesajlar, trimws(conditionMessage(m))); invokeRestart("muffleMessage") },
   warning = function(w) { uyarilar <<- c(uyarilar, conditionMessage(w)); invokeRestart("muffleWarning") }
 )
@@ -277,59 +282,7 @@ tryCatch(u$seri_hazirla(data.frame(tarih = as.Date("2025-01-01") + 0:2, deger = 
 
 ```
 
-## 4) hampel_sapan()
-
-* [ ] 8'den kısa seride hiçbir şeyi sapan saymadığını kontrol et; `TRUE` döndürmeli:
-
-```r
-!any(u$hampel_sapan(c(1, 2, 3, 50, 4)))
-
-```
-
-* [ ] Düz artan seride (farkların MAD'ı 0) hiçbir şeyi sapan saymadığını kontrol et; `TRUE` döndürmeli:
-
-```r
-!any(u$hampel_sapan(1:20))
-
-```
-
-* [ ] Tek noktalık sıçramayı yakaladığını kontrol et; **25 ve 26** döndürmeli (fark üzerinden çalıştığı için hem çıkış hem dönüş işaretlenir):
-
-```r
-set.seed(1)
-x <- 100 + cumsum(rnorm(40))
-x[25] <- x[25] + 30
-which(u$hampel_sapan(x))
-
-```
-
-* [ ] Kalıcı seviye kaymasında yalnız kayma noktasını yakaladığını kontrol et; **20** döndürmeli:
-
-```r
-set.seed(1)
-x2 <- 100 + cumsum(rnorm(40))
-x2[20:40] <- x2[20:40] + 30
-which(u$hampel_sapan(x2))
-
-```
-
-* [ ] Eşik parametresinin çalıştığını kontrol et; düşük eşik daha çok nokta işaretlemeli:
-
-```r
-c(esik_3 = sum(u$hampel_sapan(x, esik = 3)), esik_1 = sum(u$hampel_sapan(x, esik = 1)))
-
-```
-
-* [ ] `NA` içeren seride uzunluğun korunduğunu kontrol et; `40` ve `FALSE` döndürmeli:
-
-```r
-x_na <- x; x_na[11] <- NA
-length(u$hampel_sapan(x_na))
-anyNA(u$hampel_sapan(x_na))
-
-```
-
-## 5) kalite_raporu_olustur()
+## 4) kalite_raporu_olustur()
 
 * [ ] Raporun kullandığı bitiş tarihinin config'te tanımlı ve geçerli olduğunu kontrol et; tarih yazmalı, hata vermemeli:
 
@@ -392,15 +345,7 @@ u$kalite_raporu_olustur(rbind(d_gec, d_gec))$gozlem
 
 ```
 
-* [ ] Sapan değerin rapora yansıdığını kontrol et; `sapan_sayisi` 2, `sapan_tarihleri` iki ay içermeli:
-
-```r
-d_sapan <- data.frame(tarih = seq(as.Date("2022-01-01"), by = "month", length.out = 40), deger = x, kimlik = ga)
-u$kalite_raporu_olustur(d_sapan)[, c("sapan_sayisi", "sapan_tarihleri")]
-
-```
-
-## 6) veriyi_hazirla()
+## 5) veriyi_hazirla()
 
 * [ ] Sahte ham veriyi hazırla; ekranda "başladı" ve "bitti" logları görünmeli:
 
@@ -441,7 +386,7 @@ identical(readRDS(file.path(gecici, "processed", "hazir_veri.rds")), hazir)
 
 ```
 
-## 7) gosterge_serisi()
+## 6) gosterge_serisi()
 
 * [ ] Tek göstergenin serisini al; 3 sütun (`tarih deger gercek`), 60 satır, tarih sıralı ve satır adları 1'den başlamalı:
 
@@ -468,7 +413,7 @@ nrow(u$gosterge_serisi(hazir, "yok_boyle"))
 
 ```
 
-## 8) gosterge_verisi()
+## 7) gosterge_verisi()
 
 * [ ] p = 3 ile model verisini kur; sütunlar `tarih`, gösterge adı ve `_lag1…_lag3`, satır sayısı **57** (60 − 3) olmalı:
 
@@ -517,7 +462,7 @@ tryCatch(u$gosterge_verisi(hazir, "yok_boyle", p = 2), error = function(e) condi
 
 ```
 
-## 9) hazir_veriyi_getir()
+## 8) hazir_veriyi_getir()
 
 * [ ] Güncelleme ayarlarını not et ve yardımcı değişkenleri tanımla:
 
@@ -627,7 +572,7 @@ u$CONFIG$guncelleme$otomatik <- eski_otomatik
 
 ```
 
-## 10) Hız
+## 9) Hız
 
 * [ ] Sahte veriyle tüm hazırlama akışının süresini ölç (ms); birkaç yüz ms'nin altında olmalı:
 
@@ -667,9 +612,9 @@ if (nzchar(eski_evds)) Sys.setenv(EVDS_API_KEY = eski_evds) else Sys.unsetenv("E
 ```r
 rm(list = intersect(ls(), c(
   "config_yolu", "utils_yolu", "prep_yolu", "eski_fred", "eski_evds", "sahte", "yukle_hazirlik", "u",
-  "gecici", "ga", "satirlar", "ifadeler", "tanimlar", "ham_bayt", "metin", "dene", "e1", "e2", "e3",
-  "mesajlar", "uyarilar", "notlar", "d_el", "s", "s_ters", "gunluk", "x", "x2", "x_na", "rapor",
-  "eski_bitis", "d_gec", "d_ileri", "d_sapan", "hazir", "gs", "gv", "seri", "gv_t", "eski_otomatik",
+  "gecici", "ga", "satirlar", "ifadeler", "tanimlar", "ham_bayt", "metin", "dene", "e1", "e2", "e3", "e4",
+  "mesajlar", "uyarilar", "notlar", "d_el", "s", "s_ters", "gunluk", "rapor",
+  "eski_bitis", "d_gec", "d_ileri", "hazir", "gs", "gv", "seri", "gv_t", "eski_otomatik",
   "hazir_yol", "eskit", "x1", "x2", "x3", "x4", "mevcut", "gunluk_uzun"
 )))
 
