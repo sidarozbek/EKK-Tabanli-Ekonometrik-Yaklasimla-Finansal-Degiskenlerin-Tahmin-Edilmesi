@@ -1,5 +1,20 @@
 #NOTE
+anahtar_oku <- function(ad) {
+  temizle <- function(v) trimws(gsub("^[\"']|[\"']$", "", trimws(v)))
+  v <- temizle(Sys.getenv(ad))
+  if (!nzchar(v)) {
+    for (dosya in unique(c(file.path(getwd(), ".Renviron"), path.expand("~/.Renviron")))) {
+      if (!file.exists(dosya)) next
+      satir <- grep(paste0("^\\s*", ad, "\\s*="), readLines(dosya, warn = FALSE), value = TRUE)
+      if (length(satir)) { v <- temizle(sub("^[^=]*=", "", satir[length(satir)])); break }
+    }
+    if (nzchar(v)) do.call(Sys.setenv, setNames(list(v), ad))
+  }
+  if (!nzchar(v)) message("[config.R] UYARI: ", ad, " bulunamadı (~/.Renviron). Bu kaynak atlanacak.")
+  v
+}
 
+#NOTE
 CONFIG <- list(
 
   #NOTE
