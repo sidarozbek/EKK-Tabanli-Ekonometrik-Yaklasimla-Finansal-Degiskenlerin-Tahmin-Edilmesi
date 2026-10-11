@@ -45,7 +45,7 @@ cache_oku <- function(ad, tazelik_gun = 1) {
   yol <- file.path(klasor, paste0(ad, ".rds"))
   if (!file.exists(yol)) return(NULL)
   if (dosya_yasi_gun(yol) > tazelik_gun) return(NULL)
-  tryCatch(readRDS(yol), error = function(e) NULL)
+  tryCatch(readRDS(yol), error = function(...) NULL)
 }
 
 #Bu kod, elinizdeki veriden sadece "tarih" ve "deger" sütunlarını seçip yedek klasörüne .csv dosyası olarak kaydeder.
@@ -61,7 +61,7 @@ yedek_csv_yaz <- function(veri, ad) {
 yedek_csv_oku <- function(ad) {
   yol <- file.path(varsayilan(CONFIG$saklama$yedek_klasoru, "data/yedek"), paste0(ad, ".csv"))
   if (!file.exists(yol)) return(NULL)
-  d <- tryCatch(utils::read.csv(yol, stringsAsFactors = FALSE), error = function(e) NULL)
+  d <- tryCatch(utils::read.csv(yol, stringsAsFactors = FALSE), error = function(...) NULL)
   if (is.null(d) || !all(c("tarih", "deger") %in% names(d)) || nrow(d) == 0) return(NULL)
   data.frame(tarih = as.Date(d$tarih), deger = as.numeric(d$deger), kimlik = ad)
 }
@@ -80,7 +80,7 @@ processed_oku <- function(ad) {
   yol <- file.path(varsayilan(CONFIG$saklama$processed_klasoru, "data/processed"),
                    paste0(ad, ".rds"))
   if (!file.exists(yol)) return(NULL)
-  tryCatch(readRDS(yol), error = function(e) NULL)
+  tryCatch(readRDS(yol), error = function(...) NULL)
 }
 
 #Bu kod, elinizdeki veriyi kronolojik sırasını bozmadan belirlediğiniz oranda (varsayılan olarak %80 model eğitimi, %20 sınama/test için) eğitim ve sınama kümesi olarak ikiye böler.
@@ -89,7 +89,7 @@ tarihe_gore_bol <- function(veri, egitim_orani = NULL) {
   n <- nrow(veri)
   kesim <- floor(n * oran)
   list(egitim = veri[seq_len(kesim), , drop = FALSE],
-       sinama = veri[(kesim + 1):n, , drop = FALSE])
+       sinama = veri[seq_len(n) > kesim, , drop = FALSE])
 }
 
 #Bu kod, belirlediğiniz hedef ve girdi değişkenlerine isteğinize göre trend ve mevsim etkilerini de ekleyerek istatistiksel modeller için hazır bir formül (hedef ~ girdi1 + girdi2) oluşturur.
@@ -97,6 +97,7 @@ formul_kur <- function(hedef, girdiler, trend = FALSE, mevsim = FALSE) {
   terimler <- girdiler
   if (trend)  terimler <- c(terimler, "trend")
   if (mevsim) terimler <- c(terimler, "mevsim")
+  if (length(terimler) == 0) terimler <- "1"
   stats::as.formula(paste(hedef, "~", paste(terimler, collapse = " + ")))
 }
 
@@ -211,10 +212,11 @@ local({
                "frekans_ayari", "donem_basi", "donem_dizisi", "donem_ekle", "donem_etiketi",
                "aktif_gostergeler", "gosterge_etiketi", "gosterge_frekansi", "gosterge_oncelik",
                "gosterge_p", "gosterge_pencere", "gosterge_ufuk", "gosterge_pencere_adaylari")
-  eksik <- araclar[!sapply(araclar, exists, mode = "function")]
+  ortam <- environment()
+  eksik <- araclar[!vapply(araclar, function(f) exists(f, envir = ortam, mode = "function"),
+                   logical(1))]
   if (length(eksik) > 0) {
     stop("[utils.R] Eksik araç: ", paste(eksik, collapse = ", "))
   }
   message("[utils.R] Alet çantası yüklendi: ", length(araclar), " araç yerinde. ✔")
 })
-
