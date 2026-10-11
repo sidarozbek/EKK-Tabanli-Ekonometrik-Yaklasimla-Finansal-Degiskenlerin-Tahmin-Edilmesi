@@ -74,7 +74,7 @@ evds_cek <- function(kod, kimlik, filtre = NULL) {
                 "&startDate=", bas, "&endDate=", bitis, "&type=json",
                 if (!is.null(filtre) && nzchar(filtre)) paste0("&", filtre) else "")
   govde <- http_al(url, add_headers(key = CONFIG$baglanti$evds_key))
-  
+
   veri <- tryCatch(fromJSON(govde)$items, error = function(e) NULL)
   if (is.null(veri) || NROW(veri) == 0) {
     kalici_hata("EVDS'ten boş/çözülemeyen yanıt geldi (seri kodu yanlış olabilir)")
@@ -150,7 +150,7 @@ tur_uyumlu <- function(hedef, tur) {
 
 #Bu kod, kaynak verinin frekansının (sıklığının) hedef frekansa dönüştürülüp dönüştürülemeyeceğini denetleyen frekans uyumluluk kontrolüdür; frekansları hiyerarşik olarak sıralar (aylik > ceyreklik > yillik) ve kaynağın hedeften daha sık veya eşit sıklıkta olması durumunda TRUE, aksi takdirde FALSE döner.
 frekans_uyumlu <- function(hedef, kaynak_frekans) {
-  sira <- c(yillik = 1, ceyreklik = 2, aylik = 3)
+  sira <- c(yillik = 1, ceyreklik = 2, aylik = 3, haftalik = 4, gunluk = 5)
   sira[[kaynak_frekans]] >= sira[[hedef]]
 }
 
@@ -162,8 +162,9 @@ kaynak_zinciri <- function(gosterge_adi) {
   zincir <- list()
   for (k in gosterge_oncelik(gosterge_adi)) {
     if (identical(k, kart$kaynak)) {
-      zincir[[length(zincir) + 1]] <- list(kaynak = k, kod = kart$kod, filtre = NULL,
-                                           tur = varsayilan(kart$kaynak_tur, "duzey"), carpan = 1, yaklasik = FALSE, birincil = TRUE)
+      zincir[[length(zincir) + 1]] <- list(kaynak = k, kod = kart$kod, filtre = kart$filtre,
+                                           tur = varsayilan(kart$kaynak_tur, "duzey"), carpan = 1,
+                                           yaklasik = FALSE, birincil = TRUE)
       next
     }
     if (!isTRUE(CONFIG$veri$yedek_kaynak_kullan)) next
@@ -181,8 +182,8 @@ kaynak_zinciri <- function(gosterge_adi) {
     kfrek  <- if (is.list(a)) varsayilan(a$frekans, frek) else frek
     yakl   <- is.list(a) && isTRUE(a$yaklasik)
     if (k == "OECD" && is.null(filtre)) next
-    if (!tur_uyumlu(hedef, tur)) next 
-    if (!frekans_uyumlu(frek, kfrek)) next 
+    if (!tur_uyumlu(hedef, tur)) next
+    if (!frekans_uyumlu(frek, kfrek)) next
     zincir[[length(zincir) + 1]] <- list(kaynak = k, kod = kod, filtre = filtre, tur = tur,
                                          carpan = carpan, yaklasik = yakl, birincil = FALSE)
   }
@@ -239,7 +240,7 @@ fetch_indicator <- function(gosterge_adi, tazelik_gun = NULL, yenile = FALSE) {
   tazelik <- varsayilan(tazelik_gun, varsayilan(CONFIG$veri$cache_tazelik_gun, 1))
   frekans <- gosterge_frekansi(gosterge_adi)
   hedef   <- varsayilan(kart$donusum, "duzey")
-  
+
 #Bu kod, daha önce indirilip yerel belleğe kaydedilmiş verileri kontrol eden önbellek (cache) doğrulama mekanizmasıdır; zorunlu yenileme emri (yenile = FALSE) yoksa önbellekteki veriyi okur, verinin dönüşüm türünü, frekansını ve kaynak kodlarını güncel beklentilerle karşılaştırır, eğer veriler tam eşleşiyorsa API isteği atmadan veriyi doğrudan diskten/önbellekten sunarak süreci hızlandırır.
   if (!yenile) {
     onbellek <- cache_oku(gosterge_adi, tazelik)
@@ -256,6 +257,7 @@ fetch_indicator <- function(gosterge_adi, tazelik_gun = NULL, yenile = FALSE) {
   }
 
 #Bu kod, bir gösterge için belirlenen yedek kaynak zincirini (halka) sırayla gezerek veriyi çekmeyi deneyen fallback (yedekli Veri Çekme) yürütücüsüdür; API anahtarı olmayan veya erişilemeyen kaynakları atlar, ağ/API hatalarını tryCatch ve tekrar_dene() ile sarmalayarak çökmeden bir sonraki alternatif kaynağa geçer ve başarılı olan ilk kaynaktan veriyi alıp sonuc değişkenine aktarır.
+  min_n <- varsayilan(CONFIG$veri$min_gozlem, 8)
   for (halka in kaynak_zinciri(gosterge_adi)) {
     if (!kaynak_kullanilabilir(halka$kaynak)) {
       log_msg(paste0(gosterge_adi, ": ", halka$kaynak, " atlandı (anahtar yok)"), "UYARI")
@@ -270,18 +272,23 @@ fetch_indicator <- function(gosterge_adi, tazelik_gun = NULL, yenile = FALSE) {
                                     conditionMessage(e)), "UYARI")
         NULL
       })
-  
+
 #Bu kod, başarıyla çekilen ham veriyi son işleme tabi tutan, doğrulayan ve kaydeden kapanış ve önbellekleme bloğudur; veriyi hedef frekansa ve dönüşüm türüne çevirir, yeterli gözlem sayısına sahip olduğunu doğruladıktan sonra üst veri (metadata) bilgilerini ekler. Ardından veriyi bir sonraki kullanımlar için hem önbelleğe (cache_yaz) hem de çevrimdışı yedek CSV dosyasına (yedek_csv_yaz) kaydederek başarılı çıktıyı döner.
+    if (!is.null(sonuc) && nrow(sonuc) < min_n) {
+      log_msg(paste0(gosterge_adi, " [", halka$kaynak, "]: yetersiz gözlem (", nrow(sonuc), ")"), "UYARI")
+      next
+    }
     if (!is.null(sonuc) && !csv_mi) {
       sonuc <- tryCatch(seri_donustur(frekansa_cevir(sonuc, frekans), hedef, halka$tur, halka$carpan),
                         error = function(e) NULL)
     }
-    if (!is.null(sonuc) && nrow(sonuc) >= varsayilan(CONFIG$veri$min_gozlem, 8)) {
+    if (!is.null(sonuc) && nrow(sonuc) >= min_n) {
       if (csv_mi) {
         log_msg(paste0("CSV YEDEK kanalı kullanıldı: ", gosterge_adi,
                        " (API kaynakları erişilemedi; son bilinen veri)"), "UYARI")
         return(meta_ekle(sonuc, "CSV_YEDEK", NA_character_, NULL, FALSE, "csv_yedek",
-                         file.mtime(file.path(CONFIG$saklama$yedek_klasoru, paste0(gosterge_adi, ".csv"))),
+                         file.mtime(file.path(CONFIG$saklama$yedek_klasoru,
+                                              paste0(gosterge_adi, ".csv"))),
                          donusum = hedef, tur = "duzey", frekans = frekans))
       }
       if (!halka$birincil) {
@@ -318,10 +325,11 @@ metaveri_olustur <- function(sonuclar) {
     kart <- CONFIG$gostergeler[[ad]]
     v <- sonuclar[[ad]]; m <- attr(v, "meta")
     data.frame(
-      gosterge = ad, ad = kart$ad, rol = kart$rol, frekans = gosterge_frekansi(ad),
+      gosterge = ad, ad = varsayilan(kart$ad, ad), rol = varsayilan(kart$rol, NA),
+      frekans = gosterge_frekansi(ad),
       kaynak = if (is.null(m)) NA_character_ else as.character(varsayilan(m$kaynak, NA)),
       kod = if (is.null(m)) NA_character_ else as.character(varsayilan(m$kod, NA)),
-      birincil_kaynak = kart$kaynak,
+      birincil_kaynak = varsayilan(kart$kaynak, NA),
       birincil_yedek = varsayilan(kart$birincil_yedek, NA),
       kaynak_onceligi = paste(gosterge_oncelik(ad), collapse = " > "),
       donusum = varsayilan(kart$donusum, "duzey"),
@@ -331,7 +339,8 @@ metaveri_olustur <- function(sonuclar) {
       ilk_tarih = if (is.null(v)) as.Date(NA) else min(v$tarih),
       son_tarih = if (is.null(v)) as.Date(NA) else max(v$tarih),
       gozlem = if (is.null(v)) 0L else nrow(v),
-      cekim_zamani = if (is.null(m)) as.POSIXct(NA) else as.POSIXct(m$cekim_zamani),
+      cekim_zamani = if (is.null(m) || is.null(m$cekim_zamani)) as.POSIXct(NA)
+                     else as.POSIXct(m$cekim_zamani),
       stringsAsFactors = FALSE)
   })
   do.call(rbind, satirlar)
@@ -353,6 +362,7 @@ tum_gostergeleri_cek <- function(yenile = FALSE) {
   uzun <- do.call(rbind, unname(lapply(gelen, function(v) { attr(v, "meta") <- NULL; v })))
   rownames(uzun) <- NULL
   attr(uzun, "metaveri") <- meta
+  attr(uzun, "metaveri_zamani") <- Sys.time()
   uzun
 }
 
@@ -371,15 +381,18 @@ local({
                     "frekans_uyumlu", "kaynak_zinciri", "frekansa_cevir", "seri_donustur",
                     "cek_kaynak", "meta_ekle", "fetch_indicator", "metaveri_olustur",
                     "tum_gostergeleri_cek", "veri_tazeligi")
-  eksik <- fonksiyonlar[!sapply(fonksiyonlar, exists, mode = "function")]
+  ortam <- environment()
+  eksik <- fonksiyonlar[!vapply(fonksiyonlar, function(f) exists(f, envir = ortam, mode = "function"),
+                        logical(1))]
   if (length(eksik) > 0) {
     stop("[api_functions.R] Eksik fonksiyon: ", paste(eksik, collapse = ", "))
   }
-  
-  for (g in aktif_gostergeler()) {
+
+  for (g in if (isTRUE(CONFIG$veri$yedek_kaynak_kullan)) aktif_gostergeler() else character(0)) {
     z <- kaynak_zinciri(g)
     if (length(z) < 2) {
-      stop("[api_functions.R] ", g, ": çalışabilir yedek kanal yok (oncelik/tur/frekans uyumunu kontrol et)")
+      stop("[api_functions.R] ", g,
+           ": çalışabilir yedek kanal yok (oncelik/tur/frekans uyumunu kontrol et)")
     }
     if (!identical(z[[2]]$kaynak, CONFIG$gostergeler[[g]]$birincil_yedek)) {
       stop("[api_functions.R] ", g, ": birincil_yedek (", CONFIG$gostergeler[[g]]$birincil_yedek,
