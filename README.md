@@ -20,7 +20,7 @@ Bu proje, Atılım Üniversitesi bünyesinde TÜBİTAK 2209-A Üniversite Öğre
 9. [Genişletilebilirlik](#9-genişletilebilirlik)
 10. [Tasarım İlkeleri](#10-tasarım-i̇lkeleri)
 11. [İlgili Çalışmalar](#11-i̇lgili-çalışmalar)
-12. [Kaynakça](#11-kaynakça)
+12. [Kaynakça](#12-kaynakça)
 
 ---
 
@@ -28,7 +28,7 @@ Bu proje, Atılım Üniversitesi bünyesinde TÜBİTAK 2209-A Üniversite Öğre
 
 Ekonomik göstergelerdeki yüksek volatilite, güncellenebilir ve güvenilir tahmin araçlarına duyulan ihtiyacı artırmaktadır. Sabit parametreli klasik zaman serisi modelleri, yapısal kırılmalar karşısında genellikle yetersiz performans göstermektedir.
 
-Bu sistem, söz konusu kısıtı gidermek amacıyla AR-EKK modellerini sabit bir kalıba sığdırmak yerine **kayan pencere** yaklaşımıyla her dönem yeniden tahmin eder. Gecikme derecesi ve pencere uzunluğu her gösterge için **çapraz doğrulama** ile seçilir; böylece model, değişen ekonomik koşullara sürekli uyum sağlar.
+Bu sistem, söz konusu kısıtı gidermek amacıyla AR-EKK modellerini sabit bir kalıba sığdırmak yerine **kayan pencere** yaklaşımıyla her dönem yeniden tahmin eder. Gecikme derecesi ve pencere uzunluğu her gösterge için **çapraz doğrulama** ile otomatik seçilir; kullanıcı bu değerleri elle belirlemez. Böylece model, değişen ekonomik koşullara sürekli uyum sağlar.
 
 ### Temel İşlevler
 
@@ -36,8 +36,8 @@ Bu sistem, söz konusu kısıtı gidermek amacıyla AR-EKK modellerini sabit bir
 - Her gösterge için **çok kanallı yedekleme zinciri**: birincil kaynak → yedek API'ler → yerel CSV yedeği → bayat önbellek
 - Her serinin **kendi frekansında** (aylık, çeyreklik, yıllık) kesintisiz bir takvime oturtulması ve ara boşlukların doğrusal enterpolasyonla doldurulması
 - Gösterge bazında veri kalitesi raporu
-- Kayan pencereyle her dönem yeniden tahmin edilen AR-EKK modelleri; gecikme (p) ve pencere (w) için çapraz doğrulamalı model seçimi
-- Örnek dışı (out-of-sample) performansın MAE, MSE, RMSE, MAPE, Theil U ve naif modele göre göreli RMSE ile ölçülmesi
+- Kayan pencereyle her dönem yeniden tahmin edilen AR-EKK modelleri; gecikme (p) ve pencere (w) için çapraz doğrulamalı, otomatik model seçimi
+- Örnek dışı (out-of-sample) performansın MAE, MSE, RMSE, MAPE ve Theil U ile ölçülmesi
 - Çok adımlı ileriye dönük tahmin
 - Her verinin hangi kaynaktan, hangi kodla ve hangi durumda (API / önbellek / yedek) geldiğini kaydeden metaveri tablosu
 - Sonuçların Shiny tabanlı interaktif bir arayüzde sunulması
@@ -48,47 +48,48 @@ Açık kaynaklı veri tabanlarından API aracılığıyla elde edilen Türkiye e
 
 ### Kapsanan Göstergeler
 
-Sistemde 21 aktif gösterge tanımlıdır ve her biri bir **role** atanmıştır. Tablodaki p / w değerleri başlangıç (varsayılan) değerleridir; çapraz doğrulama açıkken nihai değerler veriye göre seçilir.
+Sistemde 21 gösterge tanımlıdır; bunlardan 17'si aktiftir. Her gösterge bir **role** atanmıştır. Gecikme (p) ve pencere (w) gösterge kartında yer almaz; frekans profilinden başlar ve çapraz doğrulamayla veriye göre seçilir (bkz. [Bölüm 2.6](#26-model-seçimi-çapraz-doğrulama)).
 
 **Bağımlı değişkenler**
 
-|Anahtar|Gösterge|Frekans|Birincil kaynak · kod|p / w|Kaynak önceliği|
+|Anahtar|Gösterge|Frekans|Birincil kaynak · kod|Dönüşüm|Kaynak önceliği|
 |---|---|---|---|---|---|
-|`ENFLASYON`|Enflasyon Oranı (TÜFE, yıllık %)|Aylık|EVDS · `TP_TUKFIY2025_GENEL`|12 / 42|EVDS → FRED → Dünya Bankası → OECD → CSV|
-|`BUYUME`|Ekonomik Büyüme (reel GSYH, yıllık %)|Çeyreklik|EVDS · `TP_GSYIH20_BY_B1GQ`|8 / 18|EVDS → FRED → Dünya Bankası → CSV|
-|`ISSIZLIK`|İşsizlik Oranı|Aylık|EVDS · `TP_YISGUCU2_G8`|5 / 48|EVDS → FRED → Dünya Bankası → CSV|
-|`USDTRY`|Döviz Kuru (USD/TRY)|Aylık|EVDS · `TP_DK_USD_A_YTL`|11 / 60|EVDS → Dünya Bankası → OECD → CSV|
-|`EURTRY`|Döviz Kuru (EUR/TRY)|Aylık|EVDS · `TP_DK_EUR_A_YTL`|3 / 36|EVDS → CSV|
-|`BIST100`|Borsa Endeksi (BIST-100)|Aylık|Yahoo Finance · `XU100.IS`|3 / 48*|BIST → CSV|
+|`FAIZ`|Politika / Fonlama Faizi|Aylık|EVDS · `TP.APIFON4`*|Düzey|EVDS → FRED → CSV|
+|`BIST100`|BIST 100 Endeksi|Aylık|Yahoo Finance · `XU100.IS`|Düzey|BIST → CSV|
+|`ENFLASYON`†|Enflasyon (TÜFE)|Aylık|EVDS · `TP.TUKFIY2025.GENEL`|Yıllık % değişim|EVDS → FRED → CSV|
+|`BUYUME`†|Büyüme (GSYH)|Çeyreklik|FRED · `NGDPRSAXDCTRQ`|Yıllık % değişim|FRED → CSV|
+|`USDTRY`†|USD/TRY Kuru|Aylık|EVDS · `TP.DK.USD.A.YTL`*|Düzey|EVDS → FRED → CSV|
+|`ISSIZLIK`†|İşsizlik Oranı|Aylık|EVDS · `TP.YISGUCU2.G8`|Düzey|EVDS → FRED → CSV|
 
 **Kontrol değişkenleri**
 
-|Anahtar|Gösterge|Frekans|Birincil kaynak · kod|p / w|Kaynak önceliği|
+|Anahtar|Gösterge|Frekans|Birincil kaynak · kod|Dönüşüm|Kaynak önceliği|
 |---|---|---|---|---|---|
-|`FAIZ`|TCMB Politika Faizi|Aylık|EVDS · `TP_BISPOLFAIZ_TUR`|4 / 54|EVDS → FRED (yaklaşık seri) → CSV|
-|`DIS_TICARET`|Dış Ticaret Dengesi|Aylık|EVDS · `TP_ODEAYRSUNUM6_Q4`|12 / 60|EVDS → FRED → CSV|
-|`SANAYI_URETIM`|Sanayi Üretim Endeksi|Aylık|EVDS · `TP_TSANAY2021_BCD`|12 / 60|EVDS → FRED → CSV|
-|`TUKETICI_GUVEN`|Tüketici Güven Endeksi|Aylık|EVDS · `TP_TG2_Y01`|12 / 60|EVDS → CSV|
+|`EURTRY`|EUR/TRY Kuru|Aylık|EVDS · `TP.DK.EUR.A.YTL`*|Düzey|EVDS → CSV|
+|`UFE`|Yİ-ÜFE|Aylık|EVDS · `TP.TUFE1YI.T1`|Yıllık % değişim|EVDS → CSV|
+|`M2`|Para Arzı (M2)|Aylık|EVDS · `TP.PBD.H09`|Yıllık % değişim|EVDS → CSV|
+|`SANAYI_URETIM`|Sanayi Üretimi|Aylık|FRED · `TURPROINDMISMEI`|Yıllık % değişim|FRED → CSV|
 
 **Ek göstergeler**
 
-|Anahtar|Gösterge|Frekans|Birincil kaynak · kod|p / w|Kaynak önceliği|
+|Anahtar|Gösterge|Frekans|Birincil kaynak · kod|Dönüşüm|Kaynak önceliği|
 |---|---|---|---|---|---|
-|`CARI_DENGE`|Cari İşlemler Dengesi|Çeyreklik|EVDS · `TP_IMFCA_TUR`|8 / 20|EVDS → FRED → Dünya Bankası → OECD → CSV|
-|`BUTCE_DENGESI`|Bütçe Dengesi|Aylık|EVDS · `TP_KB_GEN35`|12 / 36|EVDS → FRED → CSV|
-|`UFE`|Üretici Fiyat Endeksi (ÜFE)|Aylık|EVDS · `TP_TUFE1YI_T1`|12 / 48|EVDS → CSV|
-|`M2`|M2 Para Arzı|Aylık|EVDS · `TP_PBD_H09`|12 / 42|EVDS → CSV|
-|`REEL_KESIM_GUVEN`|Reel Kesim Güven Endeksi|Aylık|EVDS · `TP_GY1_N2`|12 / 60|EVDS → FRED → CSV|
-|`KAPASITE_KULLANIM`|Kapasite Kullanım Oranı|Aylık|EVDS · `TP_KKO2_IS_TOP`|2 / 48|EVDS → FRED → OECD → CSV|
-|`GENC_ISSIZLIK`|Genç İşsizlik Oranı|Yıllık|FRED · `SLUEM1524ZSTUR`|2 / 20|FRED → Dünya Bankası → OECD → CSV|
-|`PERAKENDE_SATIS`|Perakende Satış Hacim Endeksi|Çeyreklik|FRED · `TURSLRTTO01GYSAQ`|1 / 16|FRED → CSV|
-|`KONUT_FIYAT`|Konut Fiyat Endeksi|Aylık|EVDS · `TP_KFE_TR`|12 / 36|EVDS → FRED → CSV|
-|`TURIZM_GELIRI`|Turizm Gelirleri|Aylık|EVDS · `TP_TURIZMGELGIT_GK178635`|12 / 54|EVDS → OECD → CSV|
-|`GINI`|Gini Endeksi|Yıllık|FRED · `SIPOVGINITUR`|2 / 20|FRED → CSV|
+|`TUKETICI_GUVEN`|Tüketici Güven Endeksi|Aylık|EVDS · `TP.TG2.Y01`|Düzey|EVDS → FRED → CSV|
+|`REEL_KESIM_GUVEN`|Reel Kesim Güven Endeksi|Aylık|EVDS · `TP.GY1.N2`|Düzey|EVDS → CSV|
+|`KAPASITE_KULLANIM`|Kapasite Kullanım Oranı|Aylık|EVDS · `TP.KKO2.IS.TOP`|Düzey|EVDS → FRED → CSV|
+|`KONUT_FIYAT`|Konut Fiyat Endeksi|Aylık|EVDS · `TP.KFE.TR`|Yıllık % değişim|EVDS → CSV|
+|`PERAKENDE_SATIS`|Perakende Satış (yıllık %)|Çeyreklik|FRED · `TURSLRTTO01GYSAQ`|Düzey|FRED → CSV|
+|`GENC_ISSIZLIK`|Genç İşsizlik (15-24)|Yıllık|FRED · `SLUEM1524ZSTUR`|Düzey|FRED → Dünya Bankası → CSV|
+|`GINI`|GINI Endeksi|Yıllık|FRED · `SIPOVGINITUR`|Düzey|FRED → Dünya Bankası → CSV|
+|`CARI_DENGE`|Cari Denge / GSYH (%)|Yıllık|Dünya Bankası · `BN.CAB.XOKA.GD.ZS`|Düzey|Dünya Bankası → CSV|
+|`DIS_TICARET`|Dış Ticaret / GSYH (%)|Yıllık|Dünya Bankası · `NE.TRD.GNFS.ZS`|Düzey|Dünya Bankası → CSV|
+|`BUTCE_DENGESI`|Genel Devlet Dengesi / GSYH (%)|Yıllık|FRED · `GGNLBATRA188N`|Düzey|FRED → CSV|
+|`TURIZM_GELIRI`|Turizm Gelirleri (USD)|Yıllık|Dünya Bankası · `ST.INT.RCPT.CD`|Düzey|Dünya Bankası → CSV|
 
-* Göstergeye özel değer tanımlı değil; frekansın varsayılanı kullanılır.
+\* EVDS'den aylık ortalama olarak çekilir (`frequency=5&aggregationTypes=avg`).
+† Tanımlı ancak şu anda pasif (`aktif = FALSE`); kart üzerinde `aktif` değiştirilerek yeniden açılabilir.
 
-Kaynak önceliğindeki bir yedek, ancak hedef seriyle **tür** ve **frekans** bakımından uyumluysa zincire girer (bkz. [Bölüm 2.1](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#21-veri-toplama-ve-yedekleme-zinciri)). Yeni gösterge tanımlamak, yapılandırma dosyasına tek bir kayıt eklemekten ibarettir; bkz. [Bölüm 9](https://claude.ai/chat/f93c0a81-2856-4528-a1df-f48764e14ae6#9-geni%C5%9Fletilebilirlik).
+Kaynak önceliğindeki bir yedek, ancak hedef seriyle **tür** ve **frekans** bakımından uyumluysa zincire girer (bkz. [Bölüm 2.1](#21-veri-toplama-ve-yedekleme-zinciri)). Yeni gösterge tanımlamak, yapılandırma dosyasına tek bir kayıt eklemekten ibarettir; bkz. [Bölüm 9](#9-genişletilebilirlik).
 
 ---
 
@@ -113,14 +114,14 @@ flowchart LR
     - _Tür:_ Hedef `duzey` ise yedek de `duzey` olmalıdır; hedef `yillik_degisim` ise yedek `duzey` (dönüştürülür) veya `oran` (olduğu gibi) olabilir. Tanımı farklı seriler (`tur = "farkli"`) zincire hiç alınmaz.
     - _Frekans:_ Yedek kaynağın frekansı hedef frekanstan seyrek olamaz (ör. aylık bir göstergeye yıllık yedek girmez).
     - _OECD:_ SDMX filtresi tanımlı değilse atlanır.
-    - _API anahtarı:_ Anahtarı tanımlı olmayan kaynak atlanır.
+    - _API anahtarı:_ Anahtarı tanımlı olmayan kaynak (FRED, EVDS) atlanır.
 - **Standartlaştırma:** Her kaynak çıktısı `tarih`, `deger`, `kimlik` sütunlarına indirgenir; eksik satırlar atılır, aynı tarihin son kaydı tutulur, veri yapılandırmadaki tarih aralığına kırpılır.
 - **Frekans dönüşümü:** Daha sık gelen veri (ör. günlük kur) hedef frekansın dönem ortalamasına indirgenir.
-- **Seri dönüşümü:** `donusum = "yillik_degisim"` olan göstergelerde (ENFLASYON, BUYUME) düzey seriden yıllık yüzde değişim hesaplanır:
+- **Seri dönüşümü:** `donusum = "yillik_degisim"` olan göstergelerde (ör. UFE, M2, SANAYI_URETIM, KONUT_FIYAT) düzey seriden yıllık yüzde değişim hesaplanır:
 
 $$ g_t = \left( \frac{y_t}{y_{t-12,\text{ay}}} - 1 \right) \times 100 $$
 
-Bir yıl önceki değeri eksik ya da sıfır/negatif olan dönemler atılır. Gerekirse birim düzeltmesi için `carpan` uygulanır (ör. OECD cari denge verisi için 10⁶).
+Bir yıl önceki değeri eksik ya da sıfır/negatif olan dönemler atılır. Gerekirse birim düzeltmesi için alternatif kaynağa `carpan` tanımlanabilir.
 
 Kullanılan her kanal, yedek kullanılıp kullanılmadığı ve yedek serinin asıl seriyle birebir aynı tanımda olup olmadığı (`yaklasik`) `metaveri` tablosuna kaydedilir.
 
@@ -128,11 +129,11 @@ Kullanılan her kanal, yedek kullanılıp kullanılmadığı ve yedek serinin as
 
 Göstergeler ortak bir takvime zorlanmaz; her seri **kendi frekansında** işlenir:
 
-1. Tarihler dönem başına oturtulur (ayın / çeyreğin / yılın ilk günü).
+1. Eksik değerler atılır, kayıtlar tarihe göre sıralanır ve tarihler dönem başına oturtulur (ayın / çeyreğin / yılın ilk günü); aynı döneme düşen kayıtlardan tarihçe en sonuncusu tutulur.
 2. İlk ve son gözlem arasında hiçbir dönemi atlamayan kesintisiz bir takvim oluşturulur.
 3. Ara boşluklar doğrusal enterpolasyonla doldurulur; her satır `gercek` sütunuyla orijinal mi yoksa doldurulmuş mu olduğunu belirtir.
 
-**Kalite raporu:** Her gösterge için gözlem sayısı, kapsadığı tarih aralığı, güncel tarihe göre kaç dönem geride olduğu ve eksik dönem oranı raporlanır.
+**Kalite raporu:** Her gösterge için (tekrar eden ve eksik kayıtlar ayıklandıktan sonra) gözlem sayısı, kapsadığı tarih aralığı, güncel tarihe göre kaç dönem geride olduğu ve eksik dönem oranı raporlanır.
 
 ### 2.3. Otoregresif (AR) Model
 
@@ -164,21 +165,21 @@ $$ t \text{ anında:} \quad D_t = {y_{t-w+1}, \dots, y_t} ;\rightarrow; \hat{\be
 
 $$ t+1 \text{ anında:} \quad D_{t+1} = {y_{t-w+2}, \dots, y_{t+1}} ;\rightarrow; \hat{\beta}_{t+1} ;\rightarrow; \hat{y}_{t+2|t+1} $$
 
-Bu yapıda tahmin edilen dönem, tanımı gereği hiçbir zaman o adımın eğitim kümesine dahil edilmez. Her adımda karşılaştırma için **naif (rastgele yürüyüş) tahmin** $\hat{y}^{,naif}_{t+1} = y_t$ de kaydedilir.
+Bu yapıda tahmin edilen dönem, tanımı gereği hiçbir zaman o adımın eğitim kümesine dahil edilmez.
 
-Pencere uzunluğu $w$ gözlem sayısı cinsinden tanımlanır ve frekansa göre değişir (varsayılanlar: aylık 48 ay, çeyreklik 20 çeyrek, yıllık 12 yıl). Literatürde aylık veriler için tipik aralık 36-60 aydır (Pesaran & Timmermann, 2007; Rossi & Inoue, 2012).
+Pencere uzunluğu $w$ gözlem sayısı cinsinden tanımlanır ve frekansa göre değişir (başlangıç değerleri: aylık 48 ay, çeyreklik 24 çeyrek, yıllık 12 yıl). Literatürde aylık veriler için tipik aralık 36-60 aydır (Pesaran & Timmermann, 2007; Rossi & Inoue, 2012).
 
 ### 2.6. Model Seçimi (Çapraz Doğrulama)
 
-`model$model_secimi = "capraz"` iken her gösterge için gecikme ve pencere uzunluğu birlikte seçilir:
+`model$model_secimi = "capraz"` iken her gösterge için gecikme ve pencere uzunluğu birlikte, otomatik olarak seçilir. Gecikme derecesi, pencere uzunluğu ve değerlendirme penceresi (`capraz_son_n`) kullanıcı tarafından gösterge bazında belirlenemez; gösterge kartına `p`, `pencere`, `pencere_adaylari` veya `capraz_son_n` yazılırsa `config.R` açıklayıcı bir hatayla durur.
 
-1. **Gecikme adayları:** göstergenin varsayılan p değeri, AIC'yi en küçükleyen p ve BIC'yi en küçükleyen p. Bilgi kriterleri, aynı örneklem üzerinde $1 \dots \min(p_{max},\ \lfloor n/4 \rfloor)$ aralığında karşılaştırılır:
+1. **Gecikme adayları:** frekans profilinin başlangıç p değeri, AIC'yi en küçükleyen p ve BIC'yi en küçükleyen p. Bilgi kriterleri, aynı örneklem üzerinde $1 \dots \min(p_{max},\ \lfloor n/4 \rfloor)$ aralığında karşılaştırılır:
 
 $$ \text{AIC} = -2\ln(L) + 2k \qquad\qquad \text{BIC} = -2\ln(L) + k \ln(n) $$
 
-2. **Pencere adayları:** frekansın aday listesi (aylık: 36, 42, 48, 54, 60; çeyreklik: 12, 16, 20, 24, 28; yıllık: 8, 10, 12, 14, 16) veya göstergeye özel `pencere_adaylari`.
+2. **Pencere adayları:** frekansın aday listesi (aylık: 36, 42, 48, 54, 60; çeyreklik: 16, 20, 24, 28, 32; yıllık: 8, 10, 12, 15).
 3. **Değerlendirme:** Her (p, w) çifti için serinin son `capraz_son_n` dönemi (aylık 36, çeyreklik 12, yıllık 6) üzerinde kayan pencere tahmini yapılır. Veri yetmezse bu sayı yarıya, en son `capraz_min_n` (4) değerine düşürülür.
-4. **Seçim:** En düşük örnek dışı RMSE'yi veren çift seçilir; eşitlikte daha kısa pencere, ardından daha düşük p tercih edilir. Hiçbir aday değerlendirilemezse varsayılan değerlere dönülür.
+4. **Seçim:** En düşük örnek dışı RMSE'yi veren çift seçilir; eşitlikte daha kısa pencere, ardından daha düşük p tercih edilir. Hiçbir aday değerlendirilemezse frekans profilinin başlangıç değerlerine dönülür.
 
 Seçilen (p, w) ile tüm uygun dönemler için nihai kayan pencere tahmini üretilir. Izgaradaki tüm adaylar ve sonuçları `capraz_dogrulama` tablosunda saklanır.
 
@@ -186,13 +187,13 @@ Seçilen (p, w) ile tüm uygun dönemler için nihai kayan pencere tahmini üret
 
 ### 2.7. İleriye Dönük Tahmin
 
-Son pencereyle tahmin edilen model, tahmin ufku $H$ boyunca (varsayılan 6 dönem) özyinelemeli olarak ileri taşınır; her adımda bir önceki tahmin gecikmeli değer olarak kullanılır.
+Son pencereyle tahmin edilen model, tahmin ufku $H$ boyunca (aylık 6, çeyreklik 4, yıllık 3 dönem) özyinelemeli olarak ileri taşınır; her adımda bir önceki tahmin gecikmeli değer olarak kullanılır. Her adım için, AR sürecinin MA(∞) katsayılarından türetilen standart hatayla `model$guven_duzeyi` (varsayılan %95) düzeyinde alt ve üst güven sınırları hesaplanır.
 
 ### 2.8. Performans Metrikleri
 
 $$ \text{MAE} = \frac{1}{n} \sum_{t=1}^{n} \left| y_t - \hat{y}_t \right| \qquad \text{MSE} = \frac{1}{n} \sum_{t=1}^{n} \left( y_t - \hat{y}_t \right)^2 \qquad \text{RMSE} = \sqrt{\text{MSE}} $$
 
-$$ \text{MAPE} = \frac{100}{n} \sum_{t=1}^{n} \left| \frac{y_t - \hat{y}_t}{y_t} \right| \qquad \text{Theil U} = \frac{\sqrt{\sum_t (\hat{y}_t - y_t)^2}}{\sqrt{\sum_t y_t^2}} \qquad \text{Göreli RMSE} = \frac{\text{RMSE}_{\text{model}}}{\text{RMSE}_{\text{naif}}} $$
+$$ \text{MAPE} = \frac{100}{n} \sum_{t=1}^{n} \left| \frac{y_t - \hat{y}_t}{y_t} \right| \qquad \text{Theil U} = \frac{\sqrt{\sum_t (\hat{y}_t - y_t)^2}}{\sqrt{\sum_t y_t^2}} $$
 
 |Metrik|Kullanım Amacı|
 |---|---|
@@ -200,7 +201,6 @@ $$ \text{MAPE} = \frac{100}{n} \sum_{t=1}^{n} \left| \frac{y_t - \hat{y}_t}{y_t}
 |**MSE / RMSE**|Büyük sapmaları orantısız biçimde cezalandırır|
 |**MAPE**|Farklı ölçekteki göstergeler arasında karşılaştırılabilirlik sağlar (gerçek değeri sıfır olan dönemler hariç tutulur)|
 |**Theil U**|Hata büyüklüğünü serinin kendi büyüklüğüne göre ölçeklendirir|
-|**Göreli RMSE**|Modelin rastgele yürüyüşe göre katma değerini ölçer; **1'in altı** modelin naif tahmini geçtiğini gösterir|
 |**İç (örnek içi) MAE / RMSE / MAPE**|Pencerelerdeki uyum hatalarının ortalaması; örnek dışı metriklerle karşılaştırılarak aşırı uyum incelenir|
 
 ---
@@ -213,7 +213,7 @@ Sistem, tek yönlü bir bağımlılık zinciriyle bağlı altı katmandan oluşu
 
 |Katman|Dosya|Sorumluluk|
 |---|---|---|
-|Yapılandırma|`R/config.R`|API uç noktaları, frekans profilleri, gösterge kartları, model ve saklama parametrelerinin merkezi yönetimi; yükleme anında tutarlılık denetimi|
+|Yapılandırma|`R/config.R`|API uç noktaları, frekans profilleri, gösterge kartları, model ve saklama parametrelerinin merkezi yönetimi; API anahtarlarının güvenli okunması|
 |Yardımcı Fonksiyonlar|`R/utils.R`|Günlükleme, önbellek ve yedek CSV yönetimi, yeniden deneme, dönem/tarih işlemleri, gösterge parametrelerinin çözümlenmesi|
 |Veri Erişim Katmanı|`R/api_functions.R`|Beş kaynağın tercümanları, yedekleme zinciri, frekans ve seri dönüşümü, metaveri üretimi|
 |Veri Hazırlama|`R/data.prep.R`|Kesintisiz takvim, enterpolasyon, kalite raporu, model girdisi (gecikmeli değişkenler)|
@@ -222,7 +222,7 @@ Sistem, tek yönlü bir bağımlılık zinciriyle bağlı altı katmandan oluşu
 
 Her modül, yüklenme sırasında bağımlılıklarının mevcut olduğunu (`stop()` ile) ve kendi bütünlüğünü (`local({...})` bloğuyla) doğrular:
 
-- `config.R`: tüm ayar kümelerinin varlığını, frekans profillerini, her aktif göstergenin rolünü, frekansını, dönüşümünü, kaynak önceliğini (`oncelik[1]` = asıl kaynak, `oncelik[2]` = `birincil_yedek`), alternatif tanımlarını ve `pencere > p + 1` koşulunu denetler.
+- `config.R`: gösterge kartları oluşturulurken kullanıcıya kapalı model parametrelerinin (`p`, `pencere`, `pencere_adaylari`, `capraz_son_n`) karta yazılmasını engeller; tanımsız frekans istendiğinde açık hata verir.
 - `utils.R`, `data.prep.R`, `models.R`: tüm fonksiyonların yüklendiğini denetler.
 - `api_functions.R`: fonksiyonlara ek olarak, her aktif göstergenin tür/frekans uyumu sonrasında da en az bir çalışabilir yedek kanala sahip olduğunu ve zincirin ikinci halkasının gerçekten `birincil_yedek` olduğunu doğrular.
 
@@ -250,7 +250,7 @@ eco-forecast-ekk/
 │   └── sonuclar.rds           Tüm tahmin sonuçları + üretim zamanı
 ├── logs/
 │   └── calisma.log            Zaman damgalı çalışma kayıtları
-├── tests/                     Otomatik test dosyaları
+├── tests/                     Konsol test belgeleri (her modül için ayrı)
 ├── docs/                      README görselleri
 ├── .Renviron                  API kimlik bilgileri (versiyon kontrolüne dahil değildir)
 ├── .gitignore
@@ -267,7 +267,7 @@ Klasörler `utils.R` yüklenirken otomatik oluşturulur. Proje kökü, çalışm
 |`metaveri`|Her göstergenin kaynağı, kodu, kaynak önceliği, yedek kullanımı, durumu (`api` / `cache` / `csv_yedek` / `bayat_cache` / `alinamadi`), tarih aralığı ve çekim zamanı|
 |`kalite_raporu`|Gözlem sayısı, gecikme, eksik dönem oranı|
 |`tahmin_ozeti`|Gösterge başına seçilen p / w, yöntem ve tüm performans metrikleri|
-|`gecmis_tahmin`|Kayan pencere tahminleri: tarih, gerçek, tahmin, naif|
+|`gecmis_tahmin`|Kayan pencere tahminleri: tarih, gerçek, tahmin|
 |`gelecek_tahmin`|İleriye dönük tahminler|
 |`capraz_dogrulama`|Çapraz doğrulama ızgarası: her (p, w) adayı için RMSE, MAE ve seçim işareti|
 
@@ -309,7 +309,7 @@ FRED_API_KEY=<api_anahtariniz>
 EVDS_API_KEY=<api_anahtariniz>
 ```
 
-Değişikliklerin etkili olması için R oturumunun yeniden başlatılması gerekir. Anahtarlardan biri eksikse `config.R` uyarı verir ve ilgili kaynak atlanır; bu durumda göstergeler yedek kanallardan beslenir.
+Anahtarlar önce ortam değişkenlerinden okunur. Bulunamazsa `config.R`, proje kökündeki ve ev dizinindeki `.Renviron` dosyalarına da bakar (yalnızca dosya R oturumu açıldıktan sonra değiştirildiyse); böylece anahtar eklendikten sonra R'ı yeniden başlatmak gerekmez. Anahtarlardan biri yine de eksikse `config.R` uyarı verir ve ilgili kaynak atlanır; bu durumda göstergeler yedek kanallardan beslenir.
 
 ---
 
@@ -326,12 +326,12 @@ source("R/models.R")
 
 sonuc <- calistir_hepsi()                 # yenile = TRUE: önbelleği yok sayıp kaynaklardan yeniden çeker
 
-# Naif modele göre en başarılı göstergeler
-sonuc$ozet[order(sonuc$ozet$GORELI_RMSE),
-           c("gosterge", "P", "PENCERE", "YONTEM", "RMSE", "MAPE", "GORELI_RMSE")]
+# Örnek dışı hatası en düşük göstergeler
+sonuc$ozet[order(sonuc$ozet$THEIL_U),
+           c("gosterge", "P", "PENCERE", "YONTEM", "RMSE", "MAPE", "THEIL_U")]
 
 sonuc$gelecek    # ileriye dönük tahminler
-sonuc$gecmis     # kayan pencere tahminleri (gerçek / tahmin / naif)
+sonuc$gecmis     # kayan pencere tahminleri (gerçek / tahmin)
 sonuc$cv         # çapraz doğrulama ızgarası
 sonuc$meta       # hangi veri hangi kaynaktan, hangi durumda geldi
 sonuc$kalite     # veri kalitesi raporu
@@ -343,9 +343,8 @@ sonuc$kalite     # veri kalitesi raporu
 
 ```r
 sonuclari_getir()                 # Kayıtlı sonuçlar güncelse onları döndürür, değilse yeniden hesaplar
-gosterge_guncelle("USDTRY")       # Yalnızca tek bir göstergeyi yeniden çeker ve tahminler
-kayan_pencere_tahmin(sonuc$veri, "ENFLASYON", pencere = 48, p = 12)   # Elle parametreli deneme
-p_sec(sonuc$veri, "ENFLASYON", kriter = "BIC")$tablo                   # Bilgi kriteri tablosu
+gosterge_guncelle("FAIZ")         # Yalnızca tek bir göstergeyi yeniden çeker ve tahminler
+p_sec(sonuc$veri, "FAIZ", kriter = "BIC")$tablo   # Bilgi kriteri tablosu (inceleme amaçlı)
 ```
 
 ### 6.3. Web Arayüzünün Başlatılması
@@ -354,7 +353,7 @@ p_sec(sonuc$veri, "ENFLASYON", kriter = "BIC")$tablo                   # Bilgi k
 shiny::runApp("app/app.R")
 ```
 
-Arayüz üzerinden gösterge seçimi ve pencere uzunluğu parametreleri interaktif olarak değiştirilebilir; grafik, performans metrikleri ve tahmin tablosu seçime bağlı olarak otomatik güncellenir. Göstergeler rollerine göre (bağımlı, kontrol, ek) gruplanır; genel görünümde varsayılan olarak en fazla dört gösterge (ENFLASYON, BUYUME, USDTRY, ISSIZLIK) gösterilir.
+Arayüz üzerinden gösterge seçilebilir; grafik, performans metrikleri ve tahmin tablosu seçime bağlı olarak otomatik güncellenir. Gecikme derecesi ve pencere uzunluğu arayüzden değiştirilemez; her gösterge için çapraz doğrulamayla seçilen değerler gösterilir. Göstergeler rollerine göre (bağımlı, kontrol, ek) gruplanır; genel görünümde en fazla dört gösterge (`sunum$genel_azami`) gösterilir.
 
 <p align="center"> <img src="docs/forecast_example.svg" alt="Örnek tahmin grafiği: gerçek ve tahmin" width="680"> </p>
 
@@ -367,14 +366,14 @@ Tüm sistem parametreleri `R/config.R` içinde tek bir `CONFIG` nesnesinde topla
 |Küme|İçerik|
 |---|---|
 |`proje`|Başlık, program, kurum, sürüm|
-|`baglanti`|API anahtarları, uç noktalar, kullanıcı aracısı, zaman aşımı, yeniden deneme ayarları|
+|`baglanti`|API anahtarları (`anahtar_oku()` ile), uç noktalar, kullanıcı aracısı, zaman aşımı, yeniden deneme ayarları|
 |`veri`|Tarih aralığı, önbellek tazeliği, asgari gözlem, yedek kaynak kullanımı|
-|`frekanslar`|Aylık / çeyreklik / yıllık profiller (varsayılan p, pencere, aday listeleri)|
+|`frekanslar`|Aylık / çeyreklik / yıllık profiller (başlangıç p ve pencere, aday listeleri, değerlendirme penceresi, tahmin ufku)|
 |`model`|Genel model varsayılanları ve model seçim yöntemi|
 |`guncelleme`|Otomatik güncelleme ve güncelleme sıklığı|
-|`saklama`|Klasör yolları|
-|`kaynaklar`|Desteklenen kaynaklar ve açıklamaları|
-|`sunum`|Rol etiketleri ve arayüzün genel görünüm ayarları|
+|`saklama`|Proje kökü ve ona göre tam klasör yolları|
+|`kaynaklar`|Desteklenen kaynaklar|
+|`sunum`|Arayüzün genel görünümünde gösterilecek en fazla gösterge sayısı|
 |`gostergeler`|Gösterge kartları|
 
 **Genel parametreler**
@@ -388,7 +387,8 @@ Tüm sistem parametreleri `R/config.R` içinde tek bir `CONFIG` nesnesinde topla
 |Yedek kaynak kullanımı|`veri$yedek_kaynak_kullan`|`TRUE`|
 |Model seçim yöntemi|`model$model_secimi`|`"capraz"` (alternatif: `"varsayilan"`)|
 |Çapraz doğrulama asgari dönem|`model$capraz_min_n`|4|
-|Tahmin ufku|`model$tahmin_ufku`|6 dönem|
+|Tahmin ufku (frekans profili yoksa)|`model$tahmin_ufku`|6 dönem|
+|Güven düzeyi|`model$guven_duzeyi`|0,95|
 |Formülde trend|`model$formulde_trend`|`FALSE`|
 |Eğitim/sınama oranı (`tarihe_gore_bol` için)|`model$egitim_orani`|0,80|
 |Otomatik güncelleme|`guncelleme$otomatik`|`TRUE`|
@@ -398,22 +398,22 @@ Tüm sistem parametreleri `R/config.R` içinde tek bir `CONFIG` nesnesinde topla
 
 **Frekans profilleri**
 
-|Frekans|Varsayılan p|Varsayılan pencere|p_max|Pencere adayları|Çapraz doğrulama dönemi|
-|---|---|---|---|---|---|
-|Aylık|3|48|12|36, 42, 48, 54, 60|36|
-|Çeyreklik|4|20|8|12, 16, 20, 24, 28|12|
-|Yıllık|2|12|3|8, 10, 12, 14, 16|6|
+|Frekans|Başlangıç p|Başlangıç pencere|p_max|Pencere adayları|Değerlendirme penceresi (`capraz_son_n`)|Tahmin ufku|
+|---|---|---|---|---|---|---|
+|Aylık|12|48|12|36, 42, 48, 54, 60|36|6|
+|Çeyreklik|4|24|8|16, 20, 24, 28, 32|12|4|
+|Yıllık|1|12|3|8, 10, 12, 15|6|3|
 
-**Parametre çözümleme sırası:** Gecikme (`p`), pencere (`pencere`), tahmin ufku (`tahmin_ufku`) ve pencere adayları (`pencere_adaylari`) için önce gösterge kartına, sonra frekans profiline, sonra `model` kümesine bakılır; hiçbiri tanımlı değilse sabit bir varsayılan kullanılır.
+**Parametre çözümleme sırası:** Gecikme (`p`), pencere (`pencere`) ve pencere adayları yalnızca frekans profilinden gelir (profil yoksa `model` kümesine bakılır); gösterge kartında tanımlanamaz. Tahmin ufku için önce gösterge kartına, sonra frekans profiline, sonra `model` kümesine bakılır.
 
 ```r
-CONFIG$gostergeler$ENFLASYON$kod         # "TP_TUKFIY2025_GENEL"
+CONFIG$gostergeler$FAIZ$kod              # "TP.APIFON4"
 CONFIG$frekanslar$aylik$pencere_uzunlugu # 48
-gosterge_p("ENFLASYON")                  # 12 (karttan)
-gosterge_pencere("BIST100")              # 48 (aylık profilden)
+gosterge_p("FAIZ")                       # 12 (aylık profilden)
+gosterge_pencere("GINI")                 # 12 (yıllık profilden)
 ```
 
-API anahtarları `config.R` içinde değer olarak değil, `Sys.getenv()` çağrısıyla `.Renviron` dosyasından okunur. Bu sayede `config.R` güvenle paylaşılabilirken kimlik bilgileri versiyon kontrolüne dahil edilmez.
+API anahtarları `config.R` içinde değer olarak değil, `anahtar_oku()` ile ortam değişkenlerinden ve `.Renviron` dosyasından okunur. Bu sayede `config.R` güvenle paylaşılabilirken kimlik bilgileri versiyon kontrolüne dahil edilmez.
 
 ---
 
@@ -421,20 +421,22 @@ API anahtarları `config.R` içinde değer olarak değil, `Sys.getenv()` çağr�
 
 ### `R/config.R`
 
-Merkezi ayar deposu ve yükleme anı doğrulayıcısı. Her gösterge, aşağıdaki alanları taşıyan bir kart olarak tanımlanır:
+Merkezi ayar deposu. Her gösterge, `gosterge_karti()` yardımcısıyla aşağıdaki alanları taşıyan bir kart olarak tanımlanır:
 
 |Alan|Açıklama|
 |---|---|
 |`aktif`|Göstergenin işlenip işlenmeyeceği|
-|`rol`|`bagimli`, `kontrol` veya `ek`|
-|`ad`, `birim`|Görünen ad ve birim|
+|`rol`|`Bağımlı`, `Kontrol` veya `Ek`|
+|`ad`|Görünen ad|
 |`frekans`|`aylik`, `ceyreklik` veya `yillik`|
 |`donusum`|`duzey` (varsayılan) veya `yillik_degisim`|
-|`kaynak`, `kod`|Birincil kaynak ve seri kodu|
-|`oncelik`|Kaynak deneme sırası; ilk eleman `kaynak`, ikinci eleman `birincil_yedek` olmalıdır|
-|`birincil_yedek`|İlk yedek kanal|
+|`kaynak`, `kod`, `filtre`|Birincil kaynak, seri kodu ve isteğe bağlı sorgu filtresi|
+|`oncelik`|Kaynak deneme sırası; varsayılan `c(kaynak, "CSV_YEDEK")`|
+|`birincil_yedek`|İlk yedek kanal (varsayılan `oncelik[2]`)|
 |`alternatifler`|Yedek kaynakların tanımları: `kod`, `tur` (`duzey` / `oran` / `farkli`), `frekans`, `filtre`, `carpan`, `yaklasik`|
-|`p`, `pencere`, `tahmin_ufku`, `pencere_adaylari`|İsteğe bağlı göstergeye özel model parametreleri|
+
+`config.R` ayrıca `anahtar_oku()` (API anahtarını ortam değişkeninden veya `.Renviron`'dan okur), `frekans_ayari()` (frekans profilini döndürür) ve `kaynak_kullanilabilir()` (FRED/EVDS anahtarının tanımlı olup olmadığını denetler) fonksiyonlarını sağlar.
+|`tahmin_ufku`|İsteğe bağlı göstergeye özel tahmin ufku|
 
 ### `R/utils.R`
 
@@ -452,11 +454,10 @@ Merkezi ayar deposu ve yükleme anı doğrulayıcısı. Her gösterge, aşağıd
 |`yeni_olanlar(veri, tarih_sutunu, eski_tarih)`|Artımlı güncelleme için yalnızca yeni gözlemleri filtreler|
 |`kalici_hata(mesaj)`|Yeniden denenmeyecek hata sınıfı üretir|
 |`tekrar_dene(islem, deneme, bekleme)`|Geçici hatalarda bekleyerek yeniden dener; kalıcı hatada durur|
-|`frekans_ayari(frekans)`|Frekans profilini döndürür|
 |`donem_basi()` / `donem_dizisi()` / `donem_ekle()` / `donem_etiketi()`|Frekansa duyarlı tarih işlemleri ve Türkçe dönem etiketleri ("Ocak 2024", "2024 Ç1", "2024")|
 |`aktif_gostergeler()`|Aktif gösterge anahtarları|
 |`gosterge_etiketi()` / `gosterge_frekansi()` / `gosterge_oncelik()`|Gösterge kartı erişimcileri|
-|`gosterge_p()` / `gosterge_pencere()` / `gosterge_ufuk()` / `gosterge_pencere_adaylari()`|Parametreleri gösterge → frekans → model sırasıyla çözümler|
+|`gosterge_p()` / `gosterge_pencere()` / `gosterge_ufuk()` / `gosterge_pencere_adaylari()`|Başlangıç model parametrelerini frekans profilinden (ufuk için önce karttan) çözümler|
 
 ### `R/api_functions.R`
 
@@ -467,7 +468,6 @@ Merkezi ayar deposu ve yükleme anı doğrulayıcısı. Her gösterge, aşağıd
 |`donem_tarih_coz(x)`|`GG-AA-YYYY`, `YYYY-Qn`, `YYYY-AA`, `YYYY` biçimlerini tarihe çevirir|
 |`standartlastir()`|Temizleme, tekilleştirme, tarih aralığına kırpma, sıralama|
 |`wb_kod_temizle()`|Dünya Bankası gösterge kodunu normalleştirir|
-|`kaynak_kullanilabilir(kaynak)`|Kaynağın API anahtarı gibi ön koşullarını denetler|
 |`tur_uyumlu()` / `frekans_uyumlu()`|Yedek kaynağın hedef seriyle tür ve frekans uyumunu denetler|
 |`kaynak_zinciri(gosterge_adi)`|Uyumlu kanallardan oluşan yedekleme zincirini kurar|
 |`frekansa_cevir()`|Seriyi hedef frekansın dönem ortalamasına indirger|
@@ -483,7 +483,7 @@ Merkezi ayar deposu ve yükleme anı doğrulayıcısı. Her gösterge, aşağıd
 
 |Fonksiyon|Açıklama|
 |---|---|
-|`seri_hazirla(d, g)`|Seriyi kendi frekansında kesintisiz takvime oturtur, ara boşlukları enterpolasyonla doldurur, `gercek` işaretini ekler|
+|`seri_hazirla(d, g)`|Seriyi sıralayıp kendi frekansında kesintisiz takvime oturtur, ara boşlukları enterpolasyonla doldurur, `gercek` işaretini ekler|
 |`ic_bosluk_say(veri)`|Enterpolasyonla doldurulan dönem sayısı|
 |`kalite_raporu_olustur(uzun)`|Gösterge bazında veri kalitesi raporu|
 |`gosterge_serisi(veri, g)`|Tek göstergenin sıralı serisini döndürür|
@@ -497,11 +497,11 @@ Merkezi ayar deposu ve yükleme anı doğrulayıcısı. Her gösterge, aşağıd
 |---|---|
 |`mae()` / `mse()` / `rmse()` / `mape()` / `theil_u()`|Performans metrikleri|
 |`basit_ar()`|Tüm örnek üzerinde tek seferlik AR-EKK modeli (doğrulama amaçlı)|
-|`kayan_pencere_tahmin(veri, gosterge, pencere, p, son_n)`|Kayan pencereyle bir adım ileri örnek dışı tahmin; naif tahmin ve örnek içi hataları da üretir|
-|`metrikler(s)`|Örnek dışı, naif ve örnek içi metrik satırı|
+|`kayan_pencere_tahmin(veri, gosterge, pencere, p, son_n)`|Kayan pencereyle bir adım ileri örnek dışı tahmin; örnek içi hataları da üretir (model seçimi tarafından çağrılır)|
+|`metrikler(s)`|Örnek dışı ve örnek içi metrik satırı|
 |`p_sec(veri, gosterge, kriter, p_max)`|AIC/BIC ile gecikme seçimi|
 |`model_sec(veri, g)`|Çapraz doğrulamayla (p, w) seçimi|
-|`gelecek_tahmin(veri, gosterge, ufuk, pencere, p)`|Çok adımlı ileriye dönük tahmin|
+|`gelecek_tahmin(veri, gosterge, ufuk, pencere, p)`|Güven aralıklı çok adımlı ileriye dönük tahmin|
 |`gosterge_hesapla(veri, ad, kaynak)`|Tek gösterge için seçim + değerlendirme + ileri tahmin|
 |`tum_gostergeleri_tahminle(veri)`|Tüm aktif göstergeleri işler; hatalı olanları atlar|
 |`sonuclari_kaydet(sonuc)`|Sonuç tablolarını ve `models/sonuclar.rds` dosyasını yazar|
@@ -510,7 +510,7 @@ Merkezi ayar deposu ve yükleme anı doğrulayıcısı. Her gösterge, aşağıd
 |`gosterge_guncelle(ad)`|Tek göstergeyi yeniden çekip tahminler; diğer sonuçları korur|
 |`sonuclari_getir(yenile)`|Güncel kayıtlı sonuçları döndürür ya da yeniden hesaplar|
 
-**`tahmin_ozeti` sütunları:** `gosterge`, `ad`, `rol`, `FREKANS`, `KAYNAK`, `P`, `PENCERE`, `UFUK`, `YONTEM`, `N_TAHMIN`, `SON_GOZLEM`, `MAE`, `MSE`, `RMSE`, `MAPE`, `THEIL_U`, `NAIF_RMSE`, `GORELI_RMSE`, `IC_MAE`, `IC_RMSE`, `IC_MAPE`.
+**`tahmin_ozeti` sütunları:** `gosterge`, `ad`, `rol`, `FREKANS`, `KAYNAK`, `P`, `PENCERE`, `UFUK`, `YONTEM`, `N_TAHMIN`, `SON_GOZLEM`, `MAE`, `MSE`, `RMSE`, `MAPE`, `THEIL_U`, `IC_MAE`, `IC_RMSE`, `IC_MAPE`.
 
 ### `app/app.R`
 
@@ -522,37 +522,33 @@ Shiny çerçevesinde UI (arayüz düzeni) ve server (hesaplama mantığı) ayrı
 
 |Gereksinim|Yapılacak Değişiklik|
 |---|---|
-|Yeni gösterge eklemek|`config.R` içindeki `gostergeler` listesine bir kart eklemek (en az: `aktif`, `rol`, `ad`, `frekans`, `kaynak`, `kod`, `oncelik`, `birincil_yedek`; yedek API kullanılacaksa `alternatifler`)|
+|Yeni gösterge eklemek|`config.R` içindeki `gostergeler` listesine `gosterge_karti()` ile bir kart eklemek (en az: `ad`, `rol`, `kaynak`, `kod`; gerekirse `frekans`, `donusum`, `oncelik`, `alternatifler`)|
 |Bir göstergeyi geçici olarak devre dışı bırakmak|Kartta `aktif = FALSE` yapmak|
 |Yeni veri kaynağı entegre etmek|`api_functions.R`'a `standartlastir()` çıktısı döndüren bir tercüman fonksiyonu yazmak, `cek_kaynak()` içine bir dal eklemek ve kaynağı `CONFIG$kaynaklar$desteklenen` listesine (gerekirse `kaynak_kullanilabilir()` kontrolüne) eklemek|
-|Yeni frekans profili|`CONFIG$frekanslar` içine zorunlu alanlarla (`ay_adimi`, `yilda`, `lag_sayisi`, `pencere_uzunlugu`, `p_max`, `pencere_adaylari`, `capraz_son_n`) bir profil eklemek|
+|Yeni frekans profili|`CONFIG$frekanslar` içine zorunlu alanlarla (`ay_adimi`, `lag_sayisi`, `pencere_uzunlugu`, `tahmin_ufku`, `p_max`, `pencere_adaylari`, `capraz_son_n`) bir profil eklemek|
 |Yeni performans metriği eklemek|`models.R`'a `function(gercek, tahmin)` imzalı bir fonksiyon yazmak ve `metrikler()` çıktısına sütun eklemek|
 
 Örnek gösterge kartı:
 
 ```r
-YENI_GOSTERGE = list(
-  aktif = TRUE, rol = "ek", ad = "Örnek Gösterge", frekans = "aylik", birim = "%",
-  kaynak = "EVDS", kod = "TP_ORNEK_KOD",
-  oncelik = c("EVDS", "FRED", "CSV_YEDEK"), birincil_yedek = "FRED",
-  p = 3, pencere = 48,
-  alternatifler = list(FRED = list(kod = "ORNEKFRED", tur = "duzey", frekans = "aylik"))
-)
+YENI_GOSTERGE = gosterge_karti("Örnek Gösterge", "Ek", "EVDS", "TP.ORNEK.KOD",
+                               frekans = "aylik", oncelik = c("EVDS", "FRED", "CSV_YEDEK"),
+                               alternatifler = list(FRED = list(kod = "ORNEKFRED", tur = "duzey")))
 ```
 
-Kart hatalıysa (ör. `oncelik[2]` ile `birincil_yedek` farklıysa ya da yedek tür/frekans bakımından uyumsuzsa) `config.R` veya `api_functions.R` yüklenirken açık bir hata mesajıyla durur. Her durumda değişiklik ilgili katmanla sınırlı kalır; diğer katmanlar yeniden düzenleme gerektirmez.
+Kart hatalıysa (ör. karta `p` veya `pencere` yazılmışsa, `birincil_yedek` zincirin ikinci halkası değilse ya da yedek tür/frekans bakımından uyumsuzsa) `config.R` veya `api_functions.R` yüklenirken açık bir hata mesajıyla durur. Her durumda değişiklik ilgili katmanla sınırlı kalır; diğer katmanlar yeniden düzenleme gerektirmez.
 
 ---
 
 ## 10. Tasarım İlkeleri
 
 - **Tekil sorumluluk:** Her modül tek bir işlevden sorumludur.
-- **Merkezi yapılandırma:** Sistem genelindeki tüm kararlar tek bir yapılandırma noktasından yönetilir; parametreler gösterge → frekans → model sırasıyla çözümlenir.
+- **Merkezi yapılandırma:** Sistem genelindeki tüm kararlar tek bir yapılandırma noktasından yönetilir; model parametreleri frekans profilinden başlar ve veriyle seçilir.
 - **Sınır izolasyonu:** Harici veri kaynaklarının değişkenliği ve güvenilmezliği tek bir erişim katmanında izole edilir.
 - **Çok kanallı yedeklilik:** Her göstergenin en az bir çalışabilir yedek kanalı bulunur; tüm API'ler çökse bile son bilinen veriyle çalışılabilir.
 - **Kaynak şeffaflığı:** Her serinin hangi kaynaktan, hangi kodla ve hangi durumda geldiği metaveri tablosunda kayıt altındadır; yaklaşık seriler ayrıca işaretlenir.
 - **Zarif hata yönetimi:** Bileşen hataları sistemin tamamını durdurmaz; ilgili birim atlanarak işleme devam edilir.
-- **Metodolojik dürüstlük:** Kayan pencere tahmininde tahmin edilen dönem hiçbir koşulda o adımın eğitim kümesine dahil edilmez; model her zaman naif tahminle kıyaslanır.
+- **Metodolojik dürüstlük:** Kayan pencere tahmininde tahmin edilen dönem hiçbir koşulda o adımın eğitim kümesine dahil edilmez; gecikme ve pencere elle ayarlanamaz, yalnızca örnek dışı hataya göre seçilir.
 - **Veri dürüstlüğü:** Enterpolasyonla doldurulan dönemler işaretlenir.
 - **Kendini doğrulama:** Her modül, yüklenme anında kendi bütünlüğünü ve bağımlılıklarını kontrol eder.
 - **Kimlik bilgisi izolasyonu:** API anahtarları kaynak koduna gömülmez; ortam değişkenleri aracılığıyla yönetilir.
