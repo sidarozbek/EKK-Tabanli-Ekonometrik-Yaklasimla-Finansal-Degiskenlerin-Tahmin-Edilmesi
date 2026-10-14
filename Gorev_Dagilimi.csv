@@ -1,0 +1,33 @@
+﻿Kişi,Başlık No,Başlık,Araştırılacak sorular,Teslim edilecek çıktı,Başlangıç kaynakları,Durum
+Elif Işıl Çiçek,1.1,Konunun Önemi,"• Kısa vadeli ekonomik tahmin kimler için, hangi kararlarda kullanılıyor (hane, yatırımcı, politika yapıcı)?
+• Türkiye'de enflasyon ve kurdaki oynaklık, güncel ve sık güncellenen tahmine neden ihtiyaç doğuruyor? Son yıllardan somut verilerle destekleyin.
+• Türkiye'de açık, ücretsiz ve otomatik güncellenen bir tahmin aracı var mı? Bu boşluk projenin önemini gösteriyor.",Yaklaşık 1 sayfa metin; iddiaları destekleyen güncel veriler (kaynaklı).,TCMB Enflasyon Raporları; TÜİK haber bültenleri; IMF ve OECD Türkiye raporları,Başlanmadı
+Elif Işıl Çiçek,1.2 (a),Literatür – Türkiye ekonomisinde tahmin çalışmaları,"• Türkiye'de enflasyon, kur ve büyüme tahmini üzerine hangi çalışmalar yapılmış? Hangi modelleri kullanmışlar (AR, ARIMA, VAR, makine öğrenmesi)?
+• Bu çalışmalarda basit AR modelleri karmaşık modellere göre nasıl performans göstermiş?
+• TCMB'nin kendi kısa vadeli tahmin yaklaşımları neler?
+• Bulunan her çalışma için: yazar, yıl, veri, yöntem, temel bulgu.",Literatür özet tablosu (en az 8 çalışma: Yazar – Yıl – Değişken – Yöntem – Bulgu); yaklaşık 1 sayfa metin.,TCMB Çalışma Tebliğleri; Central Bank Review; DergiPark; Google Scholar,Başlanmadı
+Melek Sevimli,1.2 (b),Literatür – AR modelleri ve kayan pencere yaklaşımı,"• AR modelleri kısa vadeli tahminde neden hâlâ güçlü bir referans (benchmark) kabul ediliyor?
+• Kayan pencere (rolling window) ve genişleyen pencere (expanding window) arasındaki fark ne; literatür hangisini ne zaman öneriyor?
+• Pencere uzunluğu seçimi tahmin sonucunu nasıl etkiliyor?
+• Bulunan her çalışma için: yazar, yıl, yöntem, temel bulgu.",Literatür özet tablosu (en az 6 çalışma); yaklaşık 1 sayfa metin.,"Pesaran ve Timmermann (2007); Rossi ve Inoue (2012); Stock ve Watson (2007); Hyndman ve Athanasopoulos, Forecasting: Principles and Practice",Başlanmadı
+Melek Sevimli,2.8.2,Ölçekten Bağımsız Hata Ölçütü (MASE),"• MAPE sıfıra yakın veya negatif değer alan serilerde (büyüme, dış ticaret, cari denge, bütçe dengesi) neden bozuluyor? Örnekle açıklayın.
+• MASE nasıl tanımlanıyor, formülü ne, nasıl yorumlanıyor (MASE < 1 ne demek)?
+• Mevsimsel seriler için MASE'nin ölçeklemesi nasıl yapılıyor?
+• MASE'nin göreli RMSE ve Theil U'ya göre avantajı ve sınırlılığı ne?",Yöntem metni (yaklaşık 1 sayfa) ve MASE formülü; Tablo 2.4'e eklenecek MASE satırı için kısa açıklama.,"Hyndman ve Koehler (2006); Hyndman ve Athanasopoulos, Forecasting: Principles and Practice",Başlanmadı
+Arzu Gülnur Okman,2.3.5,Metodoloji ve Baz Yılı Değişiklikleri,"Aşağıdaki değişiklikleri resmî kaynaklardan doğrulayın; her biri için tarih, ne değişti ve seriyi nasıl etkiliyor:
+• TÜFE baz yılı değişikliği (seri kodunda 2025 bazı görünüyor)
+• GSYH'de 2016 revizyonu ve 2009 bazına geçiş
+• İşsizlikte 2014 ve 2021 tanım ve metodoloji değişiklikleri
+• Sanayi üretiminde 2021 bazı
+• Politika faizinin tanımı (2010'dan itibaren bir hafta vadeli repo, faiz koridoru dönemi)",Metodoloji değişiklikleri tablosu (Gösterge – Değişiklik – Tarih – Seriye etkisi – Kaynak); yaklaşık 1 sayfa metin.,TÜİK metaveri sayfaları ve haber bültenleri; TCMB para politikası metinleri,Başlanmadı
+Arzu Gülnur Okman,2.3.6,Kaynaklar Arası Tutarlılık,"• Aynı gösterge EVDS, FRED, OECD ve Dünya Bankası'nda hangi tanım, birim ve frekansla yayımlanıyor? (ör. TÜFE, USD/TRY, GSYH)
+• Kaynaklar arasında fark yaratan nedenler neler: baz yılı, ortalama/dönem sonu farkı, mevsimsellik, revizyon zamanlaması?
+• FRED'deki Türkiye serileri asıl olarak hangi kaynaktan (OECD, IMF) alınıyor?
+• Gerçek zamanlı veri ve revizyon sorunu: bugün indirilen veri, o dönemde açıklanan veriyle neden aynı değil? ALFRED nedir?",Kaynak karşılaştırma tablosu (Gösterge – Kaynak – Tanım – Birim – Frekans – Not); yaklaşık 1 sayfa metin.,FRED ve EVDS seri dokümantasyonu; OECD ve Dünya Bankası metaverileri; Croushore ve Stark (2001); ALFRED,Başlanmadı
+Elif Zeynep Balıkçı,2.9,Kullanılabilirlik Testi,"• System Usability Scale (SUS) nedir: 10 soru, 5'li ölçek, 0–100 puan nasıl hesaplanır?
+• SUS puanı nasıl yorumlanır (ortalama 68, sıfat ölçeği)? Önerideki '%80 üzeri memnuniyet' hedefi SUS'ta neye karşılık gelir?
+• SUS'un Türkçe uyarlaması var mı?
+• 8–10 kişilik bir test nasıl tasarlanır: katılımcı profili (iktisat öğrencileri ve teknik olmayan kullanıcılar), verilecek görevler, uygulama adımları?
+• Benzer araçlar (Atlanta Fed GDPNow, NY Fed Nowcast, TCMB veri araçları) kullanıcıya neyi nasıl sunuyor?",Yöntem metni (yaklaşık 1 sayfa); Türkçe SUS anket formu; test görevleri listesi.,"Brooke (1996); Bangor, Kortum ve Miller (2008); Atlanta Fed GDPNow ve NY Fed Nowcast sayfaları",Başlanmadı
+Elif Zeynep Balıkçı,1.3,Araştırma Sorusu ve Hipotezler,"• Araştırma sorusu ile H1 ve H2'yi araştırma önerisinden aktarın.
+• Hipotezlerin dayandığı literatürü 1.2'deki çalışmalarla bağlayın.",Yaklaşık 1 sayfa metin.,Araştırma önerisi; 1.2 literatür tabloları,Başlanmadı
