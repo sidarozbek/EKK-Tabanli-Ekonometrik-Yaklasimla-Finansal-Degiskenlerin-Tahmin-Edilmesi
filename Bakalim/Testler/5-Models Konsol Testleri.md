@@ -11,10 +11,11 @@ list.files("R")
 * [ ] Dosyaların tam yollarını değişkenlere yaz (adları farklıysa listede gördüğün adlarla değiştir):
 
 ```r
-config_yolu <- normalizePath("R/config.R", winslash = "/")
-utils_yolu  <- normalizePath("R/utils.R", winslash = "/")
-prep_yolu   <- normalizePath("R/data_prep.R", winslash = "/")
-models_yolu <- normalizePath("R/models.R", winslash = "/")
+config_yolu <- file.path(getwd(), "config.R")
+utils_yolu  <- file.path(getwd(), "utils.R")
+prep_yolu   <- file.path(getwd(), "data_prep.R")
+models_yolu <- file.path(getwd(), "models.R")
+
 file.exists(c(config_yolu, utils_yolu, prep_yolu, models_yolu))
 
 ```
@@ -210,12 +211,18 @@ dene(e3)
 
 ```
 
-* [ ] Yüklemenin uyarısız olduğunu ve "18 fonksiyon yerinde" mesajı verdiğini kontrol et; `uyarilar` `character(0)` olmalı:
+* [ ] Yüklemenin uyarısız olduğunu ve "18 fonksiyon yerinde" mesajı verdiğini kontrol et; `uyarilar` `character(0)` olmalı (mesajın yakalanabilmesi için dosyalar burada `suppressMessages` olmadan yüklenir):
 
 ```r
 mesajlar <- uyarilar <- character(0)
-withCallingHandlers(
-  invisible(yukle_modeller()),
+withCallingHandlers({
+    e4 <- new.env(parent = globalenv())
+    sys.source(config_yolu, envir = e4, toplevel.env = e4)
+    sys.source(utils_yolu,  envir = e4, toplevel.env = e4)
+    sahte_api(e4)
+    sys.source(prep_yolu,   envir = e4, toplevel.env = e4)
+    sys.source(models_yolu, envir = e4, toplevel.env = e4)
+  },
   message = function(m) { mesajlar <<- c(mesajlar, trimws(conditionMessage(m))); invokeRestart("muffleMessage") },
   warning = function(w) { uyarilar <<- c(uyarilar, conditionMessage(w)); invokeRestart("muffleWarning") }
 )
@@ -300,7 +307,7 @@ u$mape(c(0, 0), c(1, 2))
 
 ```
 
-* [ ] `theil_u`'nun klasik Theil U1/U2 değil, `√SSE / √Σy²` olduğunu not et; naif modele göre başarı için `GORELI_RMSE` sütununa bakılmalı
+* [ ] `theil_u`'nun klasik Theil U1/U2 değil, `√SSE / √Σy²` olduğunu not et
 
 ## 4) basit_ar()
 
@@ -408,13 +415,6 @@ s$tarih[1] == d2$tarih[w + 1]
 
 ```
 
-* [ ] Naif tahminin bir önceki gerçek değer olduğunu kontrol et; `TRUE` döndürmeli:
-
-```r
-identical(s$naif[-1], s$gercek[-nrow(s)])
-
-```
-
 * [ ] `son_n = 12` ile yalnız son 12 dönemin tahmin edildiğini kontrol et; `12` ve `TRUE` döndürmeli:
 
 ```r
@@ -442,26 +442,12 @@ tryCatch(u$kayan_pencere_tahmin(hazir, ga, pencere = 10000, p = 2), error = func
 
 ## 7) metrikler()
 
-* [ ] Metrik tablosunu oluştur; 10 sütunlu tek satır olmalı:
+* [ ] Metrik tablosunu oluştur; 8 sütunlu tek satır olmalı (`MAE MSE RMSE MAPE THEIL_U IC_MAE IC_RMSE IC_MAPE`):
 
 ```r
 mt <- u$metrikler(s)
 mt
 dim(mt)
-
-```
-
-* [ ] `GORELI_RMSE`'nin `RMSE / NAIF_RMSE` olduğunu kontrol et; `TRUE` döndürmeli:
-
-```r
-isTRUE(all.equal(mt$GORELI_RMSE, mt$RMSE / mt$NAIF_RMSE))
-
-```
-
-* [ ] AR(1) veride modelin naif tahminden iyi olduğunu kontrol et; `GORELI_RMSE` **1'in altında** olmalı:
-
-```r
-mt$GORELI_RMSE < 1
 
 ```
 
@@ -681,7 +667,7 @@ h$ozet$YONTEM
 ```r
 sonuc <- u$tum_gostergeleri_tahminle(hazir)
 nrow(sonuc$ozet) == length(u$aktif_gostergeler())
-sonuc$ozet[, c("gosterge", "KAYNAK", "P", "PENCERE", "YONTEM", "RMSE", "GORELI_RMSE")]
+sonuc$ozet[, c("gosterge", "KAYNAK", "P", "PENCERE", "YONTEM", "RMSE", "THEIL_U")]
 
 ```
 
@@ -982,7 +968,7 @@ if (nzchar(eski_evds)) Sys.setenv(EVDS_API_KEY = eski_evds) else Sys.unsetenv("E
 rm(list = intersect(ls(), c(
   "config_yolu", "utils_yolu", "prep_yolu", "models_yolu", "eski_fred", "eski_evds", "sahte", "sahte_api",
   "yukle_modeller", "u", "gecici", "hazir_yol", "sonuc_yolu", "eski_secim", "eski_otomatik", "tr", "hazir",
-  "ga", "satirlar", "ifadeler", "tanimlar", "ham_bayt", "metin", "dene", "e1", "e2", "e3", "mesajlar",
+  "ga", "satirlar", "ifadeler", "tanimlar", "ham_bayt", "metin", "dene", "e1", "e2", "e3", "e4", "mesajlar",
   "uyarilar", "tanimli_mi", "cfg", "notlar", "gr", "th", "m_ar", "ps_aic", "ps_bic", "n_ga", "kisa", "w",
   "s", "d2", "f2", "m1", "s12", "mt", "f", "egitim", "m_f", "yeni", "f1", "d1", "m1b", "phi", "z", "gen",
   "f60", "eski_guven", "f80", "sabit", "f_s", "ms", "s_ms", "son_tarihler", "ms0", "h", "sonuc",

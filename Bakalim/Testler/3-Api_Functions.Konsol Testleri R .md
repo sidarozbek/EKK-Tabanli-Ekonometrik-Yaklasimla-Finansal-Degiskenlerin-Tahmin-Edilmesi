@@ -11,9 +11,10 @@ list.files("R")
 * [ ] Dosyaların tam yollarını değişkenlere yaz (adları farklıysa listede gördüğün adlarla değiştir):
 
 ```r
-config_yolu <- normalizePath("R/config.R", winslash = "/")
-utils_yolu  <- normalizePath("R/utils.R", winslash = "/")
-api_yolu    <- normalizePath("R/api_functions.R", winslash = "/")
+config_yolu <- file.path(getwd(), "config.R")
+utils_yolu  <- file.path(getwd(), "utils.R")
+api_yolu    <- file.path(getwd(), "api_functions.R")
+
 file.exists(c(config_yolu, utils_yolu, api_yolu))
 
 ```

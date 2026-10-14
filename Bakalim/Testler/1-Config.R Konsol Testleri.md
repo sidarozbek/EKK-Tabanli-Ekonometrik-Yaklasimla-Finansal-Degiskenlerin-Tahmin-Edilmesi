@@ -11,7 +11,9 @@ file.exists("R/config.R")
 * [ ] Config dosyasının tam yolunu bir değişkene yaz (çalışma dizini değişse de doğru dosyayı göstersin diye):
 
 ```r
-config_yolu <- normalizePath("R/config.R", winslash = "/")
+config_yolu <- file.path(getwd(), "config.R")
+
+file.exists(config_yolu)
 
 ```
 
@@ -298,7 +300,7 @@ sort(sapply(cfg_ortam$CONFIG, function(x) round(as.numeric(object.size(x)) / 102
 
 ## 10) Global ortama bıraktıkları
 
-* [ ] config.R'ın oluşturduğu tüm nesneleri listele; yalnızca `CONFIG`, `.proje_koku`, `.fred_key`, `.evds_key` olmalı:
+* [ ] config.R'ın oluşturduğu tüm nesneleri listele; yalnızca `CONFIG`, `.proje_koku`, `anahtar_oku`, `frekans_ayari`, `kaynak_kullanilabilir` olmalı:
 
 ```r
 ls(cfg_ortam, all.names = TRUE)
@@ -308,7 +310,8 @@ ls(cfg_ortam, all.names = TRUE)
 * [ ] Beklenmeyen nesne olmadığını kontrol et; `character(0)` döndürmeli:
 
 ```r
-setdiff(ls(cfg_ortam, all.names = TRUE), c("CONFIG", ".proje_koku", ".fred_key", ".evds_key"))
+setdiff(ls(cfg_ortam, all.names = TRUE),
+        c("CONFIG", ".proje_koku", "anahtar_oku", "frekans_ayari", "kaynak_kullanilabilir"))
 
 ```
 
@@ -429,7 +432,6 @@ sapply(list(
   yeniden_deneme_bekleme   = cfg$baglanti$yeniden_deneme_bekleme,
   cache_tazelik_gun        = cfg$veri$cache_tazelik_gun,
   min_gozlem               = cfg$veri$min_gozlem,
-  hampel_esigi             = cfg$veri$hampel_esigi,
   lag_sayisi               = cfg$model$lag_sayisi,
   pencere_uzunlugu         = cfg$model$pencere_uzunlugu,
   capraz_min_n             = cfg$model$capraz_min_n,
